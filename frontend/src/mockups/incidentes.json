@@ -1,0 +1,27 @@
+[
+    {
+      "id_incidentes": 1,
+      "supervisor_asignado": "11222333-4",
+      "lugar": "Bodega A",
+      "estado": "en revisión",
+      "prioridad": "alta",
+      "gravedad": "media",
+      "fecha_incidente": "2025-04-25T10:30:00Z",
+      "firmado": false,
+      "descripcion": "El robot dejó de responder durante la carga.",
+      "fecha_resolucion": null
+    },
+    {
+      "id_incidentes": 2,
+      "supervisor_asignado": "55667788-9",
+      "lugar": "Bodega B",
+      "estado": "resuelto",
+      "prioridad": "media",
+      "gravedad": "baja",
+      "fecha_incidente": "2025-04-24T15:45:00Z",
+      "firmado": true,
+      "descripcion": "Sensor de movimiento falló durante la operación.",
+      "fecha_resolucion": "2025-04-25T09:00:00Z"
+    }
+  ]
+  

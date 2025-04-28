@@ -1,0 +1,17 @@
+[
+    {
+      "id_robot": 1,
+      "id_incidente": 1,
+      "ficha_robot": {
+        "descripcion": "El robot dejó de responder durante la carga. Se arregló blabla"
+      }
+    },
+    {
+      "id_robot": 2,
+      "id_incidente": 2,
+      "ficha_robot": {
+        "descripcion": "El robot dejó de responder durante la carga. Se arregló blabla"
+      }
+    }
+  ]
+  

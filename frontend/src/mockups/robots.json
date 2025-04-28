@@ -1,0 +1,13 @@
+[
+    {
+      "id_robot": 1,
+      "lugar_trabajo": "pasillo 1",
+      "estado": "operativo"
+    },
+    {
+      "id_robot": 2,
+      "lugar_trabajo": "sector 3",
+      "estado": "en reparación"
+    }
+  ]
+  
