@@ -6,11 +6,12 @@ html, body {
   margin: 0;
   box-sizing: border-box;
   background-color: #faf8f5;
-  color: #000;
+  color: #474747
 }
 
 body {
   overflow-y: scroll;
+
 }
 
 
