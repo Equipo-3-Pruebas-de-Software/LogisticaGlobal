@@ -1,5 +1,3 @@
-// components/Link.jsx
-import React from 'react';
 import { NavLink } from 'react-router';
 
 export const Link = ({ icon, link, text, style}) => {
