@@ -1,6 +1,6 @@
 [
   {
-    "id_incidentes": 101,
+    "id": 101,
     "supervisor_asignado": "11222333-4",
     "lugar": "Bodega A",
     "estado": "en espera de aprobación",
@@ -12,7 +12,7 @@
     "fecha_resolucion": null
   },
   {
-    "id_incidentes": 102,
+    "id": 102,
     "supervisor_asignado": "55667788-9",
     "lugar": "Puerto",
     "estado": "resuelto",
@@ -22,5 +22,141 @@
     "firmado": 1,
     "descripcion": "El sensor del robot presentó lecturas erráticas.",
     "fecha_resolucion": "2025-04-25T09:00:00Z"
+  },
+  {
+    "id": 103,
+    "lugar": "Taller de mantenimiento",
+    "estado": "técnico asignado",
+    "prioridad": "alta",
+    "gravedad": "alta",
+    "fecha_incidente": "2025-04-26T08:20:00Z",
+    "firmado": 0,
+    "descripcion": "Fallo en el sistema hidráulico del brazo robótico.",
+    "fecha_resolucion": null
+  },
+  {
+    "id": 104,
+    "supervisor_asignado": "11222333-4",
+    "lugar": "Bodega B",
+    "estado": "en espera de aprobación",
+    "prioridad": "baja",
+    "gravedad": "baja",
+    "fecha_incidente": "2025-04-20T11:10:00Z",
+    "firmado": 0,
+    "descripcion": "El robot emitió un pitido continuo sin razón aparente.",
+    "fecha_resolucion": null
+  },
+  {
+    "id": 105,
+    "supervisor_asignado": "44332211-0",
+    "lugar": "Zona de carga",
+    "estado": "resuelto",
+    "prioridad": "media",
+    "gravedad": "media",
+    "fecha_incidente": "2025-04-22T14:00:00Z",
+    "firmado": 1,
+    "descripcion": "Error en el sistema de navegación del robot.",
+    "fecha_resolucion": "2025-04-23T13:30:00Z"
+  },
+  {
+    "id": 106,
+    "lugar": "Puerto",
+    "estado": "creado",
+    "fecha_incidente": "2025-04-26T07:45:00Z",
+    "firmado": 0,
+    "descripcion": "El robot colisionó con una estructura metálica.",
+    "fecha_resolucion": null
+  },
+  {
+    "id": 107,
+    "supervisor_asignado": "33221100-1",
+    "lugar": "Planta de reciclaje",
+    "estado": "resuelto",
+    "prioridad": "baja",
+    "gravedad": "media",
+    "fecha_incidente": "2025-04-21T09:30:00Z",
+    "firmado": 1,
+    "descripcion": "Desalineación de las ruedas motrices.",
+    "fecha_resolucion": "2025-04-22T08:00:00Z"
+  },
+  {
+    "id": 108,
+    "supervisor_asignado": "11222333-4",
+    "lugar": "Bodega A",
+    "estado": "en espera de aprobación",
+    "prioridad": "alta",
+    "gravedad": "media",
+    "fecha_incidente": "2025-04-25T10:30:00Z",
+    "firmado": 0,
+    "descripcion": "El robot dejó de responder mientras movía carga.",
+    "fecha_resolucion": null
+  },
+  {
+    "id": 109,
+    "supervisor_asignado": "55667788-9",
+    "lugar": "Puerto",
+    "estado": "resuelto",
+    "prioridad": "media",
+    "gravedad": "baja",
+    "fecha_incidente": "2025-04-24T15:45:00Z",
+    "firmado": 1,
+    "descripcion": "El sensor del robot presentó lecturas erráticas.",
+    "fecha_resolucion": "2025-04-25T09:00:00Z"
+  },
+  {
+    "id": 110,
+    "lugar": "Taller de mantenimiento",
+    "estado": "técnico asignado",
+    "prioridad": "alta",
+    "gravedad": "alta",
+    "fecha_incidente": "2025-04-26T08:20:00Z",
+    "firmado": 0,
+    "descripcion": "Fallo en el sistema hidráulico del brazo robótico.",
+    "fecha_resolucion": null
+  },
+  {
+    "id": 111,
+    "supervisor_asignado": "11222333-4",
+    "lugar": "Bodega B",
+    "estado": "en espera de aprobación",
+    "prioridad": "baja",
+    "gravedad": "baja",
+    "fecha_incidente": "2025-04-20T11:10:00Z",
+    "firmado": 0,
+    "descripcion": "El robot emitió un pitido continuo sin razón aparente.",
+    "fecha_resolucion": null
+  },
+  {
+    "id": 112,
+    "supervisor_asignado": "44332211-0",
+    "lugar": "Zona de carga",
+    "estado": "resuelto",
+    "prioridad": "media",
+    "gravedad": "media",
+    "fecha_incidente": "2025-04-22T14:00:00Z",
+    "firmado": 1,
+    "descripcion": "Error en el sistema de navegación del robot.",
+    "fecha_resolucion": "2025-04-23T13:30:00Z"
+  },
+  {
+    "id": 113,
+    "lugar": "Puerto",
+    "estado": "creado",
+    "fecha_incidente": "2025-04-26T07:45:00Z",
+    "firmado": 0,
+    "descripcion": "El robot colisionó con una estructura metálica.",
+    "fecha_resolucion": null
+  },
+  {
+    "id": 114,
+    "supervisor_asignado": "33221100-1",
+    "lugar": "Planta de reciclaje",
+    "estado": "resuelto",
+    "prioridad": "baja",
+    "gravedad": "media",
+    "fecha_incidente": "2025-04-21T09:30:00Z",
+    "firmado": 1,
+    "descripcion": "Desalineación de las ruedas motrices.",
+    "fecha_resolucion": "2025-04-22T08:00:00Z"
   }
 ]
