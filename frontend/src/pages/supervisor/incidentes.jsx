@@ -4,3 +4,13 @@
 
 // Maybe al darle click, se abra un modal que muestre todos los detalles
 // Te pide el seguimiento tipo starken con marcas de tiempo
+
+export const Incidentes = () => {
+
+
+    return (
+      <h1>incidentes</h1>
+    )
+  }
+  
+  export default Incidentes;
