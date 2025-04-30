@@ -1,0 +1,17 @@
+.table-container {
+    flex: 1;
+    margin-top: 20px;
+}
+
+.pagination-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-top: 10px;
+}
+
+@media (max-width: 768px) {
+    .table-container {
+        display: none;
+    }
+  }
