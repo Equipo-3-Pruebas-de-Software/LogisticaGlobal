@@ -6,6 +6,7 @@ import Incidentes from "./pages/supervisor/incidentes";
 
 import TecnicoLayout from "./pages/tecnico/tecnicolayout";
 import TecnicoRobots from "./pages/tecnico/robots_asignados";
+import RobotsAsignados from "./pages/tecnico/robots_asignados";
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
       {/* Técnico */}
       <Route path="/tecnico" element={<TecnicoLayout />}>
         <Route index element={<TecnicoRobots />} />
+        <Route path="/tecnico/robots" element={<RobotsAsignados />} />
       </Route>
     </Routes>
   );
