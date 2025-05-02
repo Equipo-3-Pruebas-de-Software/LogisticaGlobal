@@ -1,0 +1,31 @@
+.table-container {
+  padding: 20px;
+}
+
+.link-button {
+  background: none;
+  border: none;
+  color: #007bff;
+  cursor: pointer;
+}
+
+.link-button:disabled {
+  color: #ccc;
+  cursor: not-allowed;
+}
+
+.robots-table th,
+.robots-table td {
+  border: 1px solid #ccc;
+  padding: 10px;
+  text-align: left;
+}
+
+.robots-table th {
+  background-color: #426b95;
+  color: white;
+}
+
+.robots-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
