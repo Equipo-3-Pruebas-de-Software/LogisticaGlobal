@@ -1,4 +1,5 @@
 @import './supervisor/index.css';
+@import './tecnico/index.css';
 @import './components/index.css';
 
 html, body {

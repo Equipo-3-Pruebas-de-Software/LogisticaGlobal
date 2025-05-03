@@ -1,0 +1,15 @@
+.robots-table th,
+.robots-table td {
+  border: 1px solid #ccc;
+  padding: 10px;
+  text-align: left;
+}
+
+.robots-table th {
+  background-color: #426b95;
+  color: white;
+}
+
+.robots-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
