@@ -1,4 +1,9 @@
 import { Routes, Route } from "react-router";
+import { PrimeReactProvider, PrimeReactContext } from 'primereact/api';
+import 'primereact/resources/themes/lara-light-indigo/theme.css'; //theme
+import 'primereact/resources/primereact.min.css'; //core css
+
+        
 import Login from "./pages/login";
 import SupervisorLayout from "./pages/supervisor/supervisorlayout";
 import SupervisorDashboard from "./pages/supervisor/dashboard";
