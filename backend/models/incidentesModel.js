@@ -15,7 +15,7 @@ const createIncidente = ({ lugar, descripcion }, callback) => {
 const updateIncidenteAsignacion = ({id_incidente, supervisor_asignado, prioridad, gravedad }, callback) => {
   const query = `
     UPDATE incidentes
-    SET supervisor_asignado = ?, prioridad = ?, gravedad = ?
+    SET supervisor_asignado = ?, prioridad = ?, gravedad = ?, fecha_tecnico_asignado = CURRENT_TIMESTAMP, estado = 'técnico asignado'
     WHERE id_incidentes = ?
   `;
   db.query(query, [supervisor_asignado, prioridad, gravedad, id_incidente], callback);
