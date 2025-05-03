@@ -11,4 +11,18 @@ const createIncidente = ({ lugar, descripcion }, callback) => {
   });
 };
 
-module.exports = { createIncidente };
+
+const updateIncidenteAsignacion = ({id_incidente, supervisor_asignado, prioridad, gravedad }, callback) => {
+  const query = `
+    UPDATE incidentes
+    SET supervisor_asignado = ?, prioridad = ?, gravedad = ?
+    WHERE id_incidentes = ?
+  `;
+  db.query(query, [supervisor_asignado, prioridad, gravedad, id_incidente], callback);
+};
+
+module.exports = {
+  createIncidente,
+  updateIncidenteAsignacion
+};
+

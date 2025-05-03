@@ -1,5 +1,5 @@
 const db = require('../config/db');
-const { createIncidente } = require('../models/incidentesModel');
+const { createIncidente, updateIncidenteAsignacion } = require('../models/incidentesModel');
 const { addRobotToIncidente } = require('../models/incidentesRobotsTecnicosModel');
 const { updateEstadoRobot } = require('../models/robotsModel');
 
@@ -38,4 +38,29 @@ const createIncidenteWithRobots = (req, res) => {
   });
 };
 
-module.exports = { createIncidenteWithRobots };
+const updateIncident = (req, res) => {
+    const { id_incidente, supervisor_asignado, prioridad, gravedad } = req.body;
+  
+    if (!id_incidente || !supervisor_asignado || prioridad === undefined || !gravedad) {
+      return res.status(400).json({ error: 'Datos incompletos para asignación' });
+    }
+    console.log(id_incidente)
+    updateIncidenteAsignacion({ id_incidente, supervisor_asignado, prioridad, gravedad }, (err, result) => {
+      if (err) {
+        console.error('[UPDATE ERROR]', err.sqlMessage);
+        return res.status(500).json({ error: 'Error actualizando incidente' });
+      }
+  
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ error: 'Incidente no encontrado' });
+      }
+  
+      res.json({ success: true, message: 'Incidente actualizado correctamente' });
+    });
+};
+
+module.exports = {
+    createIncidenteWithRobots,
+    updateIncident
+  };
+  
