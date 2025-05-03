@@ -8,4 +8,15 @@ const addRobotToIncidente = (id_robot, id_incidente, callback) => {
   db.query(query, [id_robot, id_incidente], callback);
 };
 
-module.exports = { addRobotToIncidente };
+const readIncidenteRobotsTecnicos = (id_incidente, callback) => {
+  const query = 'SELECT * FROM incidentes_robots_tecnicos WHERE id_incidente = ?';
+  db.query(query, [id_incidente], (err, results) => {
+    if (err) return callback(err);
+    callback(null, results);
+  });
+};
+
+module.exports = {
+  addRobotToIncidente,
+  readIncidenteRobotsTecnicos
+};

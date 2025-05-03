@@ -1,6 +1,6 @@
 const db = require('../config/db');
-const { createIncidente, updateIncidenteAsignacion } = require('../models/incidentesModel');
-const { addRobotToIncidente } = require('../models/incidentesRobotsTecnicosModel');
+const { createIncidente, updateIncidenteAsignacion, readIncidente } = require('../models/incidentesModel');
+const { addRobotToIncidente, readIncidenteRobotsTecnicos } = require('../models/incidentesRobotsTecnicosModel');
 const { updateEstadoRobot } = require('../models/robotsModel');
 
 const createIncidenteWithRobots = (req, res) => {
@@ -59,8 +59,38 @@ const updateIncident = (req, res) => {
     });
 };
 
+const getIncidente = (req, res) => {
+  const { id_incidente } = req.body;
+
+  if (!id_incidente) {
+    return res.status(400).json({ error: 'Falta id_incidente' });
+  }
+
+  readIncidente(id_incidente, (err, incidente) => {
+    if (err) {
+      console.error('[GET INCIDENTE]', err.sqlMessage);
+      return res.status(500).json({ error: 'Error obteniendo incidente' });
+    }
+
+    if (!incidente) {
+      return res.status(404).json({ error: 'Incidente no encontrado' });
+    }
+
+    readIncidenteRobotsTecnicos(id_incidente, (err2, detalles) => {
+      if (err2) {
+        console.error('[GET DETALLES]', err2.sqlMessage);
+        return res.status(500).json({ error: 'Error obteniendo detalles' });
+      }
+
+      res.json({ incidente, detalles });
+    });
+  });
+};
+
+
 module.exports = {
     createIncidenteWithRobots,
-    updateIncident
+    updateIncident,
+    getIncidente
   };
   
