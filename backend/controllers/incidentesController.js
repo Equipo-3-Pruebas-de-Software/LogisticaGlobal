@@ -1,6 +1,6 @@
 const db = require('../config/db');
 const { createIncidente } = require('../models/incidentesModel');
-const { addRobotToIncidente } = require('../models/incidentesRobotsModel');
+const { addRobotToIncidente } = require('../models/incidentesRobotsTecnicosModel');
 const { updateEstadoRobot } = require('../models/robotsModel');
 
 const createIncidenteWithRobots = (req, res) => {
