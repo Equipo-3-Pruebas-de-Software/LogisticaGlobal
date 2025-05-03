@@ -21,8 +21,18 @@ const updateIncidenteAsignacion = ({id_incidente, supervisor_asignado, prioridad
   db.query(query, [supervisor_asignado, prioridad, gravedad, id_incidente], callback);
 };
 
+
+const readIncidente = (id_incidente, callback) => {
+  const query = 'SELECT * FROM incidentes WHERE id_incidentes = ?';
+  db.query(query, [id_incidente], (err, results) => {
+    if (err) return callback(err);
+    callback(null, results[0] || null);
+  });
+};
+
 module.exports = {
   createIncidente,
-  updateIncidenteAsignacion
+  updateIncidenteAsignacion,
+  readIncidente
 };
 
