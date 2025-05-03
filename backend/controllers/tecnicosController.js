@@ -10,4 +10,6 @@ const getTecnicos = (req, res) => {
   });
 };
 
-module.exports = { getTecnicos };
+module.exports = {
+  getTecnicos
+};

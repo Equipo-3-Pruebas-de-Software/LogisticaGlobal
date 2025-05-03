@@ -7,4 +7,6 @@ const updateEstadoRobot = (id_robot, estado, callback) => {
   db.query(query, [estado, id_robot], callback);
 };
 
-module.exports = { updateEstadoRobot };
+module.exports = {
+  updateEstadoRobot
+};

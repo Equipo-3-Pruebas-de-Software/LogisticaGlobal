@@ -16,7 +16,18 @@ const readIncidenteRobotsTecnicos = (id_incidente, callback) => {
   });
 };
 
+const assignTecnicoToRobot = (id_incidente, id_robot, rut_tecnico, callback) => {
+  const query = `
+    UPDATE incidentes_robots_tecnicos
+    SET rut_tecnico = ?, fecha_asignacion = CURRENT_TIMESTAMP
+    WHERE id_incidente = ? AND id_robot = ?
+  `;
+  db.query(query, [rut_tecnico, id_incidente, id_robot], callback);
+};
+
+
 module.exports = {
   addRobotToIncidente,
-  readIncidenteRobotsTecnicos
+  readIncidenteRobotsTecnicos,
+  assignTecnicoToRobot
 };
