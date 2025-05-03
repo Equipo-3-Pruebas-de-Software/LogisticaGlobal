@@ -1,19 +1,3 @@
-.table-container {
-  padding: 20px;
-}
-
-.link-button {
-  background: none;
-  border: none;
-  color: #007bff;
-  cursor: pointer;
-}
-
-.link-button:disabled {
-  color: #ccc;
-  cursor: not-allowed;
-}
-
 .robots-table th,
 .robots-table td {
   border: 1px solid #ccc;
