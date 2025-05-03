@@ -1,5 +1,3 @@
-import React from 'react';
-import './login.css';
 import LoginHeader from '../components/general/loginheader'; // Importa el nuevo topbar
 
 const Login = () => {

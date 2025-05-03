@@ -5,7 +5,6 @@ import incidentesData from "../../mockups/incidentes.json";
 import ModalIncidentes from "./ModalIncidentes";
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
-import { Calendar } from 'primereact/calendar';
 
 export const Incidentes = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -55,15 +54,12 @@ export const Incidentes = () => {
     return filteredData.sort((b, a) => new Date(a.fecha_creado) - new Date(b.fecha_creado));
   };
   
-
   const filteredIncidentes = filterIncidentes(incidentesData);
   const totalPages = Math.ceil(filteredIncidentes.length / rowsPerPage);
   const startIndex = (currentPage - 1) * rowsPerPage;
   const visibleIncidentes = filteredIncidentes.slice(startIndex, startIndex + rowsPerPage);
 
   const uniqueValues = (key) => [...new Set(incidentesData.map(i => i[key]).filter(Boolean))];
-
-  console.log("Filtered Incidentes:", filteredIncidentes);
 
   return (
     <>

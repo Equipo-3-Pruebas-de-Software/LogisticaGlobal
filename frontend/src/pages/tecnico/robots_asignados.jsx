@@ -5,7 +5,6 @@
 import { useEffect, useRef, useState } from "react";
 import Tables from "../../components/general/tables";
 import robots from "../../mockups/robots.json"; // Archivo JSON simulado con datos de robots asignados
-import "./robots_asignados.css";
 
 export const RobotsAsignados = () => {
   const [currentPage, setCurrentPage] = useState(1);
