@@ -16,7 +16,7 @@ export const ModalIncidentes = ({onClose, incidente}) => {
 
     const events = [
         { status: 'Creado', date: formatFecha(incidente.fecha_creado)},
-        { status: 'Técnico Asignado', date: formatFecha(incidente.fecha_tecnico_asignado)},
+        { status: 'Técnico asignado', date: formatFecha(incidente.fecha_tecnico_asignado)},
         { status: 'En espera de aprobación', date: formatFecha(incidente.fecha_espera_aprovacion)},
         { status: 'Resuelto', date: formatFecha(incidente.fecha_resuelto)}
     ];
