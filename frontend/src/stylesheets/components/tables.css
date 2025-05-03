@@ -14,7 +14,7 @@ thead tr th {
 }
 
 tbody tr td {
-    padding: 0.5rem;
+    padding: 0.6rem;
     border-top: 1px solid #f0eeee;
 
     &:first-letter {
@@ -25,7 +25,6 @@ tbody tr td {
 
 .btn-icon {
     display: inline-block;
-    padding: 0.5rem;
     border-radius: 4px;
     color: #426B95;
     text-decoration: none;
