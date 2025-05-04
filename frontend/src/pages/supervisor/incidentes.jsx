@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { formatFecha } from "../../utils/date";
 import Tables from "../../components/general/tables";
-import incidentesData from "../../mockups/incidentes.json";
 import ModalIncidentes from "./ModalIncidentes";
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 
 export const Incidentes = () => {
+  const [incidentes, setIncidentes] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [isModalOpen, setModalOpen] = useState(false);
@@ -15,6 +15,38 @@ export const Incidentes = () => {
   const [filters, setFilters] = useState({ lugar: null, estado: null, prioridad: null, gravedad: null, fechaInicio: null, fechaFin: null });
 
   const tableRef = useRef(null);
+
+  const uniqueValues = (key) => {
+    const seen = new Map();
+  
+    incidentes?.forEach(i => {
+      const value = i[key];
+      if (typeof value === 'string' && value.trim() !== "") {
+        const lower = value.toLowerCase();
+        if (!seen.has(lower)) {
+          seen.set(lower, value); // guarda la primera aparición
+        }
+      }
+    });
+  
+    return Array.from(seen.values());
+  };
+
+  useEffect(() => {
+    fetch('/incidentes')
+      .then((response) => {
+        if (!response.ok) throw new Error('Error al obtener incidentes');
+        return response.json();
+      })
+      .then((data) => {
+        setIncidentes(data); 
+      })
+      .catch((error) => {
+        console.error('[ERROR FETCH INCIDENTES]', error);
+      });
+  }, []);
+
+  console.log(incidentes);
 
   useEffect(() => {
     const updateRowsPerPage = () => {
@@ -42,7 +74,7 @@ export const Incidentes = () => {
   };
 
   const filterIncidentes = (data) => {
-    const filteredData = data.filter(i => {
+    const filteredData = data?.filter(i => {
       const matchEstado = !filters.estado || i.estado === filters.estado;
       const matchPrioridad = !filters.prioridad || i.prioridad === filters.prioridad;
       const matchGravedad = !filters.gravedad || i.gravedad === filters.gravedad;
@@ -51,15 +83,13 @@ export const Incidentes = () => {
     });
   
     // Ordenar los incidentes por fecha ascendente
-    return filteredData.sort((b, a) => new Date(a.fecha_creado) - new Date(b.fecha_creado));
+    return filteredData?.sort((b, a) => new Date(a.fecha_creado) - new Date(b.fecha_creado));
   };
   
-  const filteredIncidentes = filterIncidentes(incidentesData);
-  const totalPages = Math.ceil(filteredIncidentes.length / rowsPerPage);
+  const filteredIncidentes = filterIncidentes(incidentes);
+  const totalPages = Math.ceil(filteredIncidentes?.length / rowsPerPage);
   const startIndex = (currentPage - 1) * rowsPerPage;
-  const visibleIncidentes = filteredIncidentes.slice(startIndex, startIndex + rowsPerPage);
-
-  const uniqueValues = (key) => [...new Set(incidentesData.map(i => i[key]).filter(Boolean))];
+  const visibleIncidentes = filteredIncidentes?.slice(startIndex, startIndex + rowsPerPage);
 
   return (
     <>
@@ -106,19 +136,16 @@ export const Incidentes = () => {
             </>
           }
           main={
-            visibleIncidentes.map((incidente) => (
-              <tr key={incidente.id}>
-                <td>{incidente.id}</td>
+            visibleIncidentes?.map((incidente) => (
+              <tr key={incidente.id_incidentes}>
+                <td>{incidente.id_incidentes}</td>
                 <td>{incidente.lugar}</td>
                 <td>{formatFecha(incidente.fecha_creado)}</td>
                 <td>{incidente.estado}</td>
                 
                 {incidente.prioridad? 
-                  <td className={`prioridad-${incidente.prioridad?.toLowerCase()}`}>
-                    <div>
-                      <svg  xmlns="http://www.w3.org/2000/svg"  width={8}  height={8}  viewBox="0 0 24 24"  fill="currentColor"  className="icon icon-tabler icons-tabler-filled icon-tabler-circle"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 3.34a10 10 0 1 1 -4.995 8.984l-.005 -.324l.005 -.324a10 10 0 0 1 4.995 -8.336z" /></svg>
-                        <p>{incidente.prioridad}</p>
-                    </div>
+                  <td>
+                    <p>{incidente.prioridad}</p>
                   </td> : <td></td>
                 }
                     

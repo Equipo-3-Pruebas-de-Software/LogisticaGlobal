@@ -1,5 +1,5 @@
 const db = require('../config/db');
-const { createIncidente, updateIncidenteAsignacion, readIncidente } = require('../models/incidentesModel');
+const { createIncidente, updateIncidenteAsignacion, readIncidente, readAllIncidentes } = require('../models/incidentesModel');
 const { addRobotToIncidente, readIncidenteRobotsTecnicos } = require('../models/incidentesRobotsTecnicosModel');
 const { updateEstadoRobot } = require('../models/robotsModel');
 
@@ -60,7 +60,7 @@ const updateIncident = (req, res) => {
 };
 
 const getIncidente = (req, res) => {
-  const { id_incidente } = req.body;
+  const { id_incidente } = req.params;
 
   if (!id_incidente) {
     return res.status(400).json({ error: 'Falta id_incidente' });
@@ -87,10 +87,20 @@ const getIncidente = (req, res) => {
   });
 };
 
+const getAllIncidentes = async (req, res) => {
+  try {
+    const incidentes = await readAllIncidentes();
+    res.status(200).json(incidentes);
+  } catch (error) {
+    console.error('Error al obtener incidentes:', error);
+    res.status(500).json({ message: 'Error al obtener incidentes' });
+  }
+};
 
 module.exports = {
     createIncidenteWithRobots,
     updateIncident,
-    getIncidente
+    getIncidente,
+    getAllIncidentes
   };
   

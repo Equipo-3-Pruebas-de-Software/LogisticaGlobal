@@ -30,9 +30,21 @@ const readIncidente = (id_incidente, callback) => {
   });
 };
 
+const readAllIncidentes = () => {
+  const query = 'SELECT * FROM incidentes';
+  return new Promise((resolve, reject) => {
+    db.query(query, (err, results) => {
+      if (err) return reject(err);
+      resolve(results);
+    });
+  });
+};
+
+
 module.exports = {
   createIncidente,
   updateIncidenteAsignacion,
-  readIncidente
+  readIncidente,
+  readAllIncidentes
 };
 
