@@ -1,9 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const { createIncidenteWithRobots, updateIncident, getIncidente } = require('../controllers/incidentesController');
+const { createIncidenteWithRobots, updateIncident, getIncidente, getAllIncidentes } = require('../controllers/incidentesController');
 
-router.get('/', getIncidente);
+router.get('/', getAllIncidentes);
+router.get('/:id_incidente', getIncidente);
 router.post('/', createIncidenteWithRobots);
 router.patch('/', updateIncident);
+
 
 module.exports = router;

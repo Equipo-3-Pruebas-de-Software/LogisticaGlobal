@@ -79,4 +79,11 @@
     grid-area: timeline;
     align-self: center;
 }
-  
+
+.robot-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin: 0.5rem 0rem;
+}	

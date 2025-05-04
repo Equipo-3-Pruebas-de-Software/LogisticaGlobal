@@ -13,6 +13,9 @@ import TecnicoLayout from "./pages/tecnico/tecnicolayout";
 import TecnicoRobots from "./pages/tecnico/robots_asignados";
 import RobotsAsignados from "./pages/tecnico/robots_asignados";
 
+import JefeDeTurnoLayout from "./pages/jefe_de_turno/jefedeturnolayout";
+import JefeDeTurno from "./pages/jefe_de_turno/Dashboard";
+
 function App() {
   return (
     <Routes>
@@ -29,6 +32,12 @@ function App() {
         <Route index element={<TecnicoRobots />} />
         <Route path="/tecnico/robots" element={<RobotsAsignados />} />
       </Route>
+
+      {/* Técnico */}
+      <Route path="/jefe-de-turno" element={<JefeDeTurnoLayout />}>
+        <Route index element={<JefeDeTurno />} />
+      </Route>
+
     </Routes>
   );
 }

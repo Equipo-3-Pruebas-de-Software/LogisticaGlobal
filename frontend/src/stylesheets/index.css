@@ -1,6 +1,8 @@
 @import './supervisor/index.css';
 @import './tecnico/index.css';
 @import './components/index.css';
+@import './jefe_de_turno/index.css';
+@import './login.css';
 
 html, body {
   padding: 0;
