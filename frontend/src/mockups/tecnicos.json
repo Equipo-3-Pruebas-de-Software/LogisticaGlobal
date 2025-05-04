@@ -1,0 +1,13 @@
+[
+    {
+      "rut": "12345678-9",
+      "nombre": "Juan Pérez",
+      "disponibilidad": true
+    },
+    {
+      "rut": "98765432-1",
+      "nombre": "María Soto",
+      "disponibilidad": false
+    }
+  ]
+  

@@ -1,0 +1,38 @@
+@import './supervisor/index.css';
+@import './tecnico/index.css';
+@import './components/index.css';
+@import './jefe_de_turno/index.css';
+@import './login.css';
+
+html, body {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  background-color: #faf8f5;
+  color: #474747
+}
+
+body {
+  overflow-y: auto;
+}
+
+
+* {
+  font-family: Roboto, sans-serif;
+}
+
+
+p {
+  text-wrap: pretty;
+  margin: 0;
+}
+
+h1, h2, h3, h4, h5 {
+  text-wrap: balance;
+  margin: 0;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}	

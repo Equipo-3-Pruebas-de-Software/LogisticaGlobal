@@ -1,0 +1,94 @@
+table {
+    width: 100%;
+    text-align: left;
+    background-color: #ffffff;
+    padding: 10px 20px;
+    box-shadow: 0px 0px 15px -6px rgba(0,0,0,0.1);
+}
+
+thead tr th {
+    padding: 0.5rem;
+    color: #b8bcc7;
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+tbody tr td {
+    padding: 0.6rem;
+    border-top: 1px solid #f0eeee;
+
+    &:first-letter {
+        text-transform: capitalize;
+    }
+
+}
+
+.btn-icon {
+    display: inline-block;
+    border-radius: 4px;
+    color: #426B95;
+    text-decoration: none;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    transition: color 0.5s ease; 
+
+    :hover {
+        color: #5C90C5;
+        transition: color 0.5s ease; 
+    }
+}	
+  
+.gravedad-alta, .prioridad-alta{
+    text-transform: capitalize;
+
+    div {
+        display: flex;
+        align-items: center;
+        color: rgb(221, 92, 92);
+
+        svg {
+            margin-right: 0.2rem;
+        }	
+
+        p {
+            flex: 1;
+        }	
+    }	
+  }
+
+  .gravedad-media, .prioridad-media{
+    text-transform: capitalize;
+
+    div {
+        display: flex;
+        align-items: center;
+        color: rgb(245, 203, 89);
+
+        svg {
+            margin-right: 0.2rem;
+        }	
+
+        p {
+            flex: 1;
+        }	
+    }	
+  }
+
+  .gravedad-baja, .prioridad-baja{
+    text-transform: capitalize;
+
+    div {
+        display: flex;
+        align-items: center;
+        color: rgb(35, 155, 65);
+
+        svg {
+            margin-right: 0.2rem;
+        }	
+
+        p {
+            flex: 1;
+        }	
+    }	
+  }

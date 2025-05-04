@@ -1,0 +1,24 @@
+
+.link-button {
+    background-color: #426B95;
+    color: #fff;
+    padding: 5px 10px;
+    margin: 0px 5px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+
+
+    &:hover {
+        background-color: #6C9BCA;
+        transition: background-color 0.3s ease;
+
+    }
+
+}
+
+.link-button:disabled {
+    background-color: #6C9BCA;
+    cursor: not-allowed;
+}

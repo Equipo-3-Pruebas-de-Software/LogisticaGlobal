@@ -1,35 +1,45 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { Routes, Route } from "react-router";
+import { PrimeReactProvider, PrimeReactContext } from 'primereact/api';
+import 'primereact/resources/themes/lara-light-indigo/theme.css'; //theme
+import 'primereact/resources/primereact.min.css'; //core css
+
+        
+import Login from "./pages/login";
+import SupervisorLayout from "./pages/supervisor/supervisorlayout";
+import SupervisorDashboard from "./pages/supervisor/dashboard";
+import Incidentes from "./pages/supervisor/incidentes";
+
+import TecnicoLayout from "./pages/tecnico/tecnicolayout";
+import TecnicoRobots from "./pages/tecnico/robots_asignados";
+import RobotsAsignados from "./pages/tecnico/robots_asignados";
+
+import JefeDeTurnoLayout from "./pages/jefe_de_turno/jefedeturnolayout";
+import JefeDeTurno from "./pages/jefe_de_turno/Dashboard";
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <Routes>
+      <Route path="/" element={<Login />} />
+
+      {/* Supervisor */}
+      <Route path="/supervisor" element={<SupervisorLayout />}>
+        <Route index element={<SupervisorDashboard />} />
+        <Route path="incidentes" element={<Incidentes />} />
+      </Route>
+
+      {/* Técnico */}
+      <Route path="/tecnico" element={<TecnicoLayout />}>
+        <Route index element={<TecnicoRobots />} />
+        <Route path="/tecnico/robots" element={<RobotsAsignados />} />
+      </Route>
+
+      {/* Técnico */}
+      <Route path="/jefe_turno" element={<JefeDeTurnoLayout />}>
+        <Route index element={<JefeDeTurno />} />
+      </Route>
+
+    </Routes>
+  );
 }
 
-export default App
+export default App;
