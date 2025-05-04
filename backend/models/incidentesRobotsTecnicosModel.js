@@ -25,9 +25,34 @@ const assignTecnicoToRobot = (id_incidente, id_robot, rut_tecnico, callback) => 
   db.query(query, [rut_tecnico, id_incidente, id_robot], callback);
 };
 
+const addFicha = (id_incidente, id_robot, descripcion, callback) => {
+  const query = `
+    UPDATE incidentes_robots_tecnicos
+    SET descripcion = ?
+    WHERE id_robot = ? AND id_incidente = ?
+  `;
+  db.query(query, [descripcion, id_robot, id_incidente], callback);
+};
+
+const checkFinished = (id_incidente, callback) => {
+  const query = `
+    SELECT COUNT(*) AS faltantes
+    FROM incidentes_robots_tecnicos
+    WHERE id_incidente = ?
+      AND (descripcion IS NULL OR TRIM(descripcion) = '')
+  `;
+  db.query(query, [id_incidente], (err, results) => {
+    if (err) return callback(err);
+    const faltantes = results[0].faltantes;
+    callback(null, faltantes === 0);
+  });
+};
+
 
 module.exports = {
   addRobotToIncidente,
   readIncidenteRobotsTecnicos,
-  assignTecnicoToRobot
+  assignTecnicoToRobot,
+  addFicha,
+  checkFinished
 };
