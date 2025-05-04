@@ -60,7 +60,7 @@ export const ModalIncidentes = ({onClose, incidente}) => {
         }));
       };
       
-      const supervisor = "11223344-5"
+      const supervisor = "99887767-4"
 
       const handleGuardar = async () => {
 
@@ -141,10 +141,12 @@ export const ModalIncidentes = ({onClose, incidente}) => {
                             </ul>
 
                             <h3>Definir Prioridad</h3>
-                            <InputNumber value={prioridad} onValueChange={(e) => setPrioridad(e.value)} style={{ width: '100%' }}/>
+                            <InputNumber id="prioridad" value={prioridad} onValueChange={(e) => setPrioridad(e.value)} style={{ width: '100%' }}/>
                             
                             <h3>Definir Gravedad</h3>
-                            <Dropdown value={gravedad} 
+                            <Dropdown
+                                id="gravedad"
+                                value={gravedad} 
                                 options={gravedades} 
                                 onChange={(e) => setGravedad(e.value)} 
                                 placeholder="Selecciona gravedad"
@@ -156,6 +158,7 @@ export const ModalIncidentes = ({onClose, incidente}) => {
                                 <div key={index} className='robot-container'>
                                     <h4>Robot {robotId}</h4>
                                     <Dropdown
+                                        id={`robot-${robotId}`}
                                         value={asignaciones[robotId] || null} // puedes guardar los técnicos asignados por robot en un estado aparte
                                         options={tecnicos}
                                         onChange={(e) => asignarTecnico(robotId, e.value)}

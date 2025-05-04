@@ -56,8 +56,6 @@ export default function CrearIncidenteForm() {
     }
   };
 
-  console.log(lugar, descripcion, robotsSeleccionados);
-
   return (
     <>
     <h2>Crear Incidente</h2>

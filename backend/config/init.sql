@@ -11,12 +11,12 @@ CREATE TABLE IF NOT EXISTS tecnicos (
     PRIMARY KEY (rut)
 );
 
--- Actualizar las claves de los técnicos si ya existen
-UPDATE tecnicos SET clave = 'clave123' WHERE rut = '12345678-9';
-UPDATE tecnicos SET clave = 'password456' WHERE rut = '98765432-1';
-UPDATE tecnicos SET clave = 'tecnico789' WHERE rut = '11223344-5';
-UPDATE tecnicos SET clave = 'clave456' WHERE rut = '55667788-0';
-UPDATE tecnicos SET clave = 'tecnico123' WHERE rut = '99887766-4';
+INSERT IGNORE INTO tecnicos (rut, nombre, disponibilidad, clave) VALUES
+('12345678-9', 'Juan Perez', 1, 'clave123'),
+('98765432-1', 'Maria Lopez', 0, 'password456'),
+('11223344-5', 'Carlos Gonzalez', 1, 'tecnico789'),
+('55667788-0', 'Ana Torres', 1, 'clave456'),
+('99887766-4', 'Luis Ramirez', 0, 'tecnico123');
 
 -- Tabla de Supervisores
 CREATE TABLE IF NOT EXISTS supervisores (
@@ -27,12 +27,12 @@ CREATE TABLE IF NOT EXISTS supervisores (
     PRIMARY KEY (rut)
 );
 
--- Actualizar las claves de los supervisores si ya existen
-UPDATE supervisores SET clave = 'supervisor123' WHERE rut = '12345678-9';
-UPDATE supervisores SET clave = 'password789' WHERE rut = '98765432-1';
-UPDATE supervisores SET clave = 'supervisor456' WHERE rut = '11223344-5';
-UPDATE supervisores SET clave = 'clave789' WHERE rut = '55667788-0';
-UPDATE supervisores SET clave = 'supervisor123' WHERE rut = '99887766-4';
+INSERT IGNORE INTO supervisores (rut, nombre, firma, clave) VALUES
+('12345677-9', 'Juan Perez', 'firma1', 'clave123'),
+('98765433-1', 'Maria Lopez', 'firma2', 'password456'),
+('11223345-5', 'Carlos Gonzalez', 'firma3', 'tecnico789'),
+('55667789-0', 'Ana Torres', 'firma4', 'clave456'),
+('99887767-4', 'Luis Ramirez', 'firma5', 'tecnico123');
 
 -- Tabla de Jefes de Turno
 CREATE TABLE IF NOT EXISTS jefes_turno (
@@ -42,10 +42,10 @@ CREATE TABLE IF NOT EXISTS jefes_turno (
     PRIMARY KEY (rut)
 );
 
--- Actualizar las claves de los jefes de turno si ya existen
-UPDATE jefes_turno SET clave = 'jefe123' WHERE rut = '11111111-1';
-UPDATE jefes_turno SET clave = 'clavejefe' WHERE rut = '22222222-2';
-UPDATE jefes_turno SET clave = 'admin123' WHERE rut = '33333333-3';
+INSERT IGNORE INTO jefes_turno (rut, nombre, clave) VALUES
+('11111111-1', 'Juan Perez', 'clave123'),
+('22222222-2', 'Maria Lopez', 'password456'),
+('33333333-3', 'Carlos Gonzalez','tecnico789');
 
 -- Tabla de Robots
 CREATE TABLE IF NOT EXISTS robots (
@@ -80,6 +80,21 @@ CREATE TABLE IF NOT EXISTS incidentes (
     fecha_resuelto TIMESTAMP,
     PRIMARY KEY (id_incidentes),
     FOREIGN KEY (supervisor_asignado) REFERENCES supervisores(rut)
+        ON UPDATE CASCADE ON DELETE RESTRICT
+);
+
+CREATE TABLE IF NOT EXISTS incidentes_robots_tecnicos (
+    id_robot BIGINT NOT NULL,
+    id_incidente BIGINT NOT NULL,
+    rut_tecnico VARCHAR(20),
+    fecha_asignacion TIMESTAMP,
+    descripcion TEXT,
+    PRIMARY KEY (id_robot, id_incidente),
+    FOREIGN KEY (id_robot) REFERENCES robots(id_robot)
+        ON UPDATE CASCADE ON DELETE RESTRICT,
+    FOREIGN KEY (id_incidente) REFERENCES incidentes(id_incidentes)
+        ON UPDATE CASCADE ON DELETE RESTRICT,
+    FOREIGN KEY (rut_tecnico) REFERENCES tecnicos(rut)
         ON UPDATE CASCADE ON DELETE RESTRICT
 );
 

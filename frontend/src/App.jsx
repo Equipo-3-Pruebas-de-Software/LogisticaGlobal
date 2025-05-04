@@ -34,7 +34,7 @@ function App() {
       </Route>
 
       {/* Técnico */}
-      <Route path="/jefe-de-turno" element={<JefeDeTurnoLayout />}>
+      <Route path="/jefe_turno" element={<JefeDeTurnoLayout />}>
         <Route index element={<JefeDeTurno />} />
       </Route>
 
