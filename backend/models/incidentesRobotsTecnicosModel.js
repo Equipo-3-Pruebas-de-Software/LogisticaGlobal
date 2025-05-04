@@ -25,9 +25,23 @@ const assignTecnicoToRobot = (id_incidente, id_robot, rut_tecnico, callback) => 
   db.query(query, [rut_tecnico, id_incidente, id_robot], callback);
 };
 
+const getRobotsByTecnico = (rut_tecnico, callback) => {
+  const query = `
+    SELECT irt.id_robot, r.lugar_trabajo, r.estado, irt.id_incidente
+    FROM incidentes_robots_tecnicos irt
+    JOIN robots r ON irt.id_robot = r.id_robot
+    WHERE irt.rut_tecnico = ?
+  `;
+  
+  console.log('Consulta SQL:', query, 'Con parámetro rut_tecnico:', rut_tecnico); // Log para depuración
+
+  db.query(query, [rut_tecnico], callback);
+};
 
 module.exports = {
   addRobotToIncidente,
   readIncidenteRobotsTecnicos,
-  assignTecnicoToRobot
+  assignTecnicoToRobot,
+  getRobotsByTecnico
 };
+
