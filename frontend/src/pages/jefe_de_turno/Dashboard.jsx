@@ -16,12 +16,23 @@ export default function CrearIncidenteForm() {
   const [mensaje, setMensaje] = useState(null);
 
   useEffect(() => {
-    // Formatea los robots mockeados
-    const opciones = RobotsData.map(robot => ({
-      label: `Robot ${robot.id_robot}`,
-      value: robot.id_robot
-    }));
-    setRobotsDisponibles(opciones);
+    fetch('/robots')
+      .then((response) => {
+        if (!response.ok) throw new Error('Error al obtener los robots');
+        return response.json();
+      })
+      .then((data) => {
+        const opciones = data
+        .filter(robot => robot.estado !== 'fuera de servicio')
+        .map(robot => ({
+          label: `Robot ${robot.id_robot}`,
+          value: robot.id_robot
+        }));
+        setRobotsDisponibles(opciones);
+      })
+      .catch((error) => {
+        console.error('[ERROR FETCH ROBOTS]', error);
+      });
   }, []);
 
   const handleSubmit = async (e) => {
@@ -55,8 +66,6 @@ export default function CrearIncidenteForm() {
       setMensaje({ type: 'error', text: 'Ocurrió un error al crear el incidente' });
     }
   };
-
-  console.log(lugar, descripcion, robotsSeleccionados);
 
   return (
     <>

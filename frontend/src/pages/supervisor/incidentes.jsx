@@ -21,10 +21,22 @@ export const Incidentes = () => {
   
     incidentes?.forEach(i => {
       const value = i[key];
-      if (typeof value === 'string' && value.trim() !== "") {
-        const lower = value.toLowerCase();
-        if (!seen.has(lower)) {
-          seen.set(lower, value); // guarda la primera aparición
+  
+      if (value !== null && value !== undefined) { // Verifica que el valor no sea null o undefined
+        if (typeof value === 'string' && value.trim() !== "") {
+          const lower = value.toLowerCase();
+          if (!seen.has(lower)) {
+            seen.set(lower, value); // Guarda la primera aparición (con su case original)
+          }
+        } else if (typeof value === 'number') {
+          if (!seen.has(value)) {
+            seen.set(value, value); // Guarda el número directamente
+          }
+        } else {
+          // Puedes agregar lógica para otros tipos de datos si es necesario (booleanos, etc.)
+          if (!seen.has(value)) {
+            seen.set(value, value);
+          }
         }
       }
     });
@@ -45,8 +57,6 @@ export const Incidentes = () => {
         console.error('[ERROR FETCH INCIDENTES]', error);
       });
   }, []);
-
-  console.log(incidentes);
 
   useEffect(() => {
     const updateRowsPerPage = () => {
@@ -85,8 +95,10 @@ export const Incidentes = () => {
     // Ordenar los incidentes por fecha ascendente
     return filteredData?.sort((b, a) => new Date(a.fecha_creado) - new Date(b.fecha_creado));
   };
+
   
   const filteredIncidentes = filterIncidentes(incidentes);
+
   const totalPages = Math.ceil(filteredIncidentes?.length / rowsPerPage);
   const startIndex = (currentPage - 1) * rowsPerPage;
   const visibleIncidentes = filteredIncidentes?.slice(startIndex, startIndex + rowsPerPage);
@@ -97,7 +109,7 @@ export const Incidentes = () => {
       <div className="filters">
         <h1>Incidentes</h1>
         <div>
-          <InputText placeholder="Buscar..." value={searchText} onChange={(e) => setSearchText(e.target.value)} />
+          <InputText id="busqueda" placeholder="Buscar..." value={searchText} onChange={(e) => setSearchText(e.target.value)} />
           <Dropdown 
             value={filters.estado} 
             options={uniqueValues("estado")}
@@ -159,7 +171,7 @@ export const Incidentes = () => {
                 }
 
                 <td>
-                  <button className="btn-icon" onClick={() => handleOpenModal(incidente)}>
+                  <button id="detalles" className="btn-icon" onClick={() => handleOpenModal(incidente)}>
                     <svg  xmlns="http://www.w3.org/2000/svg"  width={24}  height={24}  viewBox="0 0 24 24"  fill="none" stroke="currentColor"  strokeWidth={2}  strokeLinecap="round"  strokeLinejoin="round"  className="icon icon-tabler icons-tabler-outline icon-tabler-file-description"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 0 0 1 1h4" /><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" /><path d="M9 17h6" /><path d="M9 13h6" /></svg>
                   </button>
                   <button className="btn-icon">
