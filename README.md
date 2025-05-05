@@ -1,4 +1,4 @@
-Archivo README.md: Este archivo, ubicado en la raíz del repositorio, debe proporcionar una visión general del proyecto, incluyendo el resumen, instrucciones de instalación, uso básico y enlaces a documentación más detallada.​
+
 # LogisticaGlobal
 Proyecto INF331 - Pruebas de Software. Aplicación web diseñada para facilitar el registro, clasificación y seguimiento de los incidentes ocurridos en los robots de inventario en el almacén de LogisticaGlobal. 
 
