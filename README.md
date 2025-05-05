@@ -42,7 +42,8 @@ El sistema desarrollado en este repositorio se encarga de gestionar la creación
    - RUT: 11111111-1
    - Contraseña: clave123
 
-
+## Enlaces 
+   [https://github.com/Pruebas-de-Software/HandsOnProject/blob/main/semestres/2025-1/entrega1.md](https://github.com/Pruebas-de-Software/HandsOnProject/blob/main/semestres/2025-1/logisticaglobal.md)
 
 
 
