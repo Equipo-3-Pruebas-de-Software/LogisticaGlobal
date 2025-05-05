@@ -14,3 +14,36 @@ El sistema desarrollado en este repositorio se encarga de gestionar la creación
   *  Visualizar un resumen de los incidentes ocurrido y realizar seguimiento a incidentes particulares.
 
 ## Instalación
+### Requisitos previos
+  * Node.js (versión 16 o superior): Descargar Node.js
+  * MySQL: Descargar MySQL
+### Configuración Backend
+(desde directorio raiz)
+  * cd backend
+  * npm install
+  * npm install cors
+  * npm start
+### Configuración Frontend
+(desde directorio raiz, en un nuevo terminal de comandos)
+  * cd frontend
+  * npm install
+  * npm run dev
+
+### Acceso a la aplicación
+  * Abre tu navegador y ve a http://localhost:5173.
+### Credenciales de Prueba
+   Técnico
+   - RUT: 12345678-9
+   - Contraseña: clave123
+   Supervisor
+   - RUT: 98765433-1
+   - Contraseña: password456
+   Jefe de Turno
+   - RUT: 11111111-1
+   - Contraseña: clave123
+
+
+
+
+
+
