@@ -2,6 +2,9 @@
 # LogisticaGlobal
 Proyecto INF331 - Pruebas de Software. Aplicación web diseñada para facilitar el registro, clasificación y seguimiento de los incidentes ocurridos en los robots de inventario en el almacén de LogisticaGlobal. 
 
+## Videos
+- [Entrega 1](a)
+
 ## Problema planteado
 En LogísticaGlobal.com, una empresa que utiliza robots automatizados para mover organizar y mover productos, suelen ocurrir incidentes como fallos mecánicos o colisiones, los cuales deben ser naturalmente reportados para mantener registro de los mismos y además solucionar cada robot en caso de ser necesario. Actualmente, el reporte de estos incidentes se realiza de manera física por un jefe de turno para luego ser recibido por un supervisor solo tras habre sido digitalizado usando Words y PDFs, esto genera una alta demanda de tiempo tanto para jefes de turno como también para el respectivo supervisor, volviéndome inviable a medida que aumenta la cantidad de robots usados (y a su vez de incidentes ocurridos).
 
@@ -32,18 +35,22 @@ El sistema desarrollado en este repositorio se encarga de gestionar la creación
 ### Acceso a la aplicación
   * Abre tu navegador y ve a http://localhost:5173.
 ### Credenciales de Prueba
-   Técnico
+  Técnico
    - RUT: 12345678-9
    - Contraseña: clave123
-   Supervisor
+
+  Supervisor
    - RUT: 98765433-1
    - Contraseña: password456
-   Jefe de Turno
+     
+  Jefe de Turno
    - RUT: 11111111-1
    - Contraseña: clave123
 
 ## Enlaces 
-   [https://github.com/Pruebas-de-Software/HandsOnProject/blob/main/semestres/2025-1/entrega1.md](https://github.com/Pruebas-de-Software/HandsOnProject/blob/main/semestres/2025-1/logisticaglobal.md)
+   - [HandsOnProject](https://github.com/Pruebas-de-Software/HandsOnProject/blob/main/semestres/2025-1/logisticaglobal.md)
+   - [Wiki]([https://github.com/Pruebas-de-Software/HandsOnProject/blob/main/semestres/2025-1/logisticaglobal.md](https://github.com/Equipo-3-Pruebas-de-Software/LogisticaGlobal/wiki))
+   - 
 
 ## Notas
    - Actualmente un robot puede tener más de un incidente asignado, pero en el resultado final un robot exclusivamente puede estar en un incidente con estado activo.
