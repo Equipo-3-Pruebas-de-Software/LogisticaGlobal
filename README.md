@@ -49,8 +49,7 @@ El sistema desarrollado en este repositorio se encarga de gestionar la creación
 
 ## Enlaces 
    - [HandsOnProject](https://github.com/Pruebas-de-Software/HandsOnProject/blob/main/semestres/2025-1/logisticaglobal.md)
-   - [Wiki]([https://github.com/Pruebas-de-Software/HandsOnProject/blob/main/semestres/2025-1/logisticaglobal.md](https://github.com/Equipo-3-Pruebas-de-Software/LogisticaGlobal/wiki))
-   - 
+   - [Wiki](https://github.com/Equipo-3-Pruebas-de-Software/LogisticaGlobal/wiki)
 
 ## Notas
    - Actualmente un robot puede tener más de un incidente asignado, pero en el resultado final un robot exclusivamente puede estar en un incidente con estado activo.
