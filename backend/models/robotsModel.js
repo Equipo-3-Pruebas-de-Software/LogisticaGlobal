@@ -7,6 +7,17 @@ const updateEstadoRobot = (id_robot, estado, callback) => {
   db.query(query, [estado, id_robot], callback);
 };
 
+const readAllRobots = () => {
+  const query = 'SELECT * FROM robots';
+  return new Promise((resolve, reject) => {
+    db.query(query, (err, results) => {
+      if (err) return reject(err);
+      resolve(results);
+    });
+  });
+};
+
 module.exports = {
-  updateEstadoRobot
+  updateEstadoRobot,
+  readAllRobots
 };

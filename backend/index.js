@@ -12,6 +12,7 @@ const tecnicosRoutes = require('./routes/tecnicos');
 const incidentesRoutes = require('./routes/incidentes');
 const incidentesRobotsTecnicosRoutes = require('./routes/incidentesRobotsTecnicos');
 const authRoutes = require('./routes/authRoutes');
+const robotsRoutes = require("./routes/robots");
 
 app.use(express.json());
 app.use(cors());
@@ -31,7 +32,10 @@ db.query(initSQL, (err) => {
 app.use('/tecnicos', tecnicosRoutes);
 app.use('/incidentes', incidentesRoutes);
 app.use('/incidentes-robots-tecnicos', incidentesRobotsTecnicosRoutes);
+app.use('/incidentes-robots-tecnicos', incidentesRobotsTecnicosRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/robots', robotsRoutes);
+
 
 // Iniciar servidor
 const PORT = process.env.PORT || 3000;
