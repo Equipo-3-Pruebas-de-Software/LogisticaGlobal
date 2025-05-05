@@ -45,6 +45,11 @@ El sistema desarrollado en este repositorio se encarga de gestionar la creación
 ## Enlaces 
    [https://github.com/Pruebas-de-Software/HandsOnProject/blob/main/semestres/2025-1/entrega1.md](https://github.com/Pruebas-de-Software/HandsOnProject/blob/main/semestres/2025-1/logisticaglobal.md)
 
+## Notas
+   - Actualmente un robot puede tener más de un incidente asignado, pero en el resultado final un robot exclusivamente puede estar en un incidente con estado activo.
+   - Las contraseñas actuales no tienen un proceso de encriptado para mejorar la seguridad de estas, pero en un proceso futuro se tiene contemplada esta implementación.
+   - En la lógica final, un técnico puede cambiar el estado del robot pero no puede cambiar el estado del incidente.
+
 
 
 
