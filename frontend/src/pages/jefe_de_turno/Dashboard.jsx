@@ -33,7 +33,7 @@ export default function CrearIncidenteForm() {
       .catch((error) => {
         console.error('[ERROR FETCH ROBOTS]', error);
       });
-  }, []);
+  }, [mensaje]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -71,9 +71,6 @@ export default function CrearIncidenteForm() {
     <>
     <h2>Crear Incidente</h2>
     <div className='crear-incidente'>
-      {mensaje && (
-        <Message severity={mensaje.type} text={mensaje.text} className='msg'/>
-      )}
       <form onSubmit={handleSubmit} className="form-container">
         <div className='div-group'>
           <label htmlFor="lugar">Lugar</label>
@@ -95,6 +92,9 @@ export default function CrearIncidenteForm() {
         </div>
         <div className='div-group'>
           <Button type="submit" label="Crear Incidente" className='btn-crear-incidente'/>
+          {mensaje && (
+            <Message severity={mensaje.type} text={mensaje.text} className='msg'/>
+          )}
         </div>
       </form>
     </div>

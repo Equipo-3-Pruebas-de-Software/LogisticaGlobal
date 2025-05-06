@@ -12,11 +12,16 @@ CREATE TABLE IF NOT EXISTS tecnicos (
 );
 
 INSERT IGNORE INTO tecnicos (rut, nombre, disponibilidad, clave) VALUES
-('12345678-9', 'Juan Perez', 1, 'clave123'),
-('98765432-1', 'Maria Lopez', 0, 'password456'),
-('11223344-5', 'Carlos Gonzalez', 1, 'tecnico789'),
-('55667788-0', 'Ana Torres', 1, 'clave456'),
-('99887766-4', 'Luis Ramirez', 0, 'tecnico123');
+('14856536-8', 'Juan Perez', 0, 'clave123'),
+('12463595-0', 'Maria Lopez', 0, 'password456'),
+('18066508-0', 'Carlos Gonzalez', 1, 'tecnico789'),
+('19537462-7', 'Ana Torres', 1, 'clave456'),
+('16876745-5', 'Luis Ramirez', 0, 'tecnico123'),
+('14724848-2', 'Leonardo Sánchez', 0, 'clave123'),
+('21740255-7', 'Gloria Torres', 1, 'password456'),
+('22423038-9', 'Tomás Pizarro', 1, 'tecnico789'),
+('18246428-7', 'María Gonzalez', 1, 'clave456'),
+('20954773-2', 'Luis Castillo', 1, 'tecnico123');
 
 -- Tabla de Supervisores
 CREATE TABLE IF NOT EXISTS supervisores (
@@ -28,11 +33,11 @@ CREATE TABLE IF NOT EXISTS supervisores (
 );
 
 INSERT IGNORE INTO supervisores (rut, nombre, firma, clave) VALUES
-('12345677-9', 'Juan Perez', 'firma1', 'clave123'),
-('98765433-1', 'Maria Lopez', 'firma2', 'password456'),
-('11223345-5', 'Carlos Gonzalez', 'firma3', 'tecnico789'),
-('55667789-0', 'Ana Torres', 'firma4', 'clave456'),
-('99887767-4', 'Luis Ramirez', 'firma5', 'tecnico123');
+('12345677-9', 'Margarita Rodriguez', 'firma1', 'clave123'),
+('98765433-1', 'Valentina Gonzalez', 'firma2', 'password456'),
+('11223345-5', 'Nicolás Navarro', 'firma3', 'tecnico789'),
+('55667789-0', 'Benjamín Soto', 'firma4', 'clave456'),
+('99887767-4', 'Benjamín Castro', 'firma5', 'tecnico123');
 
 -- Tabla de Jefes de Turno
 CREATE TABLE IF NOT EXISTS jefes_turno (
@@ -43,9 +48,9 @@ CREATE TABLE IF NOT EXISTS jefes_turno (
 );
 
 INSERT IGNORE INTO jefes_turno (rut, nombre, clave) VALUES
-('11111111-1', 'Juan Perez', 'clave123'),
-('22222222-2', 'Maria Lopez', 'password456'),
-('33333333-3', 'Carlos Gonzalez','tecnico789');
+('11111111-1', 'Lucas Castro', 'clave123'),
+('22222222-2', 'Bastián Gonzalez', 'password456'),
+('33333333-3', 'Carlos Castillo','tecnico789');
 
 -- Tabla de Robots
 CREATE TABLE IF NOT EXISTS robots (
@@ -57,12 +62,19 @@ CREATE TABLE IF NOT EXISTS robots (
 
 -- Insertar robots si no existen
 INSERT IGNORE INTO robots (id_robot, lugar_trabajo, estado) VALUES
-(1, 'Bodega', 'Operativo'),
-(2, 'Pasillo 1', 'En Reperación'),
-(3, 'Pasillo 2', 'Operativo'),
-(4, 'Zona de Carga', 'Operativo'),
-(5, 'Zona de Descarga', 'Fuera de Servicio'),
-(6, 'Pasillo Norte', 'Fuera de Servicio');
+(1, 'Bodega Norte', 'fuera de servicio'),
+(2, 'Pasillo 1', 'fuera de servicio'),
+(3, 'Pasillo 2', 'fuera de servicio'),
+(4, 'Zona de Carga', 'fuera de servicio'),
+(5, 'Zona de Descarga', 'fuera de servicio'),
+(6, 'Pasillo Norte', 'fuera de servicio'),
+(7, 'Bodega Sur', 'operativo'),
+(8, 'Pasillo 3', 'en reparación'),
+(9, 'Pasillo 4', 'operativo'),
+(10, 'Zona de Descarga', 'operativo'),
+(11, 'Zona de Carga', 'operativo'),
+(12, 'Pasillo Sur', 'operativo'),
+(13, 'Pasillo Sur', 'en reparación');
 
 -- Tabla de Incidentes
 CREATE TABLE IF NOT EXISTS incidentes (
@@ -100,17 +112,19 @@ CREATE TABLE IF NOT EXISTS incidentes_robots_tecnicos (
 
 -- Datos Iniciales para Incidentes
 INSERT IGNORE INTO incidentes (id_incidentes, supervisor_asignado, lugar, estado, prioridad, gravedad, fecha_creado, firmado, descripcion, fecha_tecnico_asignado, fecha_espera_aprovacion, fecha_resuelto) VALUES
-(1, NULL, 'Pasillo 1', 'Creado', NULL, NULL, '2023-10-01 10:00:00', 0, 'Robot atascado en el pasillo.', NULL, NULL, NULL),
-(2, NULL, 'Bodega', 'Creado', NULL, NULL, '2023-10-02 11:00:00', 1, 'Fuga de agua en la bodega.', NULL, NULL, NULL),
-(3, NULL, 'Zona de Carga', 'Creado', NULL, NULL, '2023-10-03 12:00:00', 0, 'Robot no responde.', NULL, NULL, NULL),
+(1, NULL, 'Pasillo 1', "Técnico Asignado", 2, "alta", '2023-10-01 10:00:00', 0, 'Robot atascado en el pasillo.', '2023-10-02 09:30:00', NULL, NULL),
+(2, NULL, 'Bodega', "Técnico Asignado", 1, "media", '2023-10-02 11:00:00', 0, 'Fuga de agua en la bodega.', '2023-10-03 10:51:00', NULL, NULL),
+(3, NULL, 'Zona de Carga', "Técnico Asignado", 3, "baja", '2023-10-03 12:00:00', 0, 'Robot no responde.', "2023-10-04 11:11:00", NULL, NULL),
 (4, NULL, 'Zona de Descarga', 'Creado', NULL, NULL, '2023-10-04 13:00:00', 0, 'Problema de conexión con el robot.', NULL, NULL, NULL),
-(5, NULL, 'Pasillo 2', 'Creado', NULL, NULL, '2023-10-05 14:00:00', 1, 'Robot en mantenimiento.', NULL, NULL, NULL);
+(5, NULL, 'Pasillo 2', 'Creado', NULL, NULL, '2023-10-05 14:00:00', 0, 'Robot en mantenimiento.', NULL, NULL, NULL);
 
 -- Datos Iniciales para Relación entre Incidentes, Robots y Técnicos
 INSERT IGNORE INTO incidentes_robots_tecnicos (id_robot, id_incidente, rut_tecnico, fecha_asignacion, descripcion) VALUES
-(1, 1, '12345678-9', '2023-10-01 10:30:00', NULL),
-(2, 1, '12345678-9', '2023-10-01 10:30:00', NULL),
-(3, 2, '98765432-1', '2023-10-02 11:30:00', NULL),
-(4, 3, '11223344-5', '2023-10-03 12:30:00', NULL),
-(5, 4, '55667788-0', '2023-10-04 13:30:00', NULL),
-(6, 5, '55667788-0', '2023-10-05 13:30:00', NULL);
+(1, 1, "12463595-0", '2023-10-02 09:30:00', NULL),
+(2, 1, '14724848-2', '2023-10-02 09:30:00', NULL),
+(3, 2, "14856536-8", '2023-10-03 10:51:00', NULL),
+(4, 3, "16876745-5", "2023-10-04 11:11:00", NULL),
+(5, 4, NULL, NULL, NULL),
+(6, 5, NULL, NULL, NULL);
+
+

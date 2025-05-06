@@ -22,14 +22,12 @@ fs.readFile('./config/init.sql', 'utf8', (err, sql) => {
       console.error('Error al conectar a la base de datos:', err.stack);
       return;
     }
-    console.log('Conectado a la base de datos');
 
     db.query(sql, (err) => {
       if (err) {
         console.error('Error al ejecutar el SQL:', err);
         return;
       }
-      console.log('Base de datos inicializada correctamente');
     });
   });
 });

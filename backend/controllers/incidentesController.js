@@ -44,7 +44,7 @@ const updateIncident = (req, res) => {
     if (!id_incidente || !supervisor_asignado || prioridad === undefined || !gravedad) {
       return res.status(400).json({ error: 'Datos incompletos para asignación' });
     }
-    console.log(id_incidente)
+    
     updateIncidenteAsignacion({ id_incidente, supervisor_asignado, prioridad, gravedad }, (err, result) => {
       if (err) {
         console.error('[UPDATE ERROR]', err.sqlMessage);
