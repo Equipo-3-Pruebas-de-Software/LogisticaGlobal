@@ -56,7 +56,7 @@ export const Incidentes = () => {
       .catch((error) => {
         console.error('[ERROR FETCH INCIDENTES]', error);
       });
-  }, []);
+  }, [isModalOpen]);
 
   useEffect(() => {
     const updateRowsPerPage = () => {
@@ -111,6 +111,7 @@ export const Incidentes = () => {
         <div>
           <InputText id="busqueda" placeholder="Buscar..." value={searchText} onChange={(e) => setSearchText(e.target.value)} />
           <Dropdown 
+            id = "filtro-estado"
             value={filters.estado} 
             options={uniqueValues("estado")}
             onChange={(e) => setFilters(f => ({ ...f, estado: e.value }))} 
@@ -118,6 +119,7 @@ export const Incidentes = () => {
             showClear={true}
           />
           <Dropdown 
+            id = "filtro-prioridad"
             value={filters.prioridad} 
             options={uniqueValues("prioridad")}
             onChange={(e) => setFilters(f => ({ ...f, prioridad: e.value }))} 
@@ -125,6 +127,7 @@ export const Incidentes = () => {
             showClear={true}
             />
           <Dropdown 
+            id = "filtro-gravedad"
             value={filters.gravedad} 
             options={uniqueValues("gravedad")}
             onChange={(e) => setFilters(f => ({ ...f, gravedad: e.value }))} 
