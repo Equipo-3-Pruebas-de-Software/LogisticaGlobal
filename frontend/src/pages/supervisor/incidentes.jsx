@@ -73,6 +73,10 @@ export const Incidentes = () => {
     return () => window.removeEventListener("resize", updateRowsPerPage);
   }, []);
 
+  useEffect(() => {
+      setCurrentPage(1);
+    }, [filters, searchText]);
+
   const handleOpenModal = (incidente) => {
     setSelectedIncidente(incidente);
     setModalOpen(true);
@@ -85,9 +89,9 @@ export const Incidentes = () => {
 
   const filterIncidentes = (data) => {
     const filteredData = data?.filter(i => {
-      const matchEstado = !filters.estado || i.estado === filters.estado;
-      const matchPrioridad = !filters.prioridad || i.prioridad === filters.prioridad;
-      const matchGravedad = !filters.gravedad || i.gravedad === filters.gravedad;
+      const matchEstado = !filters.estado || i.estado?.toLowerCase() === filters.estado?.toLowerCase();
+      const matchPrioridad = !filters.prioridad || i.prioridad?.toLowerCase() === filters.prioridad.toLowerCase();
+      const matchGravedad = !filters.gravedad || i.gravedad?.toLowerCase() === filters.gravedad.toLowerCase();
       const matchSearch = Object.values(i).some(val => String(val).toLowerCase().includes(searchText.toLowerCase()));
       return matchEstado && matchPrioridad && matchGravedad && matchSearch;
     });

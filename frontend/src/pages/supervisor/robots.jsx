@@ -70,9 +70,13 @@ export const RobotsSupervisor = () => {
     return () => window.removeEventListener("resize", updateRowsPerPage);
   }, []);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filters, searchText]);
+
   const filterRobots = (data) => {
     const filteredData = data?.filter(i => {
-      const matchEstado = !filters.estado || i.estado === filters.estado;
+      const matchEstado = !filters.estado || i.estado?.toLowerCase() === filters.estado?.toLowerCase();
       const matchSearch = Object.values(i).some(val => String(val).toLowerCase().includes(searchText.toLowerCase()));
       return matchEstado && matchSearch;
     });

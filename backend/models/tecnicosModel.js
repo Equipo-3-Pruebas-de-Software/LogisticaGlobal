@@ -13,8 +13,18 @@ const setDisponibilidad = (rut_tecnico, disponibilidad, callback) => {
   db.query(query, [disponibilidad, rut_tecnico], callback);
 };
 
+const readAllTecnicos = () => {
+  const query = 'SELECT * FROM tecnicos';
+  return new Promise((resolve, reject) => {
+    db.query(query, (err, results) => {
+      if (err) return reject(err);
+      resolve(results);
+    });
+  });
+};
 
 module.exports = { 
   getTecnicosDisponibles,
-  setDisponibilidad
+  setDisponibilidad,
+  readAllTecnicos
 };
