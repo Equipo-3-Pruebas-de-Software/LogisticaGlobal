@@ -21,19 +21,22 @@ El sistema desarrollado en este repositorio se encarga de gestionar la creación
   * Node.js (versión 16 o superior): Descargar Node.js
   * MySQL: Descargar MySQL
 ### Configuración Backend
-(desde directorio raiz)
-  * cd backend
-  * npm install
-  * npm install cors
-  * npm start
+Desde carpeta raíz:
+``` Linea de comando
+  cd backend
+  npm install
+  npm install cors
+  npm start
+```
 ### Configuración Frontend
-(desde directorio raiz, en un nuevo terminal de comandos)
-  * cd frontend
-  * npm install
-  * npm run dev
-
+Desde directorio raiz, en un nuevo terminal de comandos:
+``` Linea de comando
+  cd frontend
+  npm install
+  npm run dev
+```
 ### Acceso a la aplicación
-  * Abre tu navegador y ve a http://localhost:5173.
+  * Abre tu navegador y ve a [Localhost](http://localhost:5173).
 ### Credenciales de Prueba
   Técnico
    - RUT: 12345678-9
