@@ -112,9 +112,9 @@ CREATE TABLE IF NOT EXISTS incidentes_robots_tecnicos (
 
 -- Datos Iniciales para Incidentes
 INSERT IGNORE INTO incidentes (id_incidentes, supervisor_asignado, lugar, estado, prioridad, gravedad, fecha_creado, firmado, descripcion, fecha_tecnico_asignado, fecha_espera_aprovacion, fecha_resuelto) VALUES
-(1, NULL, 'Pasillo 1', "Técnico Asignado", 2, "alta", '2023-10-01 10:00:00', 0, 'Robot atascado en el pasillo.', '2023-10-02 09:30:00', NULL, NULL),
-(2, NULL, 'Bodega', "Técnico Asignado", 1, "media", '2023-10-02 11:00:00', 0, 'Fuga de agua en la bodega.', '2023-10-03 10:51:00', NULL, NULL),
-(3, NULL, 'Zona de Carga', "Técnico Asignado", 3, "baja", '2023-10-03 12:00:00', 0, 'Robot no responde.', "2023-10-04 11:11:00", NULL, NULL),
+(1, NULL, 'Pasillo 1', "Técnico asignado", 2, "alta", '2023-10-01 10:00:00', 0, 'Robot atascado en el pasillo.', '2023-10-02 09:30:00', NULL, NULL),
+(2, NULL, 'Bodega', "Técnico asignado", 1, "media", '2023-10-02 11:00:00', 0, 'Fuga de agua en la bodega.', '2023-10-03 10:51:00', NULL, NULL),
+(3, NULL, 'Zona de Carga', "Técnico asignado", 3, "baja", '2023-10-03 12:00:00', 0, 'Robot no responde.', "2023-10-04 11:11:00", NULL, NULL),
 (4, NULL, 'Zona de Descarga', 'Creado', NULL, NULL, '2023-10-04 13:00:00', 0, 'Problema de conexión con el robot.', NULL, NULL, NULL),
 (5, NULL, 'Pasillo 2', 'Creado', NULL, NULL, '2023-10-05 14:00:00', 0, 'Robot en mantenimiento.', NULL, NULL, NULL);
 

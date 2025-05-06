@@ -39,7 +39,7 @@ tbody tr td {
     }
 }	
   
-.gravedad-alta, .prioridad-alta, .estado-fuera.de.servicio{
+.gravedad-alta, .prioridad-alta, .estado-fuera.de.servicio, .disponibilidad-0{
 
     div {
         display: flex;
@@ -79,7 +79,7 @@ tbody tr td {
     }	
   }
 
-  .gravedad-baja, .prioridad-baja, .estado-operativo {
+  .gravedad-baja, .prioridad-baja, .estado-operativo, .disponibilidad-1 {
 
     div {
         display: flex;

@@ -3,12 +3,12 @@ import { PrimeReactProvider, PrimeReactContext } from 'primereact/api';
 import 'primereact/resources/themes/lara-light-indigo/theme.css'; //theme
 import 'primereact/resources/primereact.min.css'; //core css
 
-        
 import Login from "./pages/login";
 import SupervisorLayout from "./pages/supervisor/supervisorlayout";
 import SupervisorDashboard from "./pages/supervisor/dashboard";
 import Incidentes from "./pages/supervisor/incidentes";
 import RobotsSupervisor from "./pages/supervisor/robots";
+import TecnicosSupervisor from "./pages/supervisor/tecnicos";
 
 import TecnicoLayout from "./pages/tecnico/tecnicolayout";
 import TecnicoRobots from "./pages/tecnico/robots_asignados";
@@ -27,6 +27,7 @@ function App() {
         <Route index element={<SupervisorDashboard />} />
         <Route path="incidentes" element={<Incidentes />} />
         <Route path="robots" element={<RobotsSupervisor />} />
+        <Route path="tecnicos" element={<TecnicosSupervisor />} />
       </Route>
 
       {/* Técnico */}
