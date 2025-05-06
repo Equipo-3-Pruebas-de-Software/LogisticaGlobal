@@ -40,7 +40,6 @@ tbody tr td {
 }	
   
 .gravedad-alta, .prioridad-alta, .estado-fuera.de.servicio{
-    text-transform: capitalize;
 
     div {
         display: flex;
@@ -53,12 +52,14 @@ tbody tr td {
 
         p {
             flex: 1;
+            &::first-letter {
+                text-transform: capitalize;
+            }
         }	
     }	
   }
 
   .gravedad-media, .prioridad-media, .estado-en.reparación{
-    text-transform: capitalize;
 
     div {
         display: flex;
@@ -71,12 +72,14 @@ tbody tr td {
 
         p {
             flex: 1;
+            &::first-letter {
+                text-transform: capitalize;
+            }
         }	
     }	
   }
 
-  .gravedad-baja, .prioridad-baja, .estado-operativo{
-    text-transform: capitalize;
+  .gravedad-baja, .prioridad-baja, .estado-operativo {
 
     div {
         display: flex;
@@ -89,6 +92,9 @@ tbody tr td {
 
         p {
             flex: 1;
+            &::first-letter {
+                text-transform: capitalize;
+            }
         }	
     }	
   }
