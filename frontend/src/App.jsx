@@ -8,6 +8,7 @@ import Login from "./pages/login";
 import SupervisorLayout from "./pages/supervisor/supervisorlayout";
 import SupervisorDashboard from "./pages/supervisor/dashboard";
 import Incidentes from "./pages/supervisor/incidentes";
+import RobotsSupervisor from "./pages/supervisor/robots";
 
 import TecnicoLayout from "./pages/tecnico/tecnicolayout";
 import TecnicoRobots from "./pages/tecnico/robots_asignados";
@@ -25,6 +26,7 @@ function App() {
       <Route path="/supervisor" element={<SupervisorLayout />}>
         <Route index element={<SupervisorDashboard />} />
         <Route path="incidentes" element={<Incidentes />} />
+        <Route path="robots" element={<RobotsSupervisor />} />
       </Route>
 
       {/* Técnico */}

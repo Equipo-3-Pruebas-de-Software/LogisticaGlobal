@@ -39,7 +39,7 @@ tbody tr td {
     }
 }	
   
-.gravedad-alta, .prioridad-alta{
+.gravedad-alta, .prioridad-alta, .estado-fuera.de.servicio{
     text-transform: capitalize;
 
     div {
@@ -57,7 +57,7 @@ tbody tr td {
     }	
   }
 
-  .gravedad-media, .prioridad-media{
+  .gravedad-media, .prioridad-media, .estado-en.reparación{
     text-transform: capitalize;
 
     div {
@@ -75,7 +75,7 @@ tbody tr td {
     }	
   }
 
-  .gravedad-baja, .prioridad-baja{
+  .gravedad-baja, .prioridad-baja, .estado-operativo{
     text-transform: capitalize;
 
     div {
