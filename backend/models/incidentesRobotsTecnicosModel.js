@@ -38,12 +38,11 @@ const checkFinished = (id_incidente, callback) => {
   const query = `
     SELECT COUNT(*) AS faltantes
     FROM incidentes_robots_tecnicos
-    WHERE id_incidente = ?
-      AND (descripcion IS NULL OR TRIM(descripcion) = '')
+    WHERE id_incidente = ? AND descripcion IS NULL
   `;
   db.query(query, [id_incidente], (err, results) => {
     if (err) return callback(err);
-    const faltantes = results[0].faltantes;
+    const faltantes = Number(results[0].faltantes);
     callback(null, faltantes === 0);
   });
 };
