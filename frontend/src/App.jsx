@@ -32,8 +32,9 @@ function App() {
 
       {/* Técnico */}
       <Route path="/tecnico" element={<TecnicoLayout />}>
+      <Route index element={<RobotsAsignados rutTecnico={"12463595-0"} />} />
         <Route index element={<TecnicoRobots />} />
-        <Route path="/tecnico/robots" element={<RobotsAsignados />} />
+
       </Route>
 
       {/* Técnico */}

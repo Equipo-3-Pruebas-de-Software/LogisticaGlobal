@@ -35,6 +35,7 @@ app.use('/incidentes-robots-tecnicos', incidentesRobotsTecnicosRoutes);
 app.use('/incidentes-robots-tecnicos', incidentesRobotsTecnicosRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/robots', robotsRoutes);
+app.use('/tecnicos', tecnicosRoutes);
 
 
 // Iniciar servidor
