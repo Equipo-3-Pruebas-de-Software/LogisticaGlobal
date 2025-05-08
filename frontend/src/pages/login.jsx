@@ -1,15 +1,18 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import LoginHeader from '../components/general/loginheader'; // Importa el nuevo topbar
+import { useUser } from '../context/UserContext'; // Importa el contexto
+import LoginHeader from '../components/general/loginheader';
+import '../stylesheets/login.css'; // Asegúrate de tener los estilos
 
 const Login = () => {
-    const [rut, setRut] = useState(''); // Estado para el RUT
-    const [clave, setClave] = useState(''); // Estado para la contraseña
-    const [error, setError] = useState(''); // Estado para manejar errores
-    const navigate = useNavigate(); // Hook para redirección
+    const [rut, setRut] = useState('');
+    const [clave, setClave] = useState('');
+    const [error, setError] = useState('');
+    const navigate = useNavigate();
+    const { setUsuario } = useUser(); // Obtén la función para actualizar el usuario
 
     const handleSubmit = async (e) => {
-        e.preventDefault(); // Evita el comportamiento por defecto del formulario
+        e.preventDefault();
 
         try {
             const response = await fetch('http://localhost:3000/api/auth/login', {
@@ -23,16 +26,20 @@ const Login = () => {
             }
 
             const data = await response.json();
+
+            // Guarda los datos del usuario en el contexto
+            setUsuario(data.usuario);
+
             // Redirige al usuario según la ruta devuelta por el backend
             navigate(data.ruta);
         } catch (err) {
-            setError(err.message); // Muestra el error en caso de fallo
+            setError(err.message);
         }
     };
 
     return (
         <>
-            <LoginHeader /> {/* Usa el topbar específico para el login */}
+            <LoginHeader />
             <div className="login-container">
                 <form className="login-form" onSubmit={handleSubmit}>
                     <h1 className="company-title">LogisticaGlobal</h1>
@@ -59,7 +66,7 @@ const Login = () => {
                             required
                         />
                     </div>
-                    {error && <p className="error-message">{error}</p>} {/* Muestra el error si existe */}
+                    {error && <p className="error-message">{error}</p>}
                     <button type="submit" className="login-button">Entrar</button>
                 </form>
             </div>

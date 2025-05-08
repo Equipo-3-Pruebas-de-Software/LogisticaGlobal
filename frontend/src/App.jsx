@@ -1,7 +1,4 @@
-import { Routes, Route } from "react-router";
-import { PrimeReactProvider, PrimeReactContext } from 'primereact/api';
-import 'primereact/resources/themes/lara-light-indigo/theme.css'; //theme
-import 'primereact/resources/primereact.min.css'; //core css
+import { Routes, Route } from "react-router-dom";
 
 import Login from "./pages/login";
 import SupervisorLayout from "./pages/supervisor/supervisorlayout";
@@ -11,7 +8,6 @@ import RobotsSupervisor from "./pages/supervisor/robots";
 import TecnicosSupervisor from "./pages/supervisor/tecnicos";
 
 import TecnicoLayout from "./pages/tecnico/tecnicolayout";
-import TecnicoRobots from "./pages/tecnico/robots_asignados";
 import RobotsAsignados from "./pages/tecnico/robots_asignados";
 
 import JefeDeTurnoLayout from "./pages/jefe_de_turno/jefedeturnolayout";
@@ -32,16 +28,13 @@ function App() {
 
       {/* Técnico */}
       <Route path="/tecnico" element={<TecnicoLayout />}>
-      <Route index element={<RobotsAsignados rutTecnico={"12463595-0"} />} />
-        <Route index element={<TecnicoRobots />} />
-
+        <Route index element={<RobotsAsignados />} />
       </Route>
 
-      {/* Técnico */}
+      {/* Jefe de Turno */}
       <Route path="/jefe_turno" element={<JefeDeTurnoLayout />}>
         <Route index element={<JefeDeTurno />} />
       </Route>
-
     </Routes>
   );
 }
