@@ -4,6 +4,8 @@ import Tables from "../../components/general/tables";
 import ModalIncidentes from "./ModalIncidentes";
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
+import { Calendar } from 'primereact/calendar';
+import { Button } from 'primereact/button';
 
 import { useUser } from '../../context/UserContext';
 
@@ -15,10 +17,9 @@ export const Incidentes = () => {
   const [isModalOpen, setModalOpen] = useState(false);
   const [selectedIncidente, setSelectedIncidente] = useState(null);
   const [searchText, setSearchText] = useState("");
-  const [filters, setFilters] = useState({ lugar: null, estado: null, prioridad: null, gravedad: null, fechaInicio: null, fechaFin: null });
+  const [filters, setFilters] = useState({ lugar: null, estado: null, prioridad: null, gravedad: null, fechaInicio: null, fechaFin: null , tipoIncidente: "All"});
 
   const tableRef = useRef(null);
-  console.log(usuario)
 
   const uniqueValues = (key) => {
     const seen = new Map();
@@ -91,17 +92,21 @@ export const Incidentes = () => {
     setModalOpen(false);
   };
 
-  const filterIncidentes = (data) => {
-    const filteredData = data?.filter(i => {
+    const filterIncidentes = (data) => {
+    return data?.filter(i => {
       const matchEstado = !filters.estado || i.estado?.toLowerCase() === filters.estado?.toLowerCase();
       const matchPrioridad = !filters.prioridad || i.prioridad === filters.prioridad;
-      const matchGravedad = !filters.gravedad || i.gravedad?.toLowerCase() === filters.gravedad.toLowerCase();
+      const matchGravedad = !filters.gravedad || i.gravedad?.toLowerCase() === filters.gravedad?.toLowerCase();
       const matchSearch = Object.values(i).some(val => String(val).toLowerCase().includes(searchText.toLowerCase()));
-      return matchEstado && matchPrioridad && matchGravedad && matchSearch;
-    });
-  
-    // Ordenar los incidentes por fecha ascendente
-    return filteredData?.sort((b, a) => new Date(a.fecha_creado) - new Date(b.fecha_creado));
+
+      const matchTipo = filters.tipoIncidente === "All" || (filters.tipoIncidente === "My" && i.supervisor_asignado === usuario.rut);
+
+      const fecha = new Date(i.fecha_creado);
+      const matchFechaInicio = !filters.fechaInicio || fecha >= new Date(filters.fechaInicio);
+      const matchFechaFin = !filters.fechaFin || fecha <= new Date(filters.fechaFin);
+
+      return matchEstado && matchPrioridad && matchGravedad && matchSearch && matchTipo && matchFechaInicio && matchFechaFin;
+    }).sort((b, a) => new Date(a.fecha_creado) - new Date(b.fecha_creado));
   };
 
   
@@ -115,8 +120,28 @@ export const Incidentes = () => {
     <>
       {isModalOpen && <ModalIncidentes onClose={handleCloseModal} incidente={selectedIncidente} />}
       <div className="filters">
-        <h1>Incidentes</h1>
-        <div>
+        <div className="title-filter">
+          <h1>Incidentes</h1>
+          <div className="button-group">
+            <Button label="Todos los Incidentes" 
+                    severity="secondary"
+                    size="small" 
+                    outlined 
+                    onClick={() => setFilters(f => ({ ...f, tipoIncidente: "All"}))}
+                    style={{ color: '#5C90C5'}}
+            />
+
+            <Button label="Mis Incidentes" 
+                    severity="secondary"
+                    size="small" 
+                    outlined 
+                    onClick={() => setFilters(f => ({ ...f, tipoIncidente: "My"}))}
+                    style={{ color: '#5C90C5'}}
+            />
+          </div>
+        </div>
+        <div className="all-filters">
+          <div>
           <InputText id="busqueda" placeholder="Buscar..." value={searchText} onChange={(e) => setSearchText(e.target.value)} />
           <Dropdown 
             id = "filtro-estado"
@@ -142,7 +167,24 @@ export const Incidentes = () => {
             placeholder="Gravedad" 
             showClear={true}
             />
+          </div>
+          <div>
+            <Calendar 
+            value={filters.fechaInicio} 
+            onChange={(e) => setFilters(f => ({ ...f, fechaInicio: e.value }))} 
+            placeholder="Fecha Inicio" 
+            showIcon 
+          />
+
+          <Calendar 
+            value={filters.fechaFin} 
+            onChange={(e) => setFilters(f => ({ ...f, fechaFin: e.value }))} 
+            placeholder="Fecha Fin" 
+            showIcon 
+          />
+          </div>
         </div>
+        
       </div>
 
       <div className="table-container" ref={tableRef}>
@@ -185,9 +227,12 @@ export const Incidentes = () => {
                   <button id="detalles" className="btn-icon" onClick={() => handleOpenModal(incidente)}>
                     <svg  xmlns="http://www.w3.org/2000/svg"  width={24}  height={24}  viewBox="0 0 24 24"  fill="none" stroke="currentColor"  strokeWidth={2}  strokeLinecap="round"  strokeLinejoin="round"  className="icon icon-tabler icons-tabler-outline icon-tabler-file-description"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 0 0 1 1h4" /><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" /><path d="M9 17h6" /><path d="M9 13h6" /></svg>
                   </button>
-                  <button className="btn-icon">
-                    <svg  xmlns="http://www.w3.org/2000/svg"  width={24}  height={24}  viewBox="0 0 24 24"  fill="none" stroke="currentColor" strokeWidth={2}  strokeLinecap="round"  strokeLinejoin="round"  className="icon icon-tabler icons-tabler-outline icon-tabler-writing"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M20 17v-12c0 -1.121 -.879 -2 -2 -2s-2 .879 -2 2v12l2 2l2 -2z" /><path d="M16 7h4" /><path d="M18 19h-13a2 2 0 1 1 0 -4h4a2 2 0 1 0 0 -4h-3" /></svg>
-                  </button>
+                  {incidente.supervisor_asignado === usuario.rut && 
+                    <button className="btn-icon">
+                      <svg  xmlns="http://www.w3.org/2000/svg"  width={24}  height={24}  viewBox="0 0 24 24"  fill="none" stroke="currentColor" strokeWidth={2}  strokeLinecap="round"  strokeLinejoin="round"  className="icon icon-tabler icons-tabler-outline icon-tabler-writing"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M20 17v-12c0 -1.121 -.879 -2 -2 -2s-2 .879 -2 2v12l2 2l2 -2z" /><path d="M16 7h4" /><path d="M18 19h-13a2 2 0 1 1 0 -4h4a2 2 0 1 0 0 -4h-3" /></svg>
+                    </button>
+                  }
+                  
                 </td>
 
               </tr>

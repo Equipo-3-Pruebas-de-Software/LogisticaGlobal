@@ -1,10 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useEffect , useState} from 'react';
 import { Chart } from 'primereact/chart';
+import { useUser } from '../../context/UserContext';
+
 
 import incidentesData from "../../mockups/incidentes.json";        
 
 export const SupervisorDashboard = () => {
 
+  const { usuario } = useUser();
   const [chartData, setChartData] = useState({});
   const [chartOptions, setChartOptions] = useState({});
 
@@ -57,7 +60,8 @@ export const SupervisorDashboard = () => {
 
     return (
       <>
-        <h1>Hola, supevisor!</h1>
+        <h1>Hola, {usuario.nombre}!</h1>
+        {/* 
         <div className="dashboard-top">
           <article className="cards-dashboard">
             <section>
@@ -80,6 +84,7 @@ export const SupervisorDashboard = () => {
         </div>
         
         <h2 className='title-incidentes-criticos'>Incidentes críticos</h2>
+        */}
       </>
     )
   }

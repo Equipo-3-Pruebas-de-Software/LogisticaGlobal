@@ -36,8 +36,35 @@
     }
   }
 
+.all-filters {
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+  
+  button.p-button {
+    background-color: #5C90C5;
+    border: 1px solid #5C90C5;
+  }
+}
+
+.title-filter {
+  display: flex;
+  flex-direction: column;
+
+  .button-group {
+    margin-top: auto;
+
+    button {
+      display: flex;
+      align-items: center;
+    }
+  }
+
+}
+
 @media (max-width: 768px) {
     .table-container {
         display: none;
     }
   }
+

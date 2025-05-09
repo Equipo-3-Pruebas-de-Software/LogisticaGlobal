@@ -1,4 +1,6 @@
 import { useState , useEffect} from 'react';
+import { useUser } from '../../context/UserContext';
+
 
 import { Timeline } from 'primereact/timeline';
 import { InputNumber } from 'primereact/inputnumber';
@@ -11,6 +13,9 @@ import { Column } from 'primereact/column';
 
 
 export const ModalIncidentes = ({onClose, incidente}) => {
+
+    const { usuario } = useUser();
+    const supervisor = usuario.rut
 
     const [prioridad, setPrioridad] = useState(incidente.prioridad || null);
     const [gravedad, setGravedad] = useState(incidente.gravedad || null);
@@ -30,8 +35,6 @@ export const ModalIncidentes = ({onClose, incidente}) => {
         { status: 'Resuelto', date: formatFecha(incidente.fecha_resuelto)}
     ];
 
-    const supervisor = "12345677-9"
-    
     useEffect(() => {
         setAsignaciones({});
         fetch(`/incidentes/${incidente.id_incidentes}`) 
@@ -153,7 +156,7 @@ export const ModalIncidentes = ({onClose, incidente}) => {
                         )}
                     </ul>
 
-                    <h3>Relación Robot - Técnico Asignado</h3>
+                    <h3 style={{ marginBottom: '0.5rem'}}>Relación Robot - Técnico Asignado</h3>
 
                     <DataTable value={
                       Array.isArray(idsRobot) && Array.isArray(rutTenicos)
