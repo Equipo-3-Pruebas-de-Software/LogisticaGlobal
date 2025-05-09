@@ -6,14 +6,19 @@ import { InputTextarea } from 'primereact/inputtextarea';
 import { MultiSelect } from 'primereact/multiselect';
 import { Button } from 'primereact/button';
 import { Message } from 'primereact/message';
-import RobotsData from '../../mockups/robots.json';
+
+import { useUser } from '../../context/UserContext';
+
 
 export default function CrearIncidenteForm() {
+  const { usuario } = useUser();
   const [lugar, setLugar] = useState('');
   const [descripcion, setDescripcion] = useState('');
   const [robotsSeleccionados, setRobotsSeleccionados] = useState([]);
   const [robotsDisponibles, setRobotsDisponibles] = useState([]);
   const [mensaje, setMensaje] = useState(null);
+
+  console.log(usuario)
 
   useEffect(() => {
     fetch('/robots')

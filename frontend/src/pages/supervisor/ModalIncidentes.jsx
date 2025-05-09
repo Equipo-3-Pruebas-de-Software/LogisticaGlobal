@@ -133,7 +133,7 @@ export const ModalIncidentes = ({onClose, incidente}) => {
 
     return (
       <div className="modal-overlay">
-        <div className="modal">
+        <div className="modal-incidentes">
             <section className='info-zone'>
                 <div className='container-info'>
                 {incidente.gravedad && 

@@ -1,6 +1,13 @@
 import { Routes, Route } from "react-router-dom";
+import { PrimeReactProvider, PrimeReactContext } from 'primereact/api';
+import 'primereact/resources/themes/lara-light-indigo/theme.css'; //theme
+import 'primereact/resources/primereact.min.css'; //core css
 
 import Login from "./pages/login";
+import PrivateRoute from "./pages/privateroute"
+import AccessDenied from "./pages/accesoDenegado";
+import NotFound from "./pages/notfound"
+
 import SupervisorLayout from "./pages/supervisor/supervisorlayout";
 import SupervisorDashboard from "./pages/supervisor/dashboard";
 import Incidentes from "./pages/supervisor/incidentes";
@@ -17,24 +24,34 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<Login />} />
-
-      {/* Supervisor */}
-      <Route path="/supervisor" element={<SupervisorLayout />}>
-        <Route index element={<SupervisorDashboard />} />
-        <Route path="incidentes" element={<Incidentes />} />
-        <Route path="robots" element={<RobotsSupervisor />} />
-        <Route path="tecnicos" element={<TecnicosSupervisor />} />
+      <Route path="/access-denied" element={<AccessDenied />} />
+      
+      <Route element={<PrivateRoute allowedRoles={['supervisor']} />}>
+        {/* Supervisor */}
+        <Route path="/supervisor" element={<SupervisorLayout />}>
+          <Route index element={<SupervisorDashboard />} />
+          <Route path="incidentes" element={<Incidentes />} />
+          <Route path="robots" element={<RobotsSupervisor />} />
+          <Route path="tecnicos" element={<TecnicosSupervisor />} />
+        </Route>
       </Route>
 
-      {/* Técnico */}
-      <Route path="/tecnico" element={<TecnicoLayout />}>
-        <Route index element={<RobotsAsignados />} />
+      <Route element={<PrivateRoute allowedRoles={['tecnico']} />}>
+        {/* Técnico */}
+        <Route path="/tecnico" element={<TecnicoLayout />}>
+          <Route index element={<RobotsAsignados />} />
+        </Route>
       </Route>
 
-      {/* Jefe de Turno */}
-      <Route path="/jefe_turno" element={<JefeDeTurnoLayout />}>
-        <Route index element={<JefeDeTurno />} />
+      <Route element={<PrivateRoute allowedRoles={['jefe_turno']} />}>
+        {/* Jefe de Turno */}
+        <Route path="/jefe_turno" element={<JefeDeTurnoLayout />}>
+          <Route index element={<JefeDeTurno />} />
+        </Route>
       </Route>
+
+      <Route path="*" element={<NotFound />} />
+
     </Routes>
   );
 }
