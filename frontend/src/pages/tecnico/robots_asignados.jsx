@@ -62,31 +62,32 @@ const RobotsAsignados = () => {
   return (
     <div>
       <h1>Robots Asignados</h1>
-      <table className="robots-table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Lugar de Trabajo</th>
-            <th>Estado</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {robots.map((robot) => (
-            <tr key={robot.id_robot}>
-              <td>{robot.id_robot}</td>
-              <td>{robot.lugar_trabajo}</td>
-              <td>{robot.estado}</td>
-              <td>
-                <button className="close-repair-button" onClick={() => abrirModal(robot)}>
-                  Cerrar Reparación
-                </button>
-              </td>
+      <div className='table-container'>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Lugar de Trabajo</th>
+              <th>Estado</th>
+              <th>Acciones</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-
+          </thead>
+          <tbody>
+            {robots.map((robot) => (
+              <tr key={robot.id_robot}>
+                <td>{robot.id_robot}</td>
+                <td>{robot.lugar_trabajo}</td>
+                <td>{robot.estado}</td>
+                <td>
+                  <button className="close-repair-button" onClick={() => abrirModal(robot)}>
+                    Cerrar Reparación
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
       {modalVisible && (
         <div className="modal">
           <div className="modal-content">
