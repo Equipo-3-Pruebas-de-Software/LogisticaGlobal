@@ -5,7 +5,10 @@ import ModalIncidentes from "./ModalIncidentes";
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 
+import { useUser } from '../../context/UserContext';
+
 export const Incidentes = () => {
+  const { usuario } = useUser();
   const [incidentes, setIncidentes] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -15,6 +18,7 @@ export const Incidentes = () => {
   const [filters, setFilters] = useState({ lugar: null, estado: null, prioridad: null, gravedad: null, fechaInicio: null, fechaFin: null });
 
   const tableRef = useRef(null);
+  console.log(usuario)
 
   const uniqueValues = (key) => {
     const seen = new Map();
@@ -90,7 +94,7 @@ export const Incidentes = () => {
   const filterIncidentes = (data) => {
     const filteredData = data?.filter(i => {
       const matchEstado = !filters.estado || i.estado?.toLowerCase() === filters.estado?.toLowerCase();
-      const matchPrioridad = !filters.prioridad || i.prioridad?.toLowerCase() === filters.prioridad.toLowerCase();
+      const matchPrioridad = !filters.prioridad || i.prioridad === filters.prioridad;
       const matchGravedad = !filters.gravedad || i.gravedad?.toLowerCase() === filters.gravedad.toLowerCase();
       const matchSearch = Object.values(i).some(val => String(val).toLowerCase().includes(searchText.toLowerCase()));
       return matchEstado && matchPrioridad && matchGravedad && matchSearch;

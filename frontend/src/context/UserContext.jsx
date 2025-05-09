@@ -1,11 +1,23 @@
-import { createContext, useState, useContext } from 'react';
+import { createContext, useState, useContext , useEffect } from 'react';
 
 // Crear el contexto
 const UserContext = createContext();
 
 // Proveedor del contexto
 export const UserProvider = ({ children }) => {
-    const [usuario, setUsuario] = useState(null);
+    const [usuario, setUsuario] = useState(() => {
+        // Verificar si hay un usuario guardado en localStorage
+        const storedUser = localStorage.getItem('usuario');
+        return storedUser ? JSON.parse(storedUser) : null;
+    });
+
+    useEffect(() => {
+        if (usuario) {
+            localStorage.setItem('usuario', JSON.stringify(usuario));
+        } else {
+            localStorage.removeItem('usuario');
+        }
+    }, [usuario]);
 
     const handleLogout = () => {
         setUsuario(null);
