@@ -100,8 +100,8 @@ const getAllIncidentes = async (req, res) => {
 };
 
 const finalUpdateIncidente = (req, res) => {
-  const { rut_supervisor, firma, id_incidente } = req.params;
-  checkFirma({ rut_supervisor, firma }, (err, check) => {
+  const { rut_supervisor, firma, id_incidente } = req.body;
+  checkFirma(rut_supervisor, firma, (err, check) => {
     if (err) {
       console.error('[GET FIRMA]', err.sqlMessage);
       return res.status(500).json({ error: 'Error obteniendo la firma' });
@@ -140,7 +140,7 @@ const finalUpdateIncidente = (req, res) => {
                 return db.rollback(() => res.status(500).json({ error: 'Error actualizando disponibilidad del técnico' }));
               }
 
-              updateEstadoRobot(detalle.id_robot, 'operativo', (err6) => {
+              updateEstadoRobot(detalle.id_robot, 'Operativo', (err6) => {
                 if (err6) {
                   return db.rollback(() => res.status(500).json({ error: 'Error actualizando estado del robot' }));
                 }
@@ -150,7 +150,7 @@ const finalUpdateIncidente = (req, res) => {
                     if (err7) {
                       return db.rollback(() => res.status(500).json({ error: 'Error al confirmar transacción' }));
                     }
-                    res.status(201).json({ success: true, incidenteId });
+                    res.status(201).json({ success: true, id_incidente });
                   });
                 }
               });
