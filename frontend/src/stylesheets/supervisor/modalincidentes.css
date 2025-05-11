@@ -32,6 +32,29 @@
 
   }
 
+.modal-resolucion {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    width: 160vh;
+    max-width: 800px;
+    text-align: end;
+
+    div {
+        text-align: center;
+    }
+
+    .btn-icon {
+        padding: 0px;
+    }
+
+    .botton-margin {
+        margin-bottom: 20px;
+    }
+
+  }
+
 .info-zone {
     grid-area: info;
     display: flex;

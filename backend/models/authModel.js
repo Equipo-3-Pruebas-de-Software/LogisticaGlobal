@@ -13,7 +13,11 @@ const findUserByCredentials = (rut, clave, callback) => {
     }
 
     const { table, rol } = queries[index];
-    const query = `SELECT rut, nombre FROM ${table} WHERE rut = ? AND clave = ?`;
+    const query = `
+      SELECT rut, ${table === 'supervisores' ? 'firma,' : ''} nombre 
+      FROM ${table} 
+      WHERE rut = ? AND clave = ?
+    `;
 
     db.query(query, [rut, clave], (err, results) => {
       if (err) return callback(err);
