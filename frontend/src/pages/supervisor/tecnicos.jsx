@@ -28,10 +28,10 @@ export const TecnicosSupervisor = () => {
               const response = await fetch(`/incidentes-robots-tecnicos/robots-asignados/${tecnico.rut}`);
               if (!response.ok) throw new Error('Error en incidente/robot');
               const incidenteData = await response.json(); // <-- esto es un array
-              const incidente = incidenteData[0]; // <-- toma el primer objeto, si existe
-  
+              const incidente = incidenteData[incidenteData.length - 1];
+
               incidenteDataArray.push(incidenteData);
-  
+
               return {
                 rut: tecnico.rut,
                 nombre: tecnico.nombre,
@@ -137,7 +137,7 @@ export const TecnicosSupervisor = () => {
                         {robot.disponibilidad === 1? <p>Disponible</p> : <p>No disponible</p>}
                     </div>
                   </td>
-                {robot.robot?
+                {robot.disponibilidad === 0?
                   <td>Robot {robot.robot} de Incidente {robot.incidente}</td> : <td>Sin asignar</td>
                 }
               </tr>
