@@ -39,12 +39,12 @@ Desde directorio raiz, en un nuevo terminal de comandos:
   * Abre tu navegador y ve a [Localhost](http://localhost:5173).
 ### Credenciales de Prueba
   Técnico
-   - RUT: 12345678-9
+   - RUT: 14856536-8
    - Contraseña: clave123
 
   Supervisor
-   - RUT: 98765433-1
-   - Contraseña: password456
+   - RUT: 12345677-9
+   - Contraseña: clave123
      
   Jefe de Turno
    - RUT: 11111111-1
