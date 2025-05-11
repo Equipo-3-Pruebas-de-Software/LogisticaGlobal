@@ -48,11 +48,11 @@ export const ModalResolucion = ({onClose, incidente}) => {
               <h1 className='botton-margin'>Este incidente ya ha sido resuelto</h1>
             }
 
-            {incidente.estado?.toLowerCase() != "resuelto" && incidente.estado?.toLowerCase() != "espera revisión" && 
+            {incidente.estado?.toLowerCase() != "resuelto" && incidente.estado?.toLowerCase() != "en espera de aprobación" && 
               <h1 className='botton-margin'>Este incidente aún no espera aprobación</h1>
             }
 
-            {incidente.estado?.toLowerCase() === "espera revisión" && 
+            {incidente.estado?.toLowerCase() === "en espera de aprobación" && 
               <>
                 <h1>¿Estás seguro qué deseas resolver este incidente?</h1>
                 <button onClick={handleGuardar} className='link-button' style={{ fontSize: '1.2rem' , marginTop: "10px" }}>Confirmar</button>

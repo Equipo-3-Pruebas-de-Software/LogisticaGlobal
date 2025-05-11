@@ -56,15 +56,11 @@ const getRobotsForTecnico = (req, res) => {
     return res.status(400).json({ error: 'El rut del técnico es requerido' });
   }
 
-  console.log('Buscando robots para el técnico:', rut_tecnico);  // Agregar este log
-
   getRobotsByTecnico(rut_tecnico, (err, robots) => {
     if (err) {
       console.error('[GET ROBOTS ERROR]', err.sqlMessage);  // Aquí puedes ver si la consulta falla
       return res.status(500).json({ error: 'Error obteniendo robots asignados' });
     }
-
-    console.log('Robots asignados:', robots);  // Verifica si robots tiene datos
 
     res.json(robots);
   });
