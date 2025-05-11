@@ -1,6 +1,8 @@
+const db = require('../config/db');
 const { getRobotsByTecnico, assignTecnicoToRobot, addFicha, checkFinished } = require('../models/incidentesRobotsTecnicosModel');
 const { setDisponibilidad } = require('../models/tecnicosModel');
 const { setFechaEsperaAprovacion } = require('../models/incidentesModel');
+const { updateEstadoRobot } = require('../models/robotsModel');
 
 const assignTecnico = (req, res) => {
   const { id_incidente, id_robot, rut_tecnico } = req.body;
@@ -9,23 +11,40 @@ const assignTecnico = (req, res) => {
     return res.status(400).json({ error: 'Faltan datos requeridos' });
   }
 
-  assignTecnicoToRobot(id_incidente, id_robot, rut_tecnico, (err, result) => {
+  db.beginTransaction((err) => {
     if (err) {
-      console.error('[ASIGNACIÓN TECNICO ERROR]', err.sqlMessage);
-      return res.status(500).json({ error: 'Error asignando técnico al robot' });
+        return db.rollback(() => res.status(500).json({ error: 'Error iniciando transacción' }));
     }
 
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ error: 'Incidente/robot no encontrado' });
-    }
-
-    setDisponibilidad(rut_tecnico, 0, (err2) => {
+    assignTecnicoToRobot(id_incidente, id_robot, rut_tecnico, (err2, result) => {
       if (err2) {
-        console.error('[ACTUALIZAR DISPONIBILIDAD ERROR]', err2.sqlMessage);
-        return res.status(500).json({ error: 'Error actualizando disponibilidad del técnico' });
+        console.error('[ASIGNACIÓN TECNICO ERROR]', err.sqlMessage);
+        return db.rollback(() => res.status(500).json({ error: 'Error asignando técnico al robot' }));
       }
 
-      res.json({ success: true, message: 'Técnico asignado correctamente' });
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ error: 'Incidente/robot no encontrado' });
+      }
+
+      setDisponibilidad(rut_tecnico, 0, (err2) => {
+        if (err2) {
+          console.error('[ACTUALIZAR DISPONIBILIDAD ERROR]', err2.sqlMessage);
+          return db.rollback(() => res.status(500).json({ error: 'Error actualizando disponibilidad del técnico' }));
+        }
+
+        updateEstadoRobot(id_robot, "En reparación", (err3) => {
+          if (err3) {
+            console.error('[ACTUALIZAR ESTADO ERROR]', err3.sqlMessage);
+            return db.rollback(() => res.status(500).json({ error: 'Error actualizando estado del robot' }));
+          }
+          db.commit((err4) => {
+            if (err4) {
+              return db.rollback(() => res.status(500).json({ error: 'Error al confirmar transacción' }));
+            }
+            res.status(201).json({ success: true, message: 'Técnico asignado correctamente' });
+          });
+        });
+      });
     });
   });
 };
