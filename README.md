@@ -36,7 +36,7 @@ Desde directorio raiz, en un nuevo terminal de comandos:
   npm run dev
 ```
 ### Acceso a la aplicación
-  * Abre tu navegador y ve a [Localhost](http://localhost:5173).
+  * Abre tu navegador y ve a [localhost:5173](http://localhost:5173).
 ### Credenciales de Prueba
   Técnico
    - RUT: 14856536-8
