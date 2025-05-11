@@ -81,7 +81,7 @@ export const TecnicosSupervisor = () => {
 
   const filterTecnicos = (data) => {
     const filteredData = data?.filter(i => {
-      const matchEstado = filters.disponibilidad === null || filters.disponibilidad === undefined || i.disponibilidad.toLowerCase() === filters.disponibilidad.toLowerCase();
+      const matchEstado = filters.disponibilidad === null || filters.disponibilidad === undefined || i.disponibilidad === filters.disponibilidad;
       const matchSearch = Object.values(i).some(val => String(val).toLowerCase().includes(searchText.toLowerCase()));
       return matchEstado && matchSearch;
     });

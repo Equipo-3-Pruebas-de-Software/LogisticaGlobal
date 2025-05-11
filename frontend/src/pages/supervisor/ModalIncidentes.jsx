@@ -48,7 +48,7 @@ export const ModalIncidentes = ({onClose, incidente}) => {
           .catch((error) => {
             console.error('[ERROR FETCH INCIDENTES]', error);
           });
-      }, [incidente.id_incidentes, mensaje]);
+      }, [incidente.id_incidentes, incidente.estado]);
 
       useEffect(() => {
         fetch('/tecnicos') 
