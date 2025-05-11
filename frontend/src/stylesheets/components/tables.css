@@ -2,19 +2,21 @@ table {
     width: 100%;
     text-align: left;
     background-color: #ffffff;
-    padding: 10px 20px;
     box-shadow: 0px 0px 15px -6px rgba(0,0,0,0.1);
+    border-collapse: collapse;
 }
 
 thead tr th {
-    padding: 0.5rem;
-    color: #b8bcc7;
+    background-color: #426B95;
+    padding: 0.8rem 1rem;
+    color: #fff;
     font-size: 1.1rem;
     font-weight: 500;
+
 }
 
 tbody tr td {
-    padding: 0.6rem;
+    padding: 0.6rem 1rem;
     border-top: 1px solid #f0eeee;
 
     &:first-letter {
@@ -39,8 +41,7 @@ tbody tr td {
     }
 }	
   
-.gravedad-alta, .prioridad-alta{
-    text-transform: capitalize;
+.gravedad-alta, .prioridad-alta, .estado-fuera.de.servicio, .disponibilidad-0{
 
     div {
         display: flex;
@@ -53,12 +54,14 @@ tbody tr td {
 
         p {
             flex: 1;
+            &::first-letter {
+                text-transform: capitalize;
+            }
         }	
     }	
   }
 
-  .gravedad-media, .prioridad-media{
-    text-transform: capitalize;
+  .gravedad-media, .prioridad-media, .estado-en.reparación{
 
     div {
         display: flex;
@@ -71,12 +74,14 @@ tbody tr td {
 
         p {
             flex: 1;
+            &::first-letter {
+                text-transform: capitalize;
+            }
         }	
     }	
   }
 
-  .gravedad-baja, .prioridad-baja{
-    text-transform: capitalize;
+  .gravedad-baja, .prioridad-baja, .estado-operativo, .disponibilidad-1 {
 
     div {
         display: flex;
@@ -89,6 +94,9 @@ tbody tr td {
 
         p {
             flex: 1;
+            &::first-letter {
+                text-transform: capitalize;
+            }
         }	
     }	
   }

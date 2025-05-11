@@ -16,7 +16,23 @@ export default defineConfig({
         target: 'http://localhost:3000',
         changeOrigin: true,
         // rewrite no hace falta si la ruta es idéntica
+      },
+      '/robots': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+        // rewrite no hace falta si la ruta es idéntica
+      },
+      '/incidentes-robots-tecnicos/asignar-tecnico': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+        // rewrite no hace falta si la ruta es idéntica
+      },
+      '/incidentes-robots-tecnicos': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+        // rewrite no hace falta si la ruta es idéntica
       }
+      
     }
   }
 })

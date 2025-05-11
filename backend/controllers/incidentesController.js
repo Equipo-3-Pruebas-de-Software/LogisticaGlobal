@@ -1,7 +1,9 @@
 const db = require('../config/db');
-const { createIncidente, updateIncidenteAsignacion, readIncidente, readAllIncidentes } = require('../models/incidentesModel');
+const { createIncidente, updateIncidenteAsignacion, readIncidente, readAllIncidentes, resolveIncidente } = require('../models/incidentesModel');
 const { addRobotToIncidente, readIncidenteRobotsTecnicos } = require('../models/incidentesRobotsTecnicosModel');
 const { updateEstadoRobot } = require('../models/robotsModel');
+const { checkFirma } = require('../models/supervisoresModel');
+const { setDisponibilidad } = require('../models/tecnicosModel');
 
 const createIncidenteWithRobots = (req, res) => {
   const { lugar, descripcion, robots } = req.body;
@@ -44,7 +46,7 @@ const updateIncident = (req, res) => {
     if (!id_incidente || !supervisor_asignado || prioridad === undefined || !gravedad) {
       return res.status(400).json({ error: 'Datos incompletos para asignación' });
     }
-    console.log(id_incidente)
+    
     updateIncidenteAsignacion({ id_incidente, supervisor_asignado, prioridad, gravedad }, (err, result) => {
       if (err) {
         console.error('[UPDATE ERROR]', err.sqlMessage);
@@ -97,10 +99,73 @@ const getAllIncidentes = async (req, res) => {
   }
 };
 
+const finalUpdateIncidente = (req, res) => {
+  const { rut_supervisor, firma, id_incidente } = req.body;
+  checkFirma(rut_supervisor, firma, (err, check) => {
+    if (err) {
+      console.error('[GET FIRMA]', err.sqlMessage);
+      return res.status(500).json({ error: 'Error obteniendo la firma' });
+    }
+
+    if (!check) {
+      return res.status(403).json({ error: 'Firma no coincide con la almacenada en base de datos' });
+    }
+
+    db.beginTransaction((err2) => {
+      if (err2) {
+        return db.rollback(() => res.status(500).json({ error: 'Error iniciando transacción' }));
+      }
+      
+      resolveIncidente(id_incidente, (err3, result) => {
+        if (err3) {
+          console.error('[UPDATE ERROR]', err3.sqlMessage);
+          return db.rollback(() => res.status(500).json({ error: 'Error actualizando incidente' }));
+        }
+
+        if (result.affectedRows === 0) {
+          return db.rollback(() => res.status(404).json({ error: 'Incidente no encontrado' }));
+        }
+
+        readIncidenteRobotsTecnicos(id_incidente, (err4, detalles) => {
+          if (err4) {
+            console.error('[GET DETALLES]', err4.sqlMessage);
+            return db.rollback(() => res.status(500).json({ error: 'Error obteniendo detalles' }));
+          }
+
+          let completed = 0;
+          for (const detalle of detalles) {
+            setDisponibilidad(detalle.rut_tecnico, 1, (err5) => {
+              if (err5) {
+                console.error('[ACTUALIZAR DISPONIBILIDAD ERROR]', err5.sqlMessage);
+                return db.rollback(() => res.status(500).json({ error: 'Error actualizando disponibilidad del técnico' }));
+              }
+
+              updateEstadoRobot(detalle.id_robot, 'Operativo', (err6) => {
+                if (err6) {
+                  return db.rollback(() => res.status(500).json({ error: 'Error actualizando estado del robot' }));
+                }
+                completed++;
+                if (completed === detalles.length) {
+                  db.commit((err7) => {
+                    if (err7) {
+                      return db.rollback(() => res.status(500).json({ error: 'Error al confirmar transacción' }));
+                    }
+                    res.status(201).json({ success: true, id_incidente });
+                  });
+                }
+              });
+            });
+          };
+        });
+      });
+    });
+  });
+};
+
 module.exports = {
     createIncidenteWithRobots,
     updateIncident,
     getIncidente,
-    getAllIncidentes
-  };
-  
+    getAllIncidentes,
+    finalUpdateIncidente
+};

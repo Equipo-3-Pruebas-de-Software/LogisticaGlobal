@@ -40,11 +40,31 @@ const readAllIncidentes = () => {
   });
 };
 
+const setFechaEsperaAprovacion = (id_incidente, callback) => {
+  const query = `
+    UPDATE incidentes
+    SET fecha_espera_aprovacion = CURRENT_TIMESTAMP, estado = "En espera de aprobación"
+    WHERE id_incidentes = ?
+  `;
+  db.query(query, [id_incidente], callback);
+};
+
+const resolveIncidente = (id_incidente, callback) => {
+  const query = `
+    UPDATE incidentes
+    SET estado = 'resuelto', firmado = 1, fecha_resuelto = CURRENT_TIMESTAMP
+    WHERE id_incidentes = ?
+  `;
+  db.query(query, [id_incidente], callback);
+}
+
 
 module.exports = {
   createIncidente,
   updateIncidenteAsignacion,
   readIncidente,
-  readAllIncidentes
+  readAllIncidentes,
+  setFechaEsperaAprovacion,
+  resolveIncidente
 };
 

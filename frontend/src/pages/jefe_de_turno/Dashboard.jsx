@@ -6,7 +6,8 @@ import { InputTextarea } from 'primereact/inputtextarea';
 import { MultiSelect } from 'primereact/multiselect';
 import { Button } from 'primereact/button';
 import { Message } from 'primereact/message';
-import RobotsData from '../../mockups/robots.json';
+
+
 
 export default function CrearIncidenteForm() {
   const [lugar, setLugar] = useState('');
@@ -14,15 +15,27 @@ export default function CrearIncidenteForm() {
   const [robotsSeleccionados, setRobotsSeleccionados] = useState([]);
   const [robotsDisponibles, setRobotsDisponibles] = useState([]);
   const [mensaje, setMensaje] = useState(null);
+  
 
   useEffect(() => {
-    // Formatea los robots mockeados
-    const opciones = RobotsData.map(robot => ({
-      label: `Robot ${robot.id_robot}`,
-      value: robot.id_robot
-    }));
-    setRobotsDisponibles(opciones);
-  }, []);
+    fetch('/robots')
+      .then((response) => {
+        if (!response.ok) throw new Error('Error al obtener los robots');
+        return response.json();
+      })
+      .then((data) => {
+        const opciones = data
+        .filter(robot => robot.estado !== 'fuera de servicio')
+        .map(robot => ({
+          label: `Robot ${robot.id_robot}`,
+          value: robot.id_robot
+        }));
+        setRobotsDisponibles(opciones);
+      })
+      .catch((error) => {
+        console.error('[ERROR FETCH ROBOTS]', error);
+      });
+  }, [mensaje]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -60,9 +73,6 @@ export default function CrearIncidenteForm() {
     <>
     <h2>Crear Incidente</h2>
     <div className='crear-incidente'>
-      {mensaje && (
-        <Message severity={mensaje.type} text={mensaje.text} className='msg'/>
-      )}
       <form onSubmit={handleSubmit} className="form-container">
         <div className='div-group'>
           <label htmlFor="lugar">Lugar</label>
@@ -84,6 +94,9 @@ export default function CrearIncidenteForm() {
         </div>
         <div className='div-group'>
           <Button type="submit" label="Crear Incidente" className='btn-crear-incidente'/>
+          {mensaje && (
+            <Message severity={mensaje.type} text={mensaje.text} className='msg'/>
+          )}
         </div>
       </form>
     </div>

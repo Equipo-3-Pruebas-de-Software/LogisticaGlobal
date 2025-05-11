@@ -36,3 +36,36 @@ a {
   text-decoration: none;
   color: inherit;
 }	
+
+.extra-pages-container {
+
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  color: #faf8f5;
+  justify-content: center;
+  align-items: center;
+
+  h1 {
+    font-size: 7rem;
+  }
+
+  h2 {
+    font-size: 3rem;
+  }
+
+  button {
+    border: none;
+    padding: 10px 20px;
+    background-color: #fff;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+
+  }
+
+  button:hover {
+      background-color: #f1f1f1;
+      transition: background-color 0.3s ease;
+
+    }
+}

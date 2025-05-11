@@ -1,99 +1,111 @@
-// Página principal de robots asignados
-// Acá se muestra la lista de robots asignados, debe permitir filtrarlos
-// Agregar botón para crear un nuevo robot asignado (via modal)
-import { useEffect, useRef, useState } from "react";
-import Tables from "../../components/general/tables";
+import { useState, useEffect } from 'react';
+import { useUser } from '../../context/UserContext';
+import '../../stylesheets/tecnico/robots_asignados.css';
 
-export const RobotsAsignados = ({ rutTecnico }) => {
-  const [robots, setRobots] = useState([]); // Estado para almacenar los robots obtenidos del backend
-  const [currentPage, setCurrentPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-  const tableRef = useRef(null);
+const RobotsAsignados = () => {
+  const [robots, setRobots] = useState([]);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [robotSeleccionado, setRobotSeleccionado] = useState(null);
+  const [comentario, setComentario] = useState('');
+  const { usuario } = useUser();
 
-  // Solicitar los robots asignados al técnico al cargar el componente
   useEffect(() => {
+    if (!usuario) return;
+
     const fetchRobots = async () => {
       try {
-        const response = await fetch(`http://localhost:3000/robots-asignados/${rutTecnico}`);
-        if (!response.ok) {
-          throw new Error("Error al obtener los robots asignados");
-        }
+        const response = await fetch(`http://localhost:3000/tecnicos/robots-asignados/${usuario.rut}`);
         const data = await response.json();
-        setRobots(data); // Actualiza el estado con los datos obtenidos
-      } catch (error) {
-        console.error("Error fetching robots:", error);
+        setRobots(data);
+      } catch (err) {
+        console.error('Error al obtener los robots:', err);
       }
     };
 
     fetchRobots();
-  }, [rutTecnico]);
+  }, [usuario]);
 
-  // Ajustar el número de filas por página según el tamaño de la ventana
-  useEffect(() => {
-    const updateRowsPerPage = () => {
-      if (tableRef.current) {
-        const offsetTop = tableRef.current.getBoundingClientRect().top;
-        const availableHeight = window.innerHeight - offsetTop - 120; // Ajusta según el diseño
-        const rowHeight = 60; // Altura estimada de cada fila
-        const possibleRows = Math.floor(availableHeight / rowHeight);
-        setRowsPerPage(possibleRows > 0 ? possibleRows : 1);
-      }
-    };
+  const abrirModal = (robot) => {
+    setRobotSeleccionado(robot);
+    setModalVisible(true);
+  };
 
-    updateRowsPerPage();
-    window.addEventListener("resize", updateRowsPerPage);
-    return () => window.removeEventListener("resize", updateRowsPerPage);
-  }, []);
+  const cerrarModal = () => {
+    setModalVisible(false);
+    setRobotSeleccionado(null);
+    setComentario('');
+  };
+  
+  const finalizarReparacion = async () => {
+    try {
+      const response = await fetch('/incidentes-robots-tecnicos/subir-ficha', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id_incidente: robotSeleccionado.id_incidentes,
+          id_robot: robotSeleccionado.id_robot,
+          descripcion: comentario
+        }),
+      });
 
-  // Paginación
-  const totalPages = Math.ceil(robots.length / rowsPerPage);
-  const startIndex = (currentPage - 1) * rowsPerPage;
-  const visibleRobots = robots.slice(startIndex, startIndex + rowsPerPage);
+      if (!response.ok) throw new Error('No se pudo cerrar la reparación');
+
+      // Refrescar lista
+      const nuevaLista = robots.filter(r => r.id_robot !== robotSeleccionado.id_robot);
+      setRobots(nuevaLista);
+      cerrarModal();
+    } catch (err) {
+      console.error('Error al finalizar reparación:', err);
+    }
+  };
 
   return (
-    <>
+    <div>
       <h1>Robots Asignados</h1>
-      <div className="table-container" ref={tableRef}>
-        <Tables
-          header={
-            <>
-              <th>ID Robot</th>
+      <div className='table-container'>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
               <th>Lugar de Trabajo</th>
               <th>Estado</th>
-            </>
-          }
-          main={
-            visibleRobots.map((robot) => (
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {robots.map((robot) => (
               <tr key={robot.id_robot}>
                 <td>{robot.id_robot}</td>
                 <td>{robot.lugar_trabajo}</td>
                 <td>{robot.estado}</td>
+                <td>
+                  <button className="close-repair-button" onClick={() => abrirModal(robot)}>
+                    Cerrar Reparación
+                  </button>
+                </td>
               </tr>
-            ))
-          }
-        />
-
-        <div className="pagination-controls">
-          <button
-            onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-            disabled={currentPage === 1}
-            className="link-button"
-          >
-            Anterior
-          </button>
-          <span>
-            {currentPage} / {totalPages}
-          </span>
-          <button
-            onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-            disabled={currentPage === totalPages}
-            className="link-button"
-          >
-            Siguiente
-          </button>
-        </div>
+            ))}
+          </tbody>
+        </table>
       </div>
-    </>
+      {modalVisible && (
+        <div className="modal">
+          <div className="modal-content">
+            <h3>Finalizar reparación</h3>
+            <textarea
+              value={comentario}
+              onChange={(e) => setComentario(e.target.value)}
+              placeholder="Describe lo realizado..."
+              rows={4}
+            />
+            <div className="modal-actions">
+              <button className="modal-button confirm" onClick={finalizarReparacion}>Enviar</button>
+              <button className="modal-button cancel" onClick={cerrarModal}>Cancelar</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 

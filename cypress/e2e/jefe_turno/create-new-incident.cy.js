@@ -8,26 +8,25 @@ describe('Crear Incidentes', () => {
   });
 
   const cerrarSesion = () => {
-    cy.get('a').contains('Cerrar sesión').click(); // Ajusta el selector si es diferente
-    cy.url().should('include', '/'); // Verifica que se redirige a la página de inicio (o login)
-    cy.get('input[id="rut"]').should('be.visible'); // Verifica que el campo de RUT esté visible (u otro elemento de la página de inicio)
+    cy.get('a').contains('Cerrar sesión').click(); 
+    cy.url().should('include', '/'); 
+    cy.get('input[id="rut"]').should('be.visible'); 
   };
 
   it('debería poder crear un nuevo incidente', () => {
-    cy.get('input[id="lugar"]').type('Pasillo Sur');
-    cy.get('textarea[id="descripcion"]').type('Los robots chocaron entre sí, causando daños en la mercancía. Al robot 2 se le salió el sensor de proximidad y al robot 3 se le salió la rueda del lado izquierdo. El robot 1 no presenta daños visibles, pero no se mueve. Se recomienda revisar los sensores de todos los robots involucrados en el incidente.');
+    cy.get('input[id="lugar"]').type('Pasillo 3');
+    cy.get('textarea[id="descripcion"]').type('Los robots chocaron. A uno de ellos se le salió la rueda izquierda, al otro se le rompió el brazo mecánico. Dejaron caer mercancías frágiles.');
     cy.get('div[id="robots"]').click();
     cy.get('li.p-multiselect-item')
-      .contains('Robot 1')
-      .click(); // Haz clic en el li que contiene "Robot 1"
+      .first()
+      .click(); 
 
     cy.get('li.p-multiselect-item')
-      .contains('Robot 2')
-      .click(); // Haz clic en el li que contiene "Robot 2"
+      .last()
+      .click(); 
 
-    cy.get('li.p-multiselect-item')
-      .contains('Robot 3')
-      .click(); // Haz clic en el li que contiene "Robot 3"
+    cy.get('body').click(0, 0);
+
     cy.get('button[type="submit"]').click();
     cy.get('.msg') 
       .should('be.visible')
@@ -36,14 +35,15 @@ describe('Crear Incidentes', () => {
     cerrarSesion();
   });
 
-
   it('debería dar error porque falta el campo de lugar', () => {
-    cy.get('textarea[id="descripcion"]').type("Durante la manipulación de paquetes frágiles, el robot 6 dejó caer una caja, resultando en daños en el contenido. ");
+    cy.get('textarea[id="descripcion"]').type("Durante la manipulación de paquetes frágiles, el robot dejó caer una caja, resultando en daños en el contenido. Revisar sensores.");
     cy.get('div[id="robots"]').click();
   
     cy.get('li.p-multiselect-item')
-      .contains('Robot 6')
+      .first()
       .click();
+
+    cy.get('body').click(0, 0);
 
     cy.get('button[type="submit"]').click();
     cy.get('.msg') 
@@ -58,8 +58,10 @@ describe('Crear Incidentes', () => {
     cy.get('div[id="robots"]').click();
 
     cy.get('li.p-multiselect-item')
-      .contains('Robot 5')
+      .first()
       .click(); 
+
+    cy.get('body').click(0, 0);
 
     cy.get('button[type="submit"]').click();
     cy.get('.msg') 
@@ -69,7 +71,10 @@ describe('Crear Incidentes', () => {
 
   it('debería dar error porque no se seleccionaron robots', () => {
     cy.get('input[id="lugar"]').type('Pasillo Este');
-    cy.get('textarea[id="descripcion"]').type("El robot 4 se detuvo repentinamente en la zona de carga, causando un retraso en la operación. Se recomienda revisar el estado del robot y reiniciar su sistema.");
+    cy.get('textarea[id="descripcion"]').type("El robot se detuvo repentinamente en la zona de carga, causando un retraso en la operación. Se recomienda revisar el estado del robot y reiniciar su sistema.");
+    
+    cy.get('body').click(0, 0);
+    
     cy.get('button[type="submit"]').click();
     cy.get('.msg') 
       .should('be.visible')

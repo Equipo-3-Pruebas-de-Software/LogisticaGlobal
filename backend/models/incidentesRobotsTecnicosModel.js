@@ -32,16 +32,38 @@ const getRobotsByTecnico = (rut_tecnico, callback) => {
     JOIN robots r ON irt.id_robot = r.id_robot
     WHERE irt.rut_tecnico = ?
   `;
-  
-  console.log('Consulta SQL:', query, 'Con parámetro rut_tecnico:', rut_tecnico); // Log para depuración
 
   db.query(query, [rut_tecnico], callback);
+};
+
+const addFicha = (id_incidente, id_robot, descripcion, callback) => {
+  const query = `
+    UPDATE incidentes_robots_tecnicos
+    SET descripcion = ?
+    WHERE id_robot = ? AND id_incidente = ?
+  `;
+  db.query(query, [descripcion, id_robot, id_incidente], callback);
+};
+
+const checkFinished = (id_incidente, callback) => {
+  const query = `
+    SELECT COUNT(*) AS faltantes
+    FROM incidentes_robots_tecnicos
+    WHERE id_incidente = ? AND descripcion IS NULL
+  `;
+  db.query(query, [id_incidente], (err, results) => {
+    if (err) return callback(err);
+    const faltantes = Number(results[0].faltantes);
+    callback(null, faltantes === 0);
+  });
 };
 
 module.exports = {
   addRobotToIncidente,
   readIncidenteRobotsTecnicos,
   assignTecnicoToRobot,
-  getRobotsByTecnico
+  getRobotsByTecnico,
+  addFicha,
+  checkFinished
 };
 
