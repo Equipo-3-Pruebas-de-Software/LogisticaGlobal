@@ -35,16 +35,16 @@ const RobotsAsignados = () => {
     setRobotSeleccionado(null);
     setComentario('');
   };
-
+  
   const finalizarReparacion = async () => {
     try {
-      const response = await fetch('http://localhost:3000/robots/finalizar-reparacion', {
+      const response = await fetch('/incidentes-robots-tecnicos/subir-ficha', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          id_robot: robotSeleccionado.id_robot,
           id_incidente: robotSeleccionado.id_incidentes,
-          comentario,
+          id_robot: robotSeleccionado.id_robot,
+          descripcion: comentario
         }),
       });
 
