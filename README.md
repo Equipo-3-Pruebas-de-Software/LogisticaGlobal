@@ -3,7 +3,7 @@
 Proyecto INF331 - Pruebas de Software. Aplicación web diseñada para facilitar el registro, clasificación y seguimiento de los incidentes ocurridos en los robots de inventario en el almacén de LogisticaGlobal. 
 
 ## Videos
-- [Entrega 1](a)
+- [Entrega 1](https://www.youtube.com/watch?v=0c-y_6oEMyo)
 
 ## Problema planteado
 En LogísticaGlobal.com, una empresa que utiliza robots automatizados para mover organizar y mover productos, suelen ocurrir incidentes como fallos mecánicos o colisiones, los cuales deben ser naturalmente reportados para mantener registro de los mismos y además solucionar cada robot en caso de ser necesario. Actualmente, el reporte de estos incidentes se realiza de manera física por un jefe de turno para luego ser recibido por un supervisor solo tras habre sido digitalizado usando Words y PDFs, esto genera una alta demanda de tiempo tanto para jefes de turno como también para el respectivo supervisor, volviéndome inviable a medida que aumenta la cantidad de robots usados (y a su vez de incidentes ocurridos).
