@@ -23,8 +23,7 @@
     display: grid;
     grid-template-areas: 
         "timeline info";
-    grid-template-columns: 1fr 1fr;
-    gap: 2;
+    grid-template-columns: 1fr 1.5fr;
 
     .btn-icon {
         padding: 0px;

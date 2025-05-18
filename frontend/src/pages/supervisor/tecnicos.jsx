@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import Tables from "../../components/general/tables";
+import Tables from "../../components/general/tables/tables";
+import TecnicosCards from "../../components/general/tables/tecnico-cards"
 
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
@@ -98,7 +99,7 @@ export const TecnicosSupervisor = () => {
 
   return (
     <>
-      <div className="filters">
+      <div className="filters mobile-filter">
         <h1>Técnicos</h1>
         <div>
           <InputText id="busqueda" placeholder="Buscar..." value={searchText} onChange={(e) => setSearchText(e.target.value)} />
@@ -115,7 +116,15 @@ export const TecnicosSupervisor = () => {
           />
         </div>
       </div>
-        
+      
+      <div className="card-container">  
+        {
+          filteredTecnicos?.map((tecnico) => (
+            <TecnicosCards key={tecnico.rut} tecnico={tecnico}/>
+          ))
+        }
+      </div>
+
       <div className="table-container" ref={tableRef}>
         <Tables
           header={

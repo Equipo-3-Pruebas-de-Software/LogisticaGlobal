@@ -26,6 +26,7 @@ export const ModalIncidentes = ({onClose, incidente}) => {
 
     const idsRobot = detalles?.map(detalle => detalle.id_robot);
     const rutTenicos = detalles?.map(detalle => detalle.rut_tecnico);
+    const comentariosTecnicos = detalles?.map(detalle => detalle.descripcion);
 
     const gravedades = ['Alta', 'Media', 'Baja'];
     const events = [
@@ -148,12 +149,6 @@ export const ModalIncidentes = ({onClose, incidente}) => {
                         <li><b>Descripción: </b><span>{incidente.descripcion}</span></li>
                         <li><b>Prioridad: </b><span>{incidente.prioridad}</span></li>
                         <li><b>Gravedad: </b><span>{incidente.gravedad}</span></li>
-                        {incidente.fecha_espera_aprovacion && (
-                          <li>
-                            <b>Comentarios sobre el trabajo realizado: </b>
-                            <span>{incidente.comentario}</span>
-                          </li>
-                        )}
                     </ul>
 
                     <h3 style={{ marginBottom: '0.5rem'}}>Relación Robot - Técnico Asignado</h3>
@@ -162,12 +157,14 @@ export const ModalIncidentes = ({onClose, incidente}) => {
                       Array.isArray(idsRobot) && Array.isArray(rutTenicos)
                         ? idsRobot.map((id, index) => ({
                             robot: `Robot ${id}`,
-                            tecnico: rutTenicos[index] ?? 'Sin asignar'
+                            tecnico: rutTenicos[index] ?? 'Sin asignar',
+                            comentario: comentariosTecnicos[index] ?? ''
                           }))
                         : []
                     }>
                       <Column field="robot" header="Robot" />
                       <Column field="tecnico" header="Técnico Asignado" />
+                      <Column field="comentario" header="Comentarios" />
                     </DataTable>
                   </>
                 }
