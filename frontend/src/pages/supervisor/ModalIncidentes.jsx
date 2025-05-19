@@ -249,7 +249,7 @@ export const ModalIncidentes = ({onClose, incidente}) => {
         </div>
       </div>
 
-      <div className="modal-overlay">
+      <div className="modal-overlay-mobile">
         <div className="modal-mobile">
             <section className='info-zone'>
                 <div className='container-info'>

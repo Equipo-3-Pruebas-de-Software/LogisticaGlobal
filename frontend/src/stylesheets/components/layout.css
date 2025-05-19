@@ -20,6 +20,12 @@
       max-width: fit-content;
       transition: background-color 0.3s ease;
 
+      p {
+        align-self: center;
+        font-size: 1.3rem;
+        margin-bottom: 1rem;
+      }
+
       .link {
         padding: 10px 60px 10px 30px;
         display: flex;

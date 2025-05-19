@@ -9,7 +9,11 @@
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
     z-index: 998;
-}	
+}
+
+.modal-mobile {
+    display: none;
+}
 
 .modal-incidentes {
     background-color: #fff;
@@ -121,8 +125,21 @@
 
 
 @media (max-width: 768px) {
-    .modal-desktop {
+    .modal-desktop,.modal-overley {
         display: none;
+    }
+
+    .modal-overlay-mobile{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 998;
     }
 
     .modal-resolucion {
