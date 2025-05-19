@@ -15,28 +15,39 @@
     background: #6c9bca; /* Azul para el recuadro */
     padding: 2rem;
     border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
     width: 100%;
     max-width: 400px;
     color: #ffffff; /* Texto blanco */
     text-align: center;
 }
 
-.login-form h1 {
-    margin-bottom: 1.5rem;
-    font-size: 1.8rem;
-    font-weight: bold;
-    color: #ffffff; /* Título*/
+.login-form {
+    h1 {
+        margin-bottom: 0.5rem;
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: #ffffff; /* Título*/
+    }
+
+    h2 {
+        font-size: 1.5rem;
+        font-weight: 500;
+    }
 }
 
+
+
 .form-group {
-    margin-bottom: 1rem;
-    text-align: left;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.2rem;
+    margin-bottom: 0.8rem;
 }
 
 .form-group label {
     display: block;
-    margin-bottom: 0.5rem;
     font-weight: bold;
     color: #ffffff; /* Etiquetas */
 }
@@ -48,6 +59,10 @@
     border-radius: 4px;
 }
 
+.form-group p {
+    color: #f0f0f0;
+}
+
 .login-button {
     width: 100%;
     padding: 0.75rem;
@@ -57,8 +72,16 @@
     border-radius: 4px;
     cursor: pointer;
     font-size: 1rem;
+    transition: background-color 0.3s ease;
 }
 
 .login-button:hover {
-    background-color: #245d9b;
+    background-color: #3b5e81;
+    transition: background-color 0.3s ease;
+}
+
+@media (max-width: 768px) {
+    .login-form {
+        width: 90%;
+    }
 }

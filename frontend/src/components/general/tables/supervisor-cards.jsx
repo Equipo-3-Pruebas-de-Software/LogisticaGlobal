@@ -1,4 +1,3 @@
-
 import { formatFecha } from "../../../utils/date"
 
 export const IncidentesCards = ({incidente, operaciones}) => {

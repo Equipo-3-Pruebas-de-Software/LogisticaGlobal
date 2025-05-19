@@ -80,9 +80,6 @@ export const SupervisorDashboard = () => {
     }
   };
   
-
-  console.log(data)
-
     return (
       <>
         <h1 className='dashboard-welcome'>¡Hola, {usuario.nombre}!</h1>
