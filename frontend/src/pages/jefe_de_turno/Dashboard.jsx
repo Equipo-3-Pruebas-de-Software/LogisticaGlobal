@@ -25,7 +25,7 @@ export default function CrearIncidenteForm() {
       })
       .then((data) => {
         const opciones = data
-        .filter(robot => robot.estado !== 'fuera de servicio')
+        .filter(robot => robot?.estado.toLowerCase() === 'operativo')
         .map(robot => ({
           label: `Robot ${robot.id_robot}`,
           value: robot.id_robot
