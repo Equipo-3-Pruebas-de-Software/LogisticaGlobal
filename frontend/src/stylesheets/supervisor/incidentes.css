@@ -90,8 +90,9 @@
     }
 
     .filters {
+      gap: 0rem;
+      align-items: center;
       flex-direction: column;
-      gap: 1rem;
 
       .button-group {
         align-self: flex-end;
@@ -109,15 +110,12 @@
     .all-filters-mobile {
       display: block;
       flex-direction: column;
-      margin-bottom: 1rem;
+      margin-top: 1rem;
 
       button.p-button {
         background-color: #5C90C5;
         border: 1px solid #5C90C5;
       }
-
-     
-      
     }
 
     .mobile-filter {
@@ -127,6 +125,19 @@
         flex-wrap: wrap;
         display: flex;
         justify-content: flex-end;
+        width: 100%;
+      }
+    }
+
+    .mobile-filter-robots {
+      flex-direction: row;
+      margin-bottom: 1rem;
+
+      > div {
+        flex-wrap: wrap;
+        display: flex;
+        justify-content: flex-end;
+        width: 100%;
       }
     }
   }

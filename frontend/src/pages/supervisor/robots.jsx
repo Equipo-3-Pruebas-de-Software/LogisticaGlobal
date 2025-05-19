@@ -94,7 +94,7 @@ export const RobotsSupervisor = () => {
 
   return (
     <>
-      <div className="filters mobile-filter">
+      <div className="filters mobile-filter-robots">
         <h1>Robots</h1>
         <div>
           <InputText id="busqueda" placeholder="Buscar..." value={searchText} onChange={(e) => setSearchText(e.target.value)} />

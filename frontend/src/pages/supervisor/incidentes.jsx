@@ -140,7 +140,7 @@ export const Incidentes = () => {
     <>
       {isModalOpen && <ModalIncidentes onClose={handleCloseModal} incidente={selectedIncidente} />}
       {isModalFirmarOpen && <ModalResolucion onClose={handleCloseModalFirmar} incidente={selectedIncidente} />}
-      <div className="filters">
+      <div className="filters mobile-filter">
         <div className="title-filter">
           <h1>Incidentes</h1>
           <div className="button-group">
