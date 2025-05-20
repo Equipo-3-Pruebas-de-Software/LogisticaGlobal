@@ -20,6 +20,12 @@ import RobotsAsignados from "./pages/tecnico/robots_asignados";
 import JefeDeTurnoLayout from "./pages/jefe_de_turno/jefedeturnolayout";
 import JefeDeTurno from "./pages/jefe_de_turno/Dashboard";
 
+import AdministradorLayout from "./pages/administrador/administradorlayout";
+import AgregarFuncionario from "./pages/administrador/crear";
+import SupervisorAdmin from "./pages/administrador/supervisor"
+import RobotAdmin from "./pages/administrador/robot"
+import TecnicoAdmin from "./pages/administrador/tecnico"
+
 function App() {
   return (
     <Routes>
@@ -49,6 +55,15 @@ function App() {
           <Route index element={<JefeDeTurno />} />
         </Route>
       </Route>
+
+      <Route path="/admin" element={<AdministradorLayout />}>
+          <Route index element={<SupervisorDashboard />} />
+          <Route path="crear" element={<AgregarFuncionario  />} />
+          <Route path="supervisor" element={<SupervisorAdmin />} />
+          <Route path="robot" element={<RobotAdmin />} />
+          <Route path="tecnico" element={<TecnicoAdmin />} />
+          <Route path="jefe-turno" element={<TecnicoAdmin />} />
+        </Route>
 
       <Route path="*" element={<NotFound />} />
 

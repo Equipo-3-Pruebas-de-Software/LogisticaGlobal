@@ -50,7 +50,7 @@ const RobotsAsignados = () => {
     };
 
     fetchRobots();
-  }, [usuario, comentario]);
+  }, [usuario, modalVisible]);
 
   const abrirModal = () => {
     setModalVisible(true);
