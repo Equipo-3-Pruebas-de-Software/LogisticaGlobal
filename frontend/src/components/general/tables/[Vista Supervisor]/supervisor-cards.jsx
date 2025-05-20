@@ -1,4 +1,4 @@
-import { formatFecha } from "../../../utils/date"
+import { formatFecha } from "../../../../utils/date"
 
 export const IncidentesCards = ({incidente, operaciones}) => {
 

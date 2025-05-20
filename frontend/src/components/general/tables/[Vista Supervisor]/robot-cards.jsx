@@ -1,5 +1,5 @@
 
-export const AdminRobotsCards = ({robot}) => {
+export const RobotsCards = ({robot, operaciones = null}) => {
 
     return (
       <section className="incidentes-cards">
@@ -24,10 +24,19 @@ export const AdminRobotsCards = ({robot}) => {
             <p className="fueraservicio">Fuera de servicio</p>
           }
         </div>
+
+        {operaciones != null &&
+          <>
+          <hr />
+          <div className="botones">
+            {operaciones}
+          </div>
+          </>
+        }
       </section>
       
     )
   }
   
-  export default AdminRobotsCards
+  export default RobotsCards
   

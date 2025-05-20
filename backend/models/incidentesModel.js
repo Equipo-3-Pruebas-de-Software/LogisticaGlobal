@@ -1,11 +1,11 @@
 const db = require('../config/db');
 
-const createIncidente = ({ lugar, descripcion }, callback) => {
+const createIncidente = ({ lugar, descripcion , jefe_turno_asignado}, callback) => {
   const query = `
-    INSERT INTO incidentes (lugar, descripcion, estado, fecha_creado, firmado)
-    VALUES (?, ?, 'creado', CURRENT_TIMESTAMP, 0)
+    INSERT INTO incidentes (lugar, descripcion, estado, fecha_creado, firmado, jefe_turno_asignado)
+    VALUES (?, ?, 'creado', CURRENT_TIMESTAMP, 0, ?)
   `;
-  db.query(query, [lugar, descripcion], (err, result) => {
+  db.query(query, [lugar, descripcion, jefe_turno_asignado], (err, result) => {
     if (err) return callback(err);
     callback(null, result.insertId); // return id_incidentes
   });

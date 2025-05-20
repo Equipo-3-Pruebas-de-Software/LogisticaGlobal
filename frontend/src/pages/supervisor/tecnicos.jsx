@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import Tables from "../../components/general/tables/tables";
-import TecnicosCards from "../../components/general/tables/tecnico-cards"
+import TecnicosCards from "../../components/general/tables/[Vista Supervisor]/tecnico-cards"
 
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';

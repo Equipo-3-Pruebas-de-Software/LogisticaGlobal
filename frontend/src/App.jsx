@@ -25,6 +25,7 @@ import AgregarFuncionario from "./pages/administrador/crear";
 import SupervisorAdmin from "./pages/administrador/supervisor"
 import RobotAdmin from "./pages/administrador/robot"
 import TecnicoAdmin from "./pages/administrador/tecnico"
+import JefeDeTurnoAdmin from "./pages/administrador/jefe-turno"
 
 function App() {
   return (
@@ -62,7 +63,7 @@ function App() {
           <Route path="supervisor" element={<SupervisorAdmin />} />
           <Route path="robot" element={<RobotAdmin />} />
           <Route path="tecnico" element={<TecnicoAdmin />} />
-          <Route path="jefe-turno" element={<TecnicoAdmin />} />
+          <Route path="jefe-turno" element={<JefeDeTurnoAdmin />} />
         </Route>
 
       <Route path="*" element={<NotFound />} />

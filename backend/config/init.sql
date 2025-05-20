@@ -72,13 +72,12 @@ INSERT IGNORE INTO robots (id_robot, lugar_trabajo, estado) VALUES
 (10, 'Zona de Descarga', 'operativo'),
 (11, 'Zona de Carga', 'operativo'),
 (12, 'Pasillo Sur', 'operativo'),
-(13, 'Pasillo Sur', 'en reparación'),
--- Robot nuevo para pruebas:
-(1001, 'Pasillo 8', 'en reparación');
+(13, 'Pasillo Sur', 'en reparación');
 
 -- Tabla de Incidentes
 CREATE TABLE IF NOT EXISTS incidentes (
     id_incidentes BIGINT NOT NULL AUTO_INCREMENT,
+    jefe_turno_asignado VARCHAR(20),
     supervisor_asignado VARCHAR(20),
     lugar TEXT,
     estado TEXT,
@@ -113,15 +112,13 @@ CREATE TABLE IF NOT EXISTS incidentes_robots_tecnicos (
 
 -- Datos Iniciales para Incidentes
 INSERT IGNORE INTO incidentes (
-    id_incidentes, supervisor_asignado, lugar, estado, prioridad, gravedad, fecha_creado, firmado, descripcion, fecha_tecnico_asignado
+    id_incidentes, jefe_turno_asignado, supervisor_asignado, lugar, estado, prioridad, gravedad, fecha_creado, firmado, descripcion, fecha_tecnico_asignado
 ) VALUES
-(1, "12345677-9", 'Pasillo 1', 'Técnico asignado', 2, 'alta', '2023-10-01 10:00:00', 0, 'Robot atascado en el pasillo.', '2023-10-02 09:30:00'),
-(2, '98765433-1', 'Bodega', 'Técnico asignado', 1, 'media', '2023-10-02 11:00:00', 0, 'Fuga de agua en la bodega.', '2023-10-03 10:51:00'),
-(3, '11223345-5', 'Zona de Carga', 'Técnico asignado', 3, 'baja', '2023-10-03 12:00:00', 0, 'Robot no responde.', '2023-10-04 11:11:00'),
-(4, NULL, 'Zona de Descarga', 'Creado', NULL, NULL, '2023-10-04 13:00:00', 0, 'Problema de conexión con el robot.', NULL),
-(5, NULL, 'Pasillo 2', 'Creado', NULL, NULL, '2023-10-05 14:00:00', 0, 'Robot en mantenimiento.', NULL),
--- Incidente nuevo para técnico de prueba:
-(100, '11223345-5', 'Pasillo 8', 'Técnico asignado', 2, 'media', NOW(), 0, 'Robot no se mueve', NOW());
+(1, '11111111-1' , "12345677-9", 'Pasillo 1', 'Técnico asignado', 2, 'alta', '2023-10-01 10:00:00', 0, 'Robot atascado en el pasillo.', '2023-10-02 09:30:00'),
+(2, '33333333-3', "98765433-1",'Bodega', 'Técnico asignado', 1, 'media', '2023-10-02 11:00:00', 0, 'Fuga de agua en la bodega.', '2023-10-03 10:51:00'),
+(3, '22222222-2', '11223345-5', 'Zona de Carga', 'Técnico asignado', 3, 'baja', '2023-10-03 12:00:00', 0, 'Robot no responde.', '2023-10-04 11:11:00'),
+(4, '22222222-2' , NULL, 'Zona de Descarga', 'Creado', NULL, NULL, '2023-10-04 13:00:00', 0, 'Problema de conexión con el robot.', NULL),
+(5, "11111111-1" ,NULL, 'Pasillo 2', 'Creado', NULL, NULL, '2023-10-05 14:00:00', 0, 'Robot en mantenimiento.', NULL);
 
 -- Datos Iniciales de relaciones
 INSERT IGNORE INTO incidentes_robots_tecnicos (id_robot, id_incidente, rut_tecnico, fecha_asignacion, descripcion) VALUES
@@ -130,6 +127,4 @@ INSERT IGNORE INTO incidentes_robots_tecnicos (id_robot, id_incidente, rut_tecni
 (3, 2, "14856536-8", '2023-10-03 10:51:00', NULL),
 (4, 3, "16876745-5", "2023-10-04 11:11:00", NULL),
 (5, 4, NULL, NULL, NULL),
-(6, 5, NULL, NULL, NULL),
--- Relación nueva para técnico de prueba
-(1001, 100, '12463595-0', NOW(), NULL);
+(6, 5, NULL, NULL, NULL);

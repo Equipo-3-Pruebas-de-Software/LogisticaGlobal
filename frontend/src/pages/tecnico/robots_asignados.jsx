@@ -3,7 +3,7 @@ import { useUser } from '../../context/UserContext';
 import '../../stylesheets/tecnico/robots_asignados.css';
 
 import Tables from '../../components/general/tables/tables';
-import RobotsAsignadosCards from "../../components/general/tables/robots-asignados-cards"
+import RobotsAsignadosCards from "../../components/general/tables/[Vista Técnico]/robots-asignados-cards"
 import { InputTextarea } from 'primereact/inputtextarea';
 
 const RobotsAsignados = () => {

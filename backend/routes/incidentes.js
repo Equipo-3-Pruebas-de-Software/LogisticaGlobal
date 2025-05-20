@@ -20,6 +20,4 @@ router.post('/', createIncidenteWithRobots);
 router.patch('/', updateIncident);
 router.patch('/resolver', finalUpdateIncidente);
 
-
-
 module.exports = router;

@@ -6,12 +6,17 @@ import { MultiSelect } from 'primereact/multiselect';
 import { Button } from 'primereact/button';
 import { Message } from 'primereact/message';
 
+import { useUser } from '../../context/UserContext';
+
 export default function CrearIncidenteForm() {
   const [lugar, setLugar] = useState('');
   const [descripcion, setDescripcion] = useState('');
   const [robotsSeleccionados, setRobotsSeleccionados] = useState([]);
   const [robotsDisponibles, setRobotsDisponibles] = useState([]);
   const [mensaje, setMensaje] = useState(null);
+
+  const { usuario } = useUser();
+  const jefe = usuario.rut
   
   useEffect(() => {
     fetch('/robots')
@@ -48,7 +53,8 @@ export default function CrearIncidenteForm() {
         body: JSON.stringify({
           lugar: lugar,
           descripcion: descripcion,
-          robots: robotsSeleccionados
+          robots: robotsSeleccionados,
+          jefe_turno_asignado: jefe
         })
       });
 

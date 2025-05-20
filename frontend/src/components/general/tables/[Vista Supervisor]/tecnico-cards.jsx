@@ -1,5 +1,5 @@
 
-export const TecnicosCards = ({tecnico}) => {
+export const TecnicosCards = ({tecnico, operaciones = null}) => {
     return (
       <section className="incidentes-cards">
         <div className="title">
@@ -18,6 +18,15 @@ export const TecnicosCards = ({tecnico}) => {
             <p>Robot {tecnico.robot} de Incidente {tecnico.incidente}</p> : <p>Sin asignar</p>
           }
         </div>
+
+        {operaciones != null &&
+          <>
+          <hr />
+          <div className="botones">
+            {operaciones}
+          </div>
+          </>
+        }
       </section>
       
     )
