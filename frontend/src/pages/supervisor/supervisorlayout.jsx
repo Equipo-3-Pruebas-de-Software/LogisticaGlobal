@@ -1,5 +1,5 @@
 import { Outlet } from 'react-router-dom'
-import Layout from '../../components/general/layout'
+import Layout from '../../components/general/layout/layout'
 import Link from '../../components/general/link'
 
 export const SupervisorLayout = () => {

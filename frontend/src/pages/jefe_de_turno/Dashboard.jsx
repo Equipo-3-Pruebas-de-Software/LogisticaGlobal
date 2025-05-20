@@ -1,13 +1,10 @@
 import { useState, useEffect } from 'react';
-import { InputText } from 'primereact/inputtext';
 
+import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
-        
 import { MultiSelect } from 'primereact/multiselect';
 import { Button } from 'primereact/button';
 import { Message } from 'primereact/message';
-
-
 
 export default function CrearIncidenteForm() {
   const [lugar, setLugar] = useState('');
@@ -16,7 +13,6 @@ export default function CrearIncidenteForm() {
   const [robotsDisponibles, setRobotsDisponibles] = useState([]);
   const [mensaje, setMensaje] = useState(null);
   
-
   useEffect(() => {
     fetch('/robots')
       .then((response) => {
@@ -25,7 +21,7 @@ export default function CrearIncidenteForm() {
       })
       .then((data) => {
         const opciones = data
-        .filter(robot => robot.estado !== 'fuera de servicio')
+        .filter(robot => robot?.estado.toLowerCase() === 'operativo')
         .map(robot => ({
           label: `Robot ${robot.id_robot}`,
           value: robot.id_robot
@@ -71,7 +67,7 @@ export default function CrearIncidenteForm() {
 
   return (
     <>
-    <h2>Crear Incidente</h2>
+    <h1>Crear Incidente</h1>
     <div className='crear-incidente'>
       <form onSubmit={handleSubmit} className="form-container">
         <div className='div-group'>
