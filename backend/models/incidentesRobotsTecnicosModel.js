@@ -59,12 +59,21 @@ const checkFinished = (id_incidente, callback) => {
   });
 };
 
+const getDescripcion = (id_incidente, id_robot, rut_tecnico, callback) => {
+  const query = `
+    SELECT * FROM incidentes_robots_tecnicos
+    WHERE id_robot = ? AND id_incidente = ? AND rut_tecnico = ?
+  `; 
+  db.query(query, [id_robot, id_incidente, rut_tecnico], callback);
+};
+
 module.exports = {
   addRobotToIncidente,
   readIncidenteRobotsTecnicos,
   assignTecnicoToRobot,
   getRobotsByTecnico,
   addFicha,
-  checkFinished
+  checkFinished,
+  getDescripcion
 };
 

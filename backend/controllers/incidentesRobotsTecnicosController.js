@@ -1,5 +1,5 @@
 const db = require('../config/db');
-const { getRobotsByTecnico, assignTecnicoToRobot, addFicha, checkFinished } = require('../models/incidentesRobotsTecnicosModel');
+const { getRobotsByTecnico, assignTecnicoToRobot, addFicha, checkFinished, getDescripcion } = require('../models/incidentesRobotsTecnicosModel');
 const { setDisponibilidad } = require('../models/tecnicosModel');
 const { setFechaEsperaAprovacion } = require('../models/incidentesModel');
 const { updateEstadoRobot } = require('../models/robotsModel');
@@ -62,7 +62,7 @@ const getRobotsForTecnico = (req, res) => {
       return res.status(500).json({ error: 'Error obteniendo robots asignados' });
     }
 
-    res.json(robots);
+    res.status(200).json(robots);
   });
 };
 
@@ -105,9 +105,27 @@ const uploadFicha = (req, res) => {
     });
 };
 
+const getFicha = (req, res) => {
+  const { id_incidente, id_robot, rut_tecnico } = req.body;
+  if (!id_incidente || !id_robot || !rut_tecnico ) {
+        return res.status(400).json({ error: 'Faltan datos requeridos' });
+  }
+  getDescripcion(id_incidente, id_robot, rut_tecnico, (err, result) => {
+    if (err) {
+      console.error('[GET DESCRIPCION ERROR]', err.sqlMessage);
+      return res.status(500).json({ error: 'Error al obtener la ficha' });
+    }
+    if (!result) {
+      return res.status(404).json({ error: 'Ficha no encontrada' })
+    }
+    res.status(200).json(result);
+  });
+};
+
 
 module.exports = {
     assignTecnico,
     getRobotsForTecnico,
-    uploadFicha
+    uploadFicha,
+    getFicha
 }
