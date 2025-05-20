@@ -1,9 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import Tables from "../../components/general/tables/tables";
+import Tables from "../../components/general/tables";
 
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
-import RobotsCards from "../../components/general/tables/robot-cards";
 
 export const RobotsSupervisor = () => {
   const [robots, setRobots] = useState([]);
@@ -94,7 +93,7 @@ export const RobotsSupervisor = () => {
 
   return (
     <>
-      <div className="filters mobile-filter-robots">
+      <div className="filters">
         <h1>Robots</h1>
         <div>
           <InputText id="busqueda" placeholder="Buscar..." value={searchText} onChange={(e) => setSearchText(e.target.value)} />
@@ -108,15 +107,7 @@ export const RobotsSupervisor = () => {
           />
         </div>
       </div>
-      
-      <div className="card-container">  
-        {
-          filteredRobots?.map((robot) => (
-            <RobotsCards key={robot.id_robot} robot={robot}/>
-          ))
-        }
-      </div>
-
+        
       <div className="table-container" ref={tableRef}>
         <Tables
           header={

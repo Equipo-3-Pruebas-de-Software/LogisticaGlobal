@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { formatFecha } from "../../utils/date";
-import Tables from "../../components/general/tables/tables";
-import IncidentesCards from "../../components/general/tables/supervisor-cards";
+import Tables from "../../components/general/tables";
 import ModalIncidentes from "./ModalIncidentes";
 import ModalResolucion from "./ModalResolucion" ;
 
@@ -14,8 +13,6 @@ import { useUser } from '../../context/UserContext';
 
 export const Incidentes = () => {
   const { usuario } = useUser();
-  const [filtrosMobile, setFiltrosMobile] = useState(false);
-
   const [incidentes, setIncidentes] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -132,15 +129,11 @@ export const Incidentes = () => {
   const startIndex = (currentPage - 1) * rowsPerPage;
   const visibleIncidentes = filteredIncidentes?.slice(startIndex, startIndex + rowsPerPage);
 
-  const toggleFiltrosMobile = () => {
-    setFiltrosMobile(!filtrosMobile);
-  };
-
   return (
     <>
       {isModalOpen && <ModalIncidentes onClose={handleCloseModal} incidente={selectedIncidente} />}
       {isModalFirmarOpen && <ModalResolucion onClose={handleCloseModalFirmar} incidente={selectedIncidente} />}
-      <div className="filters mobile-filter">
+      <div className="filters">
         <div className="title-filter">
           <h1>Incidentes</h1>
           <div className="button-group">
@@ -159,99 +152,53 @@ export const Incidentes = () => {
                     onClick={() => setFilters(f => ({ ...f, tipoIncidente: "My"}))}
                     style={{ color: '#5C90C5'}}
             />
-
           </div>
-
-          
-          {filtrosMobile &&
-          
-          <Button label="Ocultar filtros" 
-                  severity="secondary"
-                  size="small" 
-                  outlined 
-                  onClick={toggleFiltrosMobile}
-                  className="mobile-filter-button"
-          />}
-
-          {!filtrosMobile &&
-          <Button label="Mostrar filtros" 
-                  severity="secondary"
-                  size="small" 
-                  outlined 
-                  onClick={toggleFiltrosMobile}
-                  className="mobile-filter-button"
-          />}
         </div>
-
-      <div className={`${filtrosMobile ? 'all-filters-mobile' : 'all-filters'}`}>
+        <div className="all-filters">
+          <div>
           <InputText id="busqueda" placeholder="Buscar..." value={searchText} onChange={(e) => setSearchText(e.target.value)} />
-          <Dropdown
+          <Dropdown 
             id = "filtro-estado"
-            value={filters.estado}
+            value={filters.estado} 
             options={uniqueValues("estado")}
-            onChange={(e) => setFilters(f => ({ ...f, estado: e.value }))}
+            onChange={(e) => setFilters(f => ({ ...f, estado: e.value }))} 
             placeholder="Estado"
             showClear={true}
           />
-          <Dropdown
+          <Dropdown 
             id = "filtro-prioridad"
-            value={filters.prioridad}
+            value={filters.prioridad} 
             options={uniqueValues("prioridad")}
-            onChange={(e) => setFilters(f => ({ ...f, prioridad: e.value }))}
-            placeholder="Prioridad"
+            onChange={(e) => setFilters(f => ({ ...f, prioridad: e.value }))} 
+            placeholder="Prioridad" 
             showClear={true}
-          />
-          <Dropdown
+            />
+          <Dropdown 
             id = "filtro-gravedad"
-            value={filters.gravedad}
+            value={filters.gravedad} 
             options={uniqueValues("gravedad")}
-            onChange={(e) => setFilters(f => ({ ...f, gravedad: e.value }))}
-            placeholder="Gravedad"
+            onChange={(e) => setFilters(f => ({ ...f, gravedad: e.value }))} 
+            placeholder="Gravedad" 
             showClear={true}
-          />
-          <Calendar
-            value={filters.fechaInicio}
-            onChange={(e) => setFilters(f => ({ ...f, fechaInicio: e.value }))}
-            placeholder="Fecha Inicio"
-            showIcon
-          />
-          <Calendar
-            value={filters.fechaFin}
-            onChange={(e) => setFilters(f => ({ ...f, fechaFin: e.value }))}
-            placeholder="Fecha Fin"
-            showIcon
-          />
-      </div>
-    </div>
-
-    <div className="card-container">  
-      {
-        visibleIncidentes?.map((incidente) => (
-          <IncidentesCards key={incidente.id_incidentes} incidente={incidente}
-          operaciones={
-            <>
-            <Button label="Mostrar detalles" 
-              severity="secondary"
-              size="small" 
-              outlined 
-              onClick={() => handleOpenModal(incidente)}
             />
-
-            {incidente.supervisor_asignado === usuario.rut && 
-              <Button label="Firmar" 
-                severity="secondary"
-                size="small" 
-                outlined 
-                onClick={() => handleOpenModalFirmar(incidente)}
-                style={{ color: '#5C90C5'}}
-            />
-            }
-            </>
-          }
-
+          </div>
+          <div>
+            <Calendar 
+            value={filters.fechaInicio} 
+            onChange={(e) => setFilters(f => ({ ...f, fechaInicio: e.value }))} 
+            placeholder="Fecha Inicio" 
+            showIcon 
           />
-          ))
-        }
+
+          <Calendar 
+            value={filters.fechaFin} 
+            onChange={(e) => setFilters(f => ({ ...f, fechaFin: e.value }))} 
+            placeholder="Fecha Fin" 
+            showIcon 
+          />
+          </div>
+        </div>
+        
       </div>
 
       <div className="table-container" ref={tableRef}>
@@ -306,7 +253,7 @@ export const Incidentes = () => {
             ))
           }
         />
-        
+
         <div className="pagination-controls">
           <button onClick={() => setCurrentPage(p => Math.max(p - 1, 1))} disabled={currentPage === 1} className="link-button">Anterior</button>
           <span>{currentPage} / {totalPages}</span>
