@@ -11,7 +11,18 @@ const checkFirma = (rut_supervisor, firma, callback) => {
     });
 };
 
+const crearSupervisor = (rut, nombre, firma, clave, callback) => {
+  const query = `INSERT IGNORE INTO supervisores (rut, nombre, firma, clave) VALUES (?, ?, ?, ?)`;
+  db.query(query, [rut, nombre, firma, clave], (err, result) => {
+    if (err) {
+      return callback(err);
+    }
+    callback(null, result);
+  });
+};
+
 module.exports = {
-    checkFirma
+    checkFirma,
+    crearSupervisor
 };
   

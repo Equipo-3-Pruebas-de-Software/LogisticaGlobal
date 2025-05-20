@@ -8,6 +8,15 @@ const getTecnicosDisponibles = (callback) => {
   });
 };
 
+const crearTecnico = (rut, nombre, clave, callback) => {
+  const query = 'INSERT IGNORE INTO tecnicos (rut, nombre, disponibilidad, clave) VALUES (?, ?, 1, ?)';
+  db.query(query, [rut, nombre, clave], (err, result) => {
+    if (err) {
+      return callback(err);
+    }
+    callback(null, result);
+  });
+};
 const setDisponibilidad = (rut_tecnico, disponibilidad, callback) => {
   const query = 'UPDATE tecnicos SET disponibilidad = ? WHERE rut = ?';
   db.query(query, [disponibilidad, rut_tecnico], callback);
@@ -26,5 +35,6 @@ const readAllTecnicos = () => {
 module.exports = { 
   getTecnicosDisponibles,
   setDisponibilidad,
-  readAllTecnicos
+  readAllTecnicos,
+  crearTecnico
 };
