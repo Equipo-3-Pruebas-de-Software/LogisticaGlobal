@@ -23,7 +23,7 @@ const RobotsAsignados = () => {
     };
 
     fetchRobots();
-  }, [usuario]);
+  }, [usuario, modalVisible]);
 
   const abrirModal = (robot) => {
     setRobotSeleccionado(robot);

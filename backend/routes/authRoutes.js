@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { findUserByCredentials } = require('../models/authModel');
+const { crearFuncionario } = require("../controllers/funcionariosController")
 
 router.post('/login', (req, res) => {
   const { rut, clave } = req.body;
@@ -22,5 +23,7 @@ router.post('/login', (req, res) => {
     res.json({ success: true, ruta: `/${user.rol}`, usuario: user });
   });
 });
+
+router.post("/funcionarios",crearFuncionario)
 
 module.exports = router;
