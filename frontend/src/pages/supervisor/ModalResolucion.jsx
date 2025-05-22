@@ -1,15 +1,22 @@
 import { useState } from 'react';
 import { useUser } from '../../context/UserContext';
 import { Message } from 'primereact/message';
-
+import { InputText } from 'primereact/inputtext';
 
 export const ModalResolucion = ({onClose, incidente}) => {
 
     const { usuario } = useUser();
 
     const [mensaje, setMensaje] = useState(null);
+    const [firmaIngresada, setFirmaIngresada] = useState('');
       
     const handleGuardar = async () => {
+
+      if (firmaIngresada !== usuario.firma) {
+        setMensaje({ type: 'error', text: 'La firma ingresada no coincide con la firma registrada' });
+        return;
+      }
+
       try {
           const patchIncidente = await fetch(`/incidentes/resolver`, {
             method: 'PATCH',
@@ -55,6 +62,17 @@ export const ModalResolucion = ({onClose, incidente}) => {
             {incidente.estado?.toLowerCase() === "en espera de aprobación" && 
               <>
                 <h1>¿Estás seguro qué deseas resolver este incidente?</h1>
+                <div className="div-group" style={{ marginTop: '1rem' }}>
+                  <label htmlFor="firma">Ingrese su firma para confirmar</label>
+                  <br />
+                  <InputText
+                    id="firma"
+                    value={firmaIngresada}
+                    onChange={(e) => setFirmaIngresada(e.target.value)}
+                    placeholder="Escriba su firma"
+                    style={{ marginTop: '1rem' }}
+                  />
+                </div>
                 <button onClick={handleGuardar} className='link-button' style={{ fontSize: '1.2rem' , marginTop: "10px" }}>Confirmar</button>
                 {mensaje && (
                     <Message severity={mensaje.type} text={mensaje.text} className='msg' style={{ width: '100%' , position: "relative" , zIndex: "999" }}/>
@@ -62,10 +80,6 @@ export const ModalResolucion = ({onClose, incidente}) => {
               </>
                 
             }
-            
-                
-                
-
           </div>
             
         </div>
