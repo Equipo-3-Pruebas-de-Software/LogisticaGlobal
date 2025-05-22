@@ -140,7 +140,7 @@ const finalUpdateIncidente = (req, res) => {
                 return db.rollback(() => res.status(500).json({ error: 'Error actualizando disponibilidad del técnico' }));
               }
 
-              updateEstadoRobot(detalle.id_robot, 'operativo', (err6) => {
+              updateEstadoRobot(detalle.id_robot, 'Operativo', (err6) => {
                 if (err6) {
                   return db.rollback(() => res.status(500).json({ error: 'Error actualizando estado del robot' }));
                 }

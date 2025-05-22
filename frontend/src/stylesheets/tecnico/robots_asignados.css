@@ -105,9 +105,3 @@
 .modal-button.cancel:hover {
     background-color: #bbb;
 }
-
-@media (max-width: 768px) {
-  .modal-content {
-    width: 90%;
-  }
-}
