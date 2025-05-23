@@ -99,7 +99,7 @@ export const TecnicosSupervisor = () => {
 
   return (
     <>
-      <div className="filters mobile-filter-robots">
+      <div className="filters">
         <h1>Técnicos</h1>
         <div>
           <InputText id="busqueda" placeholder="Buscar..." value={searchText} onChange={(e) => setSearchText(e.target.value)} />
@@ -116,15 +116,7 @@ export const TecnicosSupervisor = () => {
           />
         </div>
       </div>
-      
-      <div className="card-container">  
-        {
-          filteredTecnicos?.map((tecnico) => (
-            <TecnicosCards key={tecnico.rut} tecnico={tecnico}/>
-          ))
-        }
-      </div>
-
+        
       <div className="table-container" ref={tableRef}>
         <Tables
           header={
