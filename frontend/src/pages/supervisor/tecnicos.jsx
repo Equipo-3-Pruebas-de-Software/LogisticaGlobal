@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import Tables from "../../components/general/tables/tables";
+import Tables from "../../components/general/tables";
 import TecnicosCards from "../../components/general/tables/[Vista Supervisor]/tecnico-cards"
 
 import { InputText } from 'primereact/inputtext';
@@ -29,7 +29,18 @@ export const TecnicosSupervisor = () => {
               const response = await fetch(`/incidentes-robots-tecnicos/robots-asignados/${tecnico.rut}`);
               if (!response.ok) throw new Error('Error en incidente/robot');
               const incidenteData = await response.json(); // <-- esto es un array
-              const incidente = incidenteData[incidenteData.length - 1];
+
+              let incidente = null
+
+              if (incidenteData.length > 2) {
+                incidente = incidenteData.reduce((masReciente, actual) => {
+                  const fechaActual = new Date(actual.fecha_asignacion);
+                  const fechaMasReciente = new Date(masReciente.fecha_asignacion);
+                  return fechaActual > fechaMasReciente ? actual : masReciente;
+                });
+              } else {
+                incidente = incidenteData[0]
+              }
 
               incidenteDataArray.push(incidenteData);
 
@@ -99,7 +110,7 @@ export const TecnicosSupervisor = () => {
 
   return (
     <>
-      <div className="filters">
+      <div className="filters mobile-filter-robots">
         <h1>Técnicos</h1>
         <div>
           <InputText id="busqueda" placeholder="Buscar..." value={searchText} onChange={(e) => setSearchText(e.target.value)} />
@@ -116,7 +127,15 @@ export const TecnicosSupervisor = () => {
           />
         </div>
       </div>
-        
+      
+      <div className="card-container">  
+        {
+          filteredTecnicos?.map((tecnico) => (
+            <TecnicosCards key={tecnico.rut} tecnico={tecnico}/>
+          ))
+        }
+      </div>
+
       <div className="table-container" ref={tableRef}>
         <Tables
           header={

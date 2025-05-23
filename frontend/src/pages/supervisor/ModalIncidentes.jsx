@@ -26,6 +26,7 @@ export const ModalIncidentes = ({onClose, incidente}) => {
 
     const idsRobot = detalles?.map(detalle => detalle.id_robot);
     const rutTenicos = detalles?.map(detalle => detalle.rut_tecnico);
+    const comentariosTecnicos = detalles?.map(detalle => detalle.descripcion);
 
     const gravedades = ['Alta', 'Media', 'Baja'];
     const events = [
@@ -135,7 +136,8 @@ export const ModalIncidentes = ({onClose, incidente}) => {
       };
 
     return (
-      <div className="modal-overlay">
+      <>
+      <div className="modal-overlay modal-desktop">
         <div className="modal-incidentes">
             <section className='info-zone'>
                 <div className='container-info'>
@@ -148,12 +150,6 @@ export const ModalIncidentes = ({onClose, incidente}) => {
                         <li><b>Descripción: </b><span>{incidente.descripcion}</span></li>
                         <li><b>Prioridad: </b><span>{incidente.prioridad}</span></li>
                         <li><b>Gravedad: </b><span>{incidente.gravedad}</span></li>
-                        {incidente.fecha_espera_aprovacion && (
-                          <li>
-                            <b>Comentarios sobre el trabajo realizado: </b>
-                            <span>{incidente.comentario}</span>
-                          </li>
-                        )}
                     </ul>
 
                     <h3 style={{ marginBottom: '0.5rem'}}>Relación Robot - Técnico Asignado</h3>
@@ -162,69 +158,70 @@ export const ModalIncidentes = ({onClose, incidente}) => {
                       Array.isArray(idsRobot) && Array.isArray(rutTenicos)
                         ? idsRobot.map((id, index) => ({
                             robot: `Robot ${id}`,
-                            tecnico: rutTenicos[index] ?? 'Sin asignar'
+                            tecnico: rutTenicos[index] ?? 'Sin asignar',
+                            comentario: comentariosTecnicos[index] ?? ''
                           }))
                         : []
                     }>
                       <Column field="robot" header="Robot" />
                       <Column field="tecnico" header="Técnico Asignado" />
+                      <Column field="comentario" header="Comentarios" />
                     </DataTable>
                   </>
                 }
 
 
-                    {!incidente.gravedad &&
-                        <>
-                            <h2>Incidente {incidente.id_incidentes}</h2>
-                            <h3>Detalles del incidente</h3>
-                            <ul>
-                                <li><b>Lugar:</b> <span>{incidente.lugar}</span></li>
-                                <li><b>Descripción:</b> <span>{incidente.descripcion}</span></li>
-                            </ul>
+                {!incidente.gravedad &&
+                  <>
+                    <h2>Incidente {incidente.id_incidentes}</h2>
+                    <h3>Detalles del incidente</h3>
+                    <ul>
+                      <li><b>Lugar:</b> <span>{incidente.lugar}</span></li>
+                      <li><b>Descripción:</b> <span>{incidente.descripcion}</span></li>
+                    </ul>
 
-                            <h3 className='h3-margin'>Definir Prioridad</h3>
-                            <InputNumber id="prioridad" value={prioridad} onValueChange={(e) => setPrioridad(e.value)} style={{ width: '100%' , position: "relative" , zIndex: "999" }}/>
+                    <h3 className='h3-margin'>Definir Prioridad</h3>
+                    <InputNumber id="prioridad" value={prioridad} onValueChange={(e) => setPrioridad(e.value)} style={{ width: '100%' , position: "relative" , zIndex: "999" }}/>
                             
-                            <h3 className='h3-margin'>Definir Gravedad</h3>
+                    <h3 className='h3-margin'>Definir Gravedad</h3>
+                    <Dropdown
+                      id="gravedad"
+                      value={gravedad} 
+                      options={gravedades} 
+                      onChange={(e) => setGravedad(e.value)} 
+                      placeholder="Selecciona gravedad"
+                      style={{ width: '100%' , position: "relative" , zIndex: "999" }}
+                    />
+
+                    <h3 className='h3-margin'>Asignar Técnico por Robot</h3>
+                      {idsRobot?.map((robotId, index) => (
+                        <div key={index} className='robot-container'>
+                            <h4>Robot {robotId}</h4>
                             <Dropdown
-                                id="gravedad"
-                                value={gravedad} 
-                                options={gravedades} 
-                                onChange={(e) => setGravedad(e.value)} 
-                                placeholder="Selecciona gravedad"
-                                style={{ width: '100%' , position: "relative" , zIndex: "999" }}
-
+                              style={{ width: '100%' , position: "relative" , zIndex: "999" }}
+                              id={`robot-${robotId}`}
+                              options={tecnicosDisponiblesPara(robotId)} // filtra los técnicos disponibles
+                              onChange={(e) => asignarTecnico(robotId, e.value)}
+                              placeholder="Selecciona técnico"
+                              value={asignaciones[robotId] || null}
                             />
+                        </div>
+                      ))}
 
-                            <h3 className='h3-margin'>Asignar Técnico por Robot</h3>
-                            {idsRobot?.map((robotId, index) => (
-                                <div key={index} className='robot-container'>
-                                    <h4>Robot {robotId}</h4>
-                                    <Dropdown
-                                        style={{ width: '100%' , position: "relative" , zIndex: "999" }}
-                                        id={`robot-${robotId}`}
-                                        options={tecnicosDisponiblesPara(robotId)} // filtra los técnicos disponibles
-                                        onChange={(e) => asignarTecnico(robotId, e.value)}
-                                        placeholder="Selecciona técnico"
-                                        value={asignaciones[robotId] || null}
-                                    />
-
-                                </div>
-                            ))}
-
-                            <div className='button-container'>
-                                <button className='link-button' onClick={handleGuardar}>Guardar</button>
-                                {mensaje && (
-                                  <Message severity={mensaje.type} text={mensaje.text} className='msg' style={{ width: '100%' , position: "relative" , zIndex: "999" }}/>
-                                )}
-                            </div>
-
-                            </>
-                    }
+                      <div className='button-container'>
+                        <button className='link-button' onClick={handleGuardar}>Guardar</button>
+                          {mensaje && (
+                            <Message severity={mensaje.type} text={mensaje.text} className='msg' style={{ width: '100%' , position: "relative" , zIndex: "999" }}/>
+                          )}
+                      </div>
+                    </>
+                }
                 </div>
+
                 <button className="btn-icon" onClick={() => onClose()}>
                     <svg  xmlns="http://www.w3.org/2000/svg"  width={24}  height={24}  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  strokeWidth={2}  strokeLinecap="round"  strokeLinejoin="round"  className="icon icon-tabler icons-tabler-outline icon-tabler-x"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M18 6l-12 12" /><path d="M6 6l12 12" /></svg>
                 </button>
+
             </section>
 
             <section className='timeline-zone'>
@@ -249,9 +246,120 @@ export const ModalIncidentes = ({onClose, incidente}) => {
                 )}
                 />
             </section>
-
         </div>
       </div>
+
+      <div className="modal-overlay-mobile">
+        <div className="modal-mobile">
+            <section className='info-zone'>
+                <div className='container-info'>
+                {incidente.gravedad && 
+                  <>
+                  <div className='incidente-modal-mobile'>
+                    <h2>Incidente {incidente.id_incidentes}</h2>
+                    <button className="btn-icon" onClick={() => onClose()}>
+                      <svg  xmlns="http://www.w3.org/2000/svg"  width={24}  height={24}  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  strokeWidth={2}  strokeLinecap="round"  strokeLinejoin="round"  className="icon icon-tabler icons-tabler-outline icon-tabler-x"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M18 6l-12 12" /><path d="M6 6l12 12" /></svg>
+                    </button>
+                  </div>
+                    <h3>Detalles del incidente</h3>
+                    <ul>
+                        <li><b>Lugar: </b><span>{incidente.lugar}</span></li>
+                        <li><b>Descripción: </b><span>{incidente.descripcion}</span></li>
+                        <li><b>Prioridad: </b><span>{incidente.prioridad}</span></li>
+                        <li><b>Gravedad: </b><span>{incidente.gravedad}</span></li>
+                    </ul>
+
+                    <h3 style={{ marginBottom: '0.5rem'}}>Relación Robot - Técnico Asignado</h3>
+                    <div className='details-cards-div'>
+                        {idsRobot?.map((id, index) => (
+                        <DetailsCards key={index} robot={id} tecnico={rutTenicos[index]} comentario={comentariosTecnicos[index]}/>
+                      ))}
+                    </div>
+                    
+                  </>
+                }
+
+
+                {!incidente.gravedad &&
+                  <>
+                    <div className='incidente-modal-mobile'>
+                      <h2>Incidente {incidente.id_incidentes}</h2>
+                      <button className="btn-icon" onClick={() => onClose()}>
+                        <svg  xmlns="http://www.w3.org/2000/svg"  width={24}  height={24}  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  strokeWidth={2}  strokeLinecap="round"  strokeLinejoin="round"  className="icon icon-tabler icons-tabler-outline icon-tabler-x"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M18 6l-12 12" /><path d="M6 6l12 12" /></svg>
+                      </button>
+                    </div>
+                    <h3>Detalles del incidente</h3>
+                    <ul>
+                      <li><b>Lugar:</b> <span>{incidente.lugar}</span></li>
+                      <li><b>Descripción:</b> <span>{incidente.descripcion}</span></li>
+                    </ul>
+
+                    <h3 className='h3-margin'>Definir Prioridad</h3>
+                    <InputNumber id="prioridad" value={prioridad} onValueChange={(e) => setPrioridad(e.value)} style={{ width: '100%' , position: "relative" , zIndex: "999" }}/>
+                            
+                    <h3 className='h3-margin'>Definir Gravedad</h3>
+                    <Dropdown
+                      id="gravedad"
+                      value={gravedad} 
+                      options={gravedades} 
+                      onChange={(e) => setGravedad(e.value)} 
+                      placeholder="Selecciona gravedad"
+                      style={{ width: '100%' , position: "relative" , zIndex: "999" }}
+                    />
+
+                    <h3 className='h3-margin'>Asignar Técnico por Robot</h3>
+                      {idsRobot?.map((robotId, index) => (
+                        <div key={index} className='robot-container'>
+                            <h4>Robot {robotId}</h4>
+                            <Dropdown
+                              style={{ width: '100%' , position: "relative" , zIndex: "999" }}
+                              id={`robot-${robotId}`}
+                              options={tecnicosDisponiblesPara(robotId)} // filtra los técnicos disponibles
+                              onChange={(e) => asignarTecnico(robotId, e.value)}
+                              placeholder="Selecciona técnico"
+                              value={asignaciones[robotId] || null}
+                            />
+                        </div>
+                      ))}
+
+                      <div className='button-container'>
+                        <button className='link-button' onClick={handleGuardar}>Guardar</button>
+                          {mensaje && (
+                            <Message severity={mensaje.type} text={mensaje.text} className='msg' style={{ width: '100%' , position: "relative" , zIndex: "999" }}/>
+                          )}
+                      </div>
+                    </>
+                }
+                </div>
+            </section>
+
+            <section className='timeline-zone'>
+            <h2>Línea de tiempo</h2>
+            <Timeline
+                value={events}
+                opposite={(item) => item.status}
+                marker={(item) => (
+                    <span
+                    style={{
+                        backgroundColor: item.date ? '#5C90C5' : '#B0B0B0', // azul o gris
+                        width: '1rem',
+                        height: '1rem',
+                        display: 'inline-block',
+                        borderRadius: '50%'
+                    }}
+                    />
+                )}
+                content={(item) => (
+                    <small style={{ color: item.date ? 'inherit' : '#B0B0B0' }}>
+                    {item.date ?? ''}
+                    </small>
+                )}
+                />
+            </section>
+        </div>
+      </div>
+    </>
+      
     )
   }
   

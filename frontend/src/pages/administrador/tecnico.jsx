@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import Tables from "../../components/general/tables/tables";
+import Tables from "../../components/general/tables";
 import TecnicosCards from "../../components/general/tables/[Vista Supervisor]/tecnico-cards"
 
 import { InputText } from 'primereact/inputtext';

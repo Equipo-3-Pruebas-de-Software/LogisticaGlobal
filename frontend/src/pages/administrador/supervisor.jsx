@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import Tables from "../../components/general/tables/tables";
+import Tables from "../../components/general/tables";
 import PersonasCards from "../../components/general/tables/[Vista Admin]/card";
 
 import { InputText } from 'primereact/inputtext';
