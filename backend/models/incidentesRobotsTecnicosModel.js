@@ -27,9 +27,10 @@ const assignTecnicoToRobot = (id_incidente, id_robot, rut_tecnico, callback) => 
 
 const getRobotsByTecnico = (rut_tecnico, callback) => {
   const query = `
-    SELECT irt.id_robot, r.lugar_trabajo, r.estado, irt.id_incidente
+    SELECT irt.id_robot, r.lugar_trabajo, r.estado, irt.id_incidente, irt.fecha_asignacion, irt.descripcion, i.estado AS estado_incidente
     FROM incidentes_robots_tecnicos irt
     JOIN robots r ON irt.id_robot = r.id_robot
+    JOIN incidentes i ON irt.id_incidente = i.id_incidentes
     WHERE irt.rut_tecnico = ?
   `;
 

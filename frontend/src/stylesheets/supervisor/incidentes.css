@@ -3,6 +3,10 @@
     margin-top: 20px;
 }
 
+.card-container {
+  display: none;
+}
+
 .pagination-controls {
     display: flex;
     justify-content: center;
@@ -13,7 +17,7 @@
 .filters {
     justify-content: space-between;
     display: flex;
-    gap: 10px;
+    gap: 2rem;
     margin-top: 10px;
 
     div {
@@ -38,9 +42,10 @@
 
 .all-filters {
   display: flex;
-  flex-direction: column;
   align-items: end;
-  
+  justify-content: end;
+  flex-wrap: wrap;
+
   button.p-button {
     background-color: #5C90C5;
     border: 1px solid #5C90C5;
@@ -57,14 +62,82 @@
     button {
       display: flex;
       align-items: center;
+      justify-content: center;
     }
   }
 
+}
+
+.mobile-filter-button {
+  display: none;
 }
 
 @media (max-width: 768px) {
     .table-container {
         display: none;
     }
-  }
 
+    .card-container {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .mobile-filter-button {
+      display: block;
+      width: max-content;
+      align-self: flex-end;
+    }
+
+    .filters {
+      gap: 0rem;
+      align-items: center;
+      flex-direction: column;
+
+      .button-group {
+        align-self: flex-end;
+      }
+    }
+
+    .all-filters {
+      display: none;
+
+      div, input, span {
+        display: none;
+      }
+    }
+
+    .all-filters-mobile {
+      display: block;
+      flex-direction: column;
+      margin-top: 1rem;
+
+      button.p-button {
+        background-color: #5C90C5;
+        border: 1px solid #5C90C5;
+      }
+    }
+
+    .mobile-filter {
+      margin-bottom: 1rem;
+
+      > div {
+        flex-wrap: wrap;
+        display: flex;
+        justify-content: flex-end;
+        width: 100%;
+      }
+    }
+
+    .mobile-filter-robots {
+      flex-direction: row;
+      margin-bottom: 1rem;
+
+      > div {
+        flex-wrap: wrap;
+        display: flex;
+        justify-content: flex-end;
+        width: 100%;
+      }
+    }
+  }

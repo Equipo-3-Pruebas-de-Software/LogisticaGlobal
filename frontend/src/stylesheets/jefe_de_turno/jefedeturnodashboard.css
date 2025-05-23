@@ -23,6 +23,13 @@
 .btn-crear-incidente {
     background-color: #426B95;
     border: none;
+    width: 100%;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+      transition: background-color 0.3s ease;
+      background-color: #6C9BCA;
+    }
 }
 
 .msg {
