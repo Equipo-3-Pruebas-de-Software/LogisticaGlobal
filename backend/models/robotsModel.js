@@ -8,7 +8,7 @@ const updateEstadoRobot = (id_robot, estado, callback) => {
 };
 
 const readAllRobots = () => {
-  const query = 'SELECT * FROM robots';
+  const query = 'SELECT * FROM robots WHERE activo = 1';
   return new Promise((resolve, reject) => {
     db.query(query, (err, results) => {
       if (err) return reject(err);

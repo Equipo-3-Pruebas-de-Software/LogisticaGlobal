@@ -1,7 +1,7 @@
 const db = require('../config/db');
 
 const checkFirma = (rut_supervisor, firma, callback) => {
-    const query = `SELECT * FROM supervisores WHERE rut = ?`;
+    const query = `SELECT * FROM supervisores WHERE rut = ? AND activo = 1`;
     db.query(query, [rut_supervisor], (err, results) => {
       if (err) {
         return callback(err);
