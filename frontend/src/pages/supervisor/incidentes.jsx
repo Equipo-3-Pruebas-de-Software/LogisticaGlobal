@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { formatFecha } from "../../utils/date";
-import Tables from "../../components/general/tables";
+
+import Tables from "../../components/general/tables/tables";
+import IncidentesCards from "../../components/general/tables/[Vista Supervisor]/supervisor-cards";
 import ModalIncidentes from "./ModalIncidentes";
 import ModalResolucion from "./ModalResolucion" ;
 

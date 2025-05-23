@@ -1,6 +1,6 @@
 import { useState , useEffect} from 'react';
 import { useUser } from '../../context/UserContext';
-
+import DetailsCards from '../../components/general/tables/[Vista Supervisor]/incidentes-details';
 
 import { Timeline } from 'primereact/timeline';
 import { InputNumber } from 'primereact/inputnumber';

@@ -3,6 +3,7 @@ import Tables from "../../components/general/tables";
 
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
+import RobotsCards from "../../components/general/tables/[Vista Supervisor]/robot-cards";
 
 export const RobotsSupervisor = () => {
   const [robots, setRobots] = useState([]);
