@@ -32,9 +32,36 @@ const readAllTecnicos = () => {
   });
 };
 
+const actualizarTecnico = (rut, clave, callback) => {
+  const query = `
+    UPDATE tecnicos SET clave = ? WHERE rut = ?
+  `;
+  db.query(query, [clave, rut], (err, result) => {
+    if (err) {
+      console.log(2);
+      return callback(err);
+    }
+    callback(null, result);
+  });
+};
+
+const borrarTecnico = (rut, callback) => {
+  const query = `
+    UPDATE tecnicos SET activo = 0 WHERE rut = ?
+  `;
+  db.query(query, rut, (err, result) => {
+    if (err) {
+      return callback(err);
+    }
+    callback(null, result);
+  });
+};
+
 module.exports = { 
   getTecnicosDisponibles,
   setDisponibilidad,
   readAllTecnicos,
-  crearTecnico
+  crearTecnico,
+  actualizarTecnico,
+  borrarTecnico
 };
