@@ -22,7 +22,20 @@ const actualizarJefeTurno = (rut, clave, callback) => {
   });
 };
 
+const borrarJefeTurno = (rut, callback) => {
+  const query = `
+    UPDATE jefes_turno SET activo = 0 WHERE rut = ?
+  `;
+  db.query(query, rut, (err, result) => {
+    if (err) {
+      return callback(err);
+    }
+    callback(null, result);
+  });
+};
+
 module.exports = {
   crearJefeTurno,
-  actualizarJefeTurno
+  actualizarJefeTurno,
+  borrarJefeTurno
 };

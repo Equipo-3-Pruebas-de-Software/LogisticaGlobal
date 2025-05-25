@@ -45,10 +45,23 @@ const actualizarTecnico = (rut, clave, callback) => {
   });
 };
 
+const borrarTecnico = (rut, callback) => {
+  const query = `
+    UPDATE tecnicos SET activo = 0 WHERE rut = ?
+  `;
+  db.query(query, rut, (err, result) => {
+    if (err) {
+      return callback(err);
+    }
+    callback(null, result);
+  });
+};
+
 module.exports = { 
   getTecnicosDisponibles,
   setDisponibilidad,
   readAllTecnicos,
   crearTecnico,
-  actualizarTecnico
+  actualizarTecnico,
+  borrarTecnico
 };

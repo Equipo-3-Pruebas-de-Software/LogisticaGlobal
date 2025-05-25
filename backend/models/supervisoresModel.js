@@ -54,9 +54,22 @@ const actualizarSupervisor = (rut, firma, clave, callback) => {
   });
 };
 
+const borrarSupervisor = (rut, callback) => {
+  const query = `
+    UPDATE supervisores SET activo = 0 WHERE rut = ?
+  `;
+  db.query(query, rut, (err, result) => {
+    if (err) {
+      return callback(err);
+    }
+    callback(null, result);
+  });
+};
+
 module.exports = {
     checkFirma,
     crearSupervisor,
-    actualizarSupervisor
+    actualizarSupervisor,
+    borrarSupervisor
 };
   
