@@ -17,7 +17,33 @@ const readAllRobots = () => {
   });
 };
 
+const updateLugarRobot = (id_robot, lugar, callback) => {
+  const query = `
+    UPDATE robots SET lugar_trabajo = ? WHERE id_robot = ?
+  `;
+  db.query(query, [lugar, id_robot], (err, result) => {
+    if (err) {
+      return callback(err);
+    }
+    callback(null, result);
+  });
+};
+
+const deleteRobot = (id_robot, callback) => {
+  const query = `
+    UPDATE robots SET activo = 0 WHERE id_robot = ?
+  `;
+  db.query(query, id_robot, (err, result) => {
+    if (err) {
+      return callback(err);
+    }
+    callback(null, result);
+  });
+}
+
 module.exports = {
   updateEstadoRobot,
-  readAllRobots
+  readAllRobots,
+  updateLugarRobot,
+  deleteRobot
 };

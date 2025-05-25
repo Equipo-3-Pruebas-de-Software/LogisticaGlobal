@@ -43,6 +43,9 @@ const actualizarFuncionario = (req, res) => {
   if (rol === 'supervisor') {
     return actualizarSupervisor(rut, firma, password, (err, result) => {
       if (err) return res.status(500).json({ error: 'Error al actualizar supervisor' });
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ error: 'Supervisor no encontrado' });
+      }
       return res.status(200).json({ message: 'Supervisor actualizado correctamente' });
     });
   }
@@ -50,6 +53,9 @@ const actualizarFuncionario = (req, res) => {
   if (rol === 'jefe de turno') {
     return actualizarJefeTurno(rut, password, (err, result) => {
       if (err) return res.status(500).json({ error: 'Error al actualizar jefe de turno' });
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ error: 'Jefe de turno no encontrado' });
+      }
       return res.status(200).json({ message: 'Jefe de turno actualizado correctamente' });
     });
   }
@@ -57,6 +63,9 @@ const actualizarFuncionario = (req, res) => {
   if (rol === 'técnico') {
     return actualizarTecnico(rut, password, (err, result) => {
       if (err) return res.status(500).json({ error: 'Error al actualizar técnico' });
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ error: 'Técnico no encontrado' });
+      }
       return res.status(200).json({ message: 'Técnico actualizado correctamente' });
     });
   }
