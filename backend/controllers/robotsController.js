@@ -1,4 +1,4 @@
-const { readAllRobots } = require('../models/robotsModel');
+const { readAllRobots, updateLugarRobot } = require('../models/robotsModel');
 
 const getAllRobots = async (req, res) => {
     try {
@@ -8,8 +8,22 @@ const getAllRobots = async (req, res) => {
       console.error('Error al obtener robots:', error);
       res.status(500).json({ message: 'Error al obtener los robots' });
     }
-  };
+};
+
+const actualizarRobot = (req, res) => {
+  const { id, lugar } = req.body;
+
+  if ( !id || !lugar ) {
+    return res.status(400).json({ error: 'Faltan campos obligatorios' });
+  }
   
-  module.exports = {
-    getAllRobots
+  return updateLugarRobot(id, lugar, (err, result) => {
+    if (err) return res.status(500).json({ error: 'Error al actualizar lugar de trabajo' });
+    return res.status(200).json({ message: 'Lugar de trabajo actualizado correctamente' });
+  });
+};
+  
+module.exports = {
+  getAllRobots,
+  actualizarRobot
 };
