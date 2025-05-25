@@ -29,8 +29,21 @@ const updateLugarRobot = (id_robot, lugar, callback) => {
   });
 };
 
+const deleteRobot = (id_robot, callback) => {
+  const query = `
+    UPDATE robots SET activo = 0 WHERE id_robot = ?
+  `;
+  db.query(query, id_robot, (err, result) => {
+    if (err) {
+      return callback(err);
+    }
+    callback(null, result);
+  });
+}
+
 module.exports = {
   updateEstadoRobot,
   readAllRobots,
-  updateLugarRobot
+  updateLugarRobot,
+  deleteRobot
 };
