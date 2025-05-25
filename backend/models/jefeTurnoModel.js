@@ -10,4 +10,19 @@ const crearJefeTurno = (rut, nombre, clave, callback) => {
   });
 };
 
-module.exports = { crearJefeTurno };
+const actualizarJefeTurno = (rut, clave, callback) => {
+  const query = `
+    UPDATE jefes_turno SET clave = ? WHERE rut = ?
+  `;
+  db.query(query, [clave, rut], (err, result) => {
+    if (err) {
+      return callback(err);
+    }
+    callback(null, result);
+  });
+};
+
+module.exports = {
+  crearJefeTurno,
+  actualizarJefeTurno
+};

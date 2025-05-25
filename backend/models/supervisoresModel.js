@@ -21,8 +21,42 @@ const crearSupervisor = (rut, nombre, firma, clave, callback) => {
   });
 };
 
+const actualizarSupervisor = (rut, firma, clave, callback) => {
+  let query = `
+    UPDATE supervisores SET 
+  `;
+  let args = [];
+  console.log(1);
+  if (firma) {
+    query += `firma = ?`;
+    args.push(firma);
+    console.log(2);
+    if (clave) {
+      query += `, clave = ?`;
+      args.push(clave);
+      console.log(3);
+    }
+  } else if (clave) {
+    query += `clave = ?`;
+    args.push(clave);
+    console.log(4);
+  }
+  query += ` WHERE rut = ?`;
+  args.push(rut);
+  console.log(query);
+  console.log(args);
+  db.query(query, args, (err, result) => {
+    if (err) {
+      console.log(err);
+      return callback(err);
+    }
+    callback(null, result);
+  });
+};
+
 module.exports = {
     checkFirma,
-    crearSupervisor
+    crearSupervisor,
+    actualizarSupervisor
 };
   
