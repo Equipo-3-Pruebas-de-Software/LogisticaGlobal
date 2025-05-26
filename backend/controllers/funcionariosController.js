@@ -1,6 +1,7 @@
-const { crearSupervisor, actualizarSupervisor, borrarSupervisor } = require('../models/supervisoresModel');
+const { crearSupervisor, actualizarSupervisor, borrarSupervisor, readAllSupervisores } = require('../models/supervisoresModel');
 const { crearJefeTurno, actualizarJefeTurno, borrarJefeTurno } = require('../models/jefeTurnoModel');
 const { crearTecnico, actualizarTecnico, borrarTecnico } = require('../models/tecnicosModel');
+const { readIncidenteSupervisor } = require('../models/incidentesModel');
 
 const crearFuncionario = (req, res) => {
   const { nombre, rut, rol, password, firma } = req.body;
@@ -113,8 +114,40 @@ const borrarFuncionario = (req, res) => {
   return res.status(400).json({ error: 'Rol no válido' });
 };
 
+const getSupervisoresIncidentes = (req, res) => {
+  readAllSupervisores((err, supervisores) => {
+    if (err) {
+      console.error('[GET SUPERVISORES]', err.sqlMessage);
+      return res.status(500).json({ error: 'Error obteniendo supervisores' });
+    }
+    if (!supervisores) {
+      return res.status(404).json({ error: 'No se ha encontrado ningun supervisor' })
+    }
+
+    let completados = 0;
+
+    supervisores.forEach((supervisor, index) => {
+      const rut = supervisor.rut;
+
+      readIncidenteSupervisor(rut, (err2, incidentes) => {
+        if (err2) {
+          return res.status(500).json({ error: 'Error al obtener incidentes de un supervisor' });
+        }
+
+        supervisores[index].incidentes = incidentes;
+        completados++;
+
+        if (completados === supervisores.length) {
+          res.status(200).json(supervisores);
+        }
+      });
+    });
+  });
+};
+
 module.exports = {
   crearFuncionario, 
   actualizarFuncionario,
-  borrarFuncionario
+  borrarFuncionario,
+  getSupervisoresIncidentes
 };

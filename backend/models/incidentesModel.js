@@ -58,6 +58,13 @@ const resolveIncidente = (id_incidente, callback) => {
   db.query(query, [id_incidente], callback);
 }
 
+const readIncidenteSupervisor = (rut_supervisor, callback) => {
+  const query = 'SELECT * FROM incidentes WHERE supervisor_asignado = ?';
+  db.query(query, rut_supervisor, (err, results) => {
+    if (err) return callback(err);
+    callback(null, results);
+  });
+};
 
 module.exports = {
   createIncidente,
@@ -65,6 +72,7 @@ module.exports = {
   readIncidente,
   readAllIncidentes,
   setFechaEsperaAprovacion,
-  resolveIncidente
+  resolveIncidente,
+  readIncidenteSupervisor
 };
 
