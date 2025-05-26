@@ -84,7 +84,7 @@ const getIncidente = (req, res) => {
         return res.status(500).json({ error: 'Error obteniendo detalles' });
       }
 
-      res.json({ incidente, detalles });
+      res.status(200).json({ incidente, detalles });
     });
   });
 };

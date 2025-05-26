@@ -66,10 +66,23 @@ const borrarSupervisor = (rut, callback) => {
   });
 };
 
+const readAllSupervisores = (callback) => {
+  const query = `
+    SELECT * FROM supervisores
+  `;
+  db.query(query, (err, result) => {
+    if (err) {
+      return callback(err);
+    }
+    callback(null, result);
+  })
+}
+
 module.exports = {
     checkFirma,
     crearSupervisor,
     actualizarSupervisor,
-    borrarSupervisor
+    borrarSupervisor,
+    readAllSupervisores
 };
   
