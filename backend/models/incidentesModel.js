@@ -66,6 +66,14 @@ const readIncidenteSupervisor = (rut_supervisor, callback) => {
   });
 };
 
+const readIncidenteJefeTurno = (rut_jefe_turno, callback) => {
+  const query = 'SELECT * FROM incidentes WHERE jefe_turno_asignado = ?';
+  db.query(query, rut_jefe_turno, (err, results) => {
+    if (err) return callback(err);
+    callback(null, results);
+  });
+};
+
 module.exports = {
   createIncidente,
   updateIncidenteAsignacion,
@@ -73,6 +81,7 @@ module.exports = {
   readAllIncidentes,
   setFechaEsperaAprovacion,
   resolveIncidente,
-  readIncidenteSupervisor
+  readIncidenteSupervisor,
+  readIncidenteJefeTurno
 };
 

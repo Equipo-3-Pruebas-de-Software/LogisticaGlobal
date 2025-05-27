@@ -75,8 +75,8 @@ const readAllSupervisores = (callback) => {
       return callback(err);
     }
     callback(null, result);
-  })
-}
+  });
+};
 
 module.exports = {
     checkFirma,
