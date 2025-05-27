@@ -34,8 +34,21 @@ const borrarJefeTurno = (rut, callback) => {
   });
 };
 
+const readAllJefesTurno = (callback) => {
+  const query = `
+    SELECT * FROM jefes_turno
+  `;
+  db.query(query, (err, result) => {
+    if (err) {
+      return callback(err);
+    }
+    callback(null, result);
+  });
+};
+
 module.exports = {
   crearJefeTurno,
   actualizarJefeTurno,
-  borrarJefeTurno
+  borrarJefeTurno,
+  readAllJefesTurno
 };

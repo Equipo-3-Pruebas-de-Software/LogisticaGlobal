@@ -1,7 +1,7 @@
 const { crearSupervisor, actualizarSupervisor, borrarSupervisor, readAllSupervisores } = require('../models/supervisoresModel');
-const { crearJefeTurno, actualizarJefeTurno, borrarJefeTurno } = require('../models/jefeTurnoModel');
+const { crearJefeTurno, actualizarJefeTurno, borrarJefeTurno, readAllJefesTurno } = require('../models/jefeTurnoModel');
 const { crearTecnico, actualizarTecnico, borrarTecnico } = require('../models/tecnicosModel');
-const { readIncidenteSupervisor } = require('../models/incidentesModel');
+const { readIncidenteSupervisor, readIncidenteJefeTurno } = require('../models/incidentesModel');
 
 const crearFuncionario = (req, res) => {
   const { nombre, rut, rol, password, firma } = req.body;
@@ -145,9 +145,41 @@ const getSupervisoresIncidentes = (req, res) => {
   });
 };
 
+const getJefesTurnoIncidentes = (req, res) => {
+  readAllJefesTurno((err, jefes_turno) => {
+    if (err) {
+      console.error('[GET JEFES TURNO]', err.sqlMessage);
+      return res.status(500).json({ error: 'Error obteniendo jefes de turno' });
+    }
+    if (!jefes_turno) {
+      return res.status(404).json({ error: 'No se ha encontrado ningun jefe de turno' })
+    }
+
+    let completados = 0;
+
+    jefes_turno.forEach((jefe_turno, index) => {
+      const rut = jefe_turno.rut;
+
+      readIncidenteJefeTurno(rut, (err2, incidentes) => {
+        if (err2) {
+          return res.status(500).json({ error: 'Error al obtener incidentes de un jefe de turno' });
+        }
+
+        jefes_turno[index].incidentes = incidentes;
+        completados++;
+
+        if (completados === jefes_turno.length) {
+          res.status(200).json(jefes_turno);
+        }
+      });
+    });
+  });
+};
+
 module.exports = {
   crearFuncionario, 
   actualizarFuncionario,
   borrarFuncionario,
-  getSupervisoresIncidentes
+  getSupervisoresIncidentes,
+  getJefesTurnoIncidentes
 };
