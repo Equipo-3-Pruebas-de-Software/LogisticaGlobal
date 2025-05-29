@@ -1,6 +1,6 @@
 // Para crear robots, supervisores y técnicos?
 import { Outlet } from 'react-router-dom'
-import Layout from '../../components/general/layout/layout'
+import Layout from '../../components/general/layout'
 import Link from '../../components/general/link'
 
 export const AdministradorLayout = () => {

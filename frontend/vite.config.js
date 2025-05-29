@@ -8,32 +8,32 @@ export default defineConfig({
     proxy: {
       // Todas las peticiones a /incidentes se enviarán a tu backend en el 3000
       '/incidentes': {
-        target: 'http://localhost:3000',
+        target: 'http://3.142.70.13/:3000',
         changeOrigin: true,
         // rewrite no hace falta si la ruta es idéntica
       },
       '/tecnicos': {
-        target: 'http://localhost:3000',
+        target: 'http://3.142.70.13:3000',
         changeOrigin: true,
         // rewrite no hace falta si la ruta es idéntica
       },
       '/robots': {
-        target: 'http://localhost:3000',
+        target: 'http://3.142.70.13:3000',
         changeOrigin: true,
         // rewrite no hace falta si la ruta es idéntica
       },
       '/incidentes-robots-tecnicos/asignar-tecnico': {
-        target: 'http://localhost:3000',
+        target: 'http://3.142.70.13:3000',
         changeOrigin: true,
         // rewrite no hace falta si la ruta es idéntica
       },
       '/incidentes-robots-tecnicos': {
-        target: 'http://localhost:3000',
+        target: 'http://3.142.70.13:3000',
         changeOrigin: true,
         // rewrite no hace falta si la ruta es idéntica
       },
       '/api/auth': {
-        target: 'http://localhost:3000',
+        target: 'http://3.142.70.13:3000',
         changeOrigin: true,
         // rewrite no hace falta si la ruta es idéntica
       }
