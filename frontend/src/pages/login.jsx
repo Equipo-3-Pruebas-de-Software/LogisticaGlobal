@@ -15,7 +15,7 @@ const Login = () => {
         e.preventDefault();
 
         try {
-            const response = await fetch('http://3.142.70.13:3000/api/auth/login', {
+            const response = await fetch('http://18.225.35.240:3000/api/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ rut, clave }),
