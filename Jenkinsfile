@@ -17,7 +17,7 @@ pipeline {
                 script {
                     if (env.BRANCH_NAME == 'jenkins-local') {
                         sh 'sed -i "s|VITE_API_URL=.*|VITE_API_URL=http://localhost:3000|" frontend/.env'
-                    } else if (env.BRANCH_NAME == 'jenkins-ec2') {
+                    } else if (env.BRANCH_NAME == 'jenkins-ec2' || env.BRANCH_NAME == 'main') {
                         sh 'sed -i "s|VITE_API_URL=.*|VITE_API_URL=http://18.225.35.240:3000|" frontend/.env'
                     }
                 }
