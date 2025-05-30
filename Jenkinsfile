@@ -6,19 +6,13 @@ pipeline {
     }
 
     stages {
-        stage('Clonar código') {
-            steps {
-                git branch: "${env.BRANCH_NAME}", url: 'https://github.com/Equipo-3-Pruebas-de-Software/LogisticaGlobal.git'
-            }
-        }
-
         stage('Configurar entorno') {
             steps {
                 script {
                     if (env.BRANCH_NAME == 'jenkins-local') {
                         sh 'sed -i "s|VITE_API_URL=.*|VITE_API_URL=http://localhost:3000|" frontend/.env'
                     } else if (env.BRANCH_NAME == 'jenkins-ec2' || env.BRANCH_NAME == 'main') {
-                        sh 'sed -i "s|VITE_API_URL=.*|VITE_API_URL=http://18.225.35.240:3000|" frontend/.env'
+                        sh 'sed -i "s|VITE_API_URL=.*|VITE_API_URL=http://18.116.163.236:3000|" frontend/.env'
                     }
                 }
             }
