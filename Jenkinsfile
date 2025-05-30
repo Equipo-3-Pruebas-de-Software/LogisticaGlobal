@@ -20,7 +20,21 @@ pipeline {
 
         stage('Build Docker') {
             steps {
+                // Crear el archivo .env dinámicamente
+                sh '''
+                    cat <<EOF > backend/.env
+DB_HOST=db
+DB_USER=root
+DB_PASSWORD=password
+DB_NAME=incidentesdb
+DB_PORT=3306
+EOF
+                '''
+
+                // Detener contenedores por si acaso ya están corriendo
                 sh "${DOCKER_COMPOSE_CMD} down"
+
+                // Construir y levantar contenedores
                 sh "${DOCKER_COMPOSE_CMD} up --build -d"
             }
         }
