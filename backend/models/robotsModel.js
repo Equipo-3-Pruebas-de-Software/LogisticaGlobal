@@ -1,5 +1,19 @@
 const db = require('../config/db');
 
+const crearRobot = (lugar_trabajo, callback) => {
+  const estado = 'operativo';
+  const activo = 1; // Asumiendo que el robot está activo al crearlo
+  const query = `
+    INSERT INTO robots (lugar_trabajo, estado, activo)
+    VALUES (?, ?, ?)
+  `;
+
+  db.query(query, [lugar_trabajo, estado, activo], (err, result) => {
+    if (err) return callback(err);
+    callback(null, result);
+  });
+};
+
 const updateEstadoRobot = (id_robot, estado, callback) => {
   const query = `
     UPDATE robots SET estado = ? WHERE id_robot = ?
@@ -42,6 +56,7 @@ const deleteRobot = (id_robot, callback) => {
 }
 
 module.exports = {
+  crearRobot,
   updateEstadoRobot,
   readAllRobots,
   updateLugarRobot,

@@ -1,4 +1,24 @@
-const { readAllRobots, updateLugarRobot, deleteRobot } = require('../models/robotsModel');
+const { readAllRobots, updateLugarRobot, deleteRobot , crearRobot } = require('../models/robotsModel');
+
+const registrarRobot = (req, res) => {
+  const { lugar_trabajo } = req.body;
+
+  if (!lugar_trabajo) {
+    return res.status(400).json({ error: 'El campo lugar_trabajo es obligatorio' });
+  }
+
+  crearRobot(lugar_trabajo, (err, result) => {
+    if (err) {
+      console.error('[ERROR AL CREAR ROBOT]', err);
+      return res.status(500).json({ error: 'Error al registrar el robot' });
+    }
+
+    res.status(201).json({
+      message: 'Robot registrado exitosamente',
+      robot_id: result.insertId
+    });
+  });
+};
 
 const getAllRobots = async (req, res) => {
     try {
@@ -42,6 +62,7 @@ const borrarRobot = (req, res) => {
 };
   
 module.exports = {
+  registrarRobot,
   getAllRobots,
   actualizarRobot,
   borrarRobot

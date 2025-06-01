@@ -56,7 +56,7 @@ INSERT IGNORE INTO jefes_turno (rut, nombre, clave, activo) VALUES
 
 -- Tabla de Robots
 CREATE TABLE IF NOT EXISTS robots (
-    id_robot BIGINT NOT NULL,
+    id_robot BIGINT NOT NULL AUTO_INCREMENT,
     lugar_trabajo TEXT NOT NULL,
     estado TEXT NOT NULL,
     activo TINYINT(1) DEFAULT 1,
