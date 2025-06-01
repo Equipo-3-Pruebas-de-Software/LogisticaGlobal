@@ -12,7 +12,7 @@ pipeline {
                     if (env.BRANCH_NAME == 'jenkins-local') {
                         sh 'sed -i "s|VITE_API_URL=.*|VITE_API_URL=http://localhost:3000|" frontend/.env'
                     } else if (env.BRANCH_NAME == 'jenkins-ec2' || env.BRANCH_NAME == 'main') {
-                        sh 'sed -i "s|VITE_API_URL=.*|VITE_API_URL=http://18.116.163.236:3000|" frontend/.env'
+                        sh 'sed -i "s|VITE_API_URL=.*|VITE_API_URL=http://18.219.131.111:3000|" frontend/.env'
                     }
                 }
             }
@@ -20,7 +20,6 @@ pipeline {
 
         stage('Build Docker') {
             steps {
-                // Crear el archivo .env dinámicamente
                 sh '''
                     cat <<EOF > backend/.env
 DB_HOST=db
@@ -30,11 +29,7 @@ DB_NAME=incidentesdb
 DB_PORT=3306
 EOF
                 '''
-
-                // Detener contenedores por si acaso ya están corriendo
                 sh "${DOCKER_COMPOSE_CMD} down"
-
-                // Construir y levantar contenedores
                 sh "${DOCKER_COMPOSE_CMD} up --build -d"
             }
         }
@@ -47,6 +42,12 @@ EOF
     }
 
     post {
+        success {
+            slackSend(channel: '#canal', message: "✅ Build SUCCESS: ${env.JOB_NAME} - ${env.BUILD_NUMBER}")
+        }
+        failure {
+            slackSend(channel: '#canal', message: "❌ Build FAILED: ${env.JOB_NAME} - ${env.BUILD_NUMBER}")
+        }
         always {
             echo 'Pipeline terminado'
         }
