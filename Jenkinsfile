@@ -43,10 +43,10 @@ EOF
 
     post {
         success {
-            slackSend(channel: '#canal', message: "✅ Build SUCCESS: ${env.JOB_NAME} - ${env.BUILD_NUMBER}")
+            slackSend(channel: '#integracion-jenkins', message: "✅ Build SUCCESS: ${env.JOB_NAME} - ${env.BUILD_NUMBER}")
         }
         failure {
-            slackSend(channel: '#canal', message: "❌ Build FAILED: ${env.JOB_NAME} - ${env.BUILD_NUMBER}")
+            slackSend(channel: '#integracion-jenkins', message: "❌ Build FAILED: ${env.JOB_NAME} - ${env.BUILD_NUMBER}")
         }
         always {
             echo 'Pipeline terminado'
