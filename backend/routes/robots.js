@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const { getAllRobots, actualizarRobot, borrarRobot } = require('../controllers/robotsController');
+const { getAllRobots, actualizarRobot, borrarRobot , registrarRobot } = require('../controllers/robotsController');
 
-// Obtener todos los robots (ya existente)
+router.post('/', registrarRobot);
 router.get('/', getAllRobots);
 router.patch('/actualizar-robot', actualizarRobot);
 router.patch('/eliminar-robot', borrarRobot);

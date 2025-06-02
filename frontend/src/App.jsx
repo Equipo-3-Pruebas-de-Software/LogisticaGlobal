@@ -58,6 +58,8 @@ function App() {
         </Route>
       </Route>
 
+      <Route element={<PrivateRoute allowedRoles={['admin']} />}>
+        {/* Administrador */}
       <Route path="/admin" element={<AdministradorLayout />}>
           <Route index element={<SupervisorDashboard />} />
           <Route path="crear-funcionario" element={<AgregarFuncionario  />} />
@@ -67,7 +69,7 @@ function App() {
           <Route path="tecnico" element={<TecnicoAdmin />} />
           <Route path="jefe-turno" element={<JefeDeTurnoAdmin />} />
         </Route>
-
+      </Route>
       <Route path="*" element={<NotFound />} />
 
     </Routes>

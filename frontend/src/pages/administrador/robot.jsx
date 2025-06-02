@@ -4,6 +4,8 @@ import Tables from "../../components/general/tables";
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 import { Button } from 'primereact/button';
+import { Message } from 'primereact/message';
+import { Dialog } from 'primereact/dialog';
 
 import RobotsCards from "../../components/general/tables/[Vista Supervisor]/robot-cards";
 
@@ -13,6 +15,9 @@ export const RobotAdmin= () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [searchText, setSearchText] = useState("");
   const [filters, setFilters] = useState({ lugar: null, estado: null,});
+  const [visibleModal, setVisibleModal] = useState(false);
+  const [robotEdit, setRobotEdit] = useState(null);
+  const [mensaje, setMensaje] = useState(null);
 
   const tableRef = useRef(null);
 
@@ -58,6 +63,61 @@ export const RobotAdmin= () => {
       });
   }, []);
 
+  const openUpdateModal = (robot) => {
+    setRobotEdit(robot);
+    setVisibleModal(true);
+  };
+
+    const handleUpdate = async () => {
+    if (robotEdit?.id) return;
+
+    try {
+      const { id_robot , lugar_trabajo } = robotEdit;
+      
+      const response = await fetch('/robots/actualizar-robot', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: id_robot,
+          lugar: lugar_trabajo || null
+        }),
+      });
+
+      if (!response.ok) throw new Error('Error al actualizar');
+      setMensaje({ type: 'success', text: `Robot actualizado correctamente` });
+
+      // Actualiza en estado local (opcional, depende de backend)
+      setRobots(prev =>
+        prev.map(p => (p.id_robot === id_robot ? { ...p, ...robotEdit } : p))
+      );
+
+    setTimeout(() => {
+      setVisibleModal(false);
+      setMensaje(null);
+    }, 1500);
+    } catch (error) {
+      console.error('[ERROR ACTUALIZANDO ROBOT]', error);
+      setMensaje({ type: 'error', text: 'Ocurrió un error al actualizar al robot' });
+    }
+  };
+
+   const handleDelete = async (id) => {
+  try {
+    const response = await fetch('/robots/eliminar-robot', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }),
+    });
+
+    if (!response.ok) throw new Error('Error al eliminar');
+
+    // Eliminar del estado local
+    setRobots(prev => prev.filter(p => p.id_robot !== id));
+  } catch (error) {
+    console.error('[ERROR BORRANDO ROBOT]', error);
+  }
+};
+
   useEffect(() => {
     const updateRowsPerPage = () => {
       if (tableRef.current) {
@@ -96,6 +156,18 @@ export const RobotAdmin= () => {
 
   return (
     <>
+      <Dialog header="Actualizar Robot" visible={visibleModal} onHide={() => setVisibleModal(false)}>
+        <div className="p-fluid">
+          <div className="field" style={{ marginBottom: '1rem'}}>
+            <label>Lugar de Trabajo</label>
+            <InputText value={robotEdit?.lugar_trabajo|| ''} onChange={(e) => setRobotEdit({ ...robotEdit, lugar_trabajo: e.target.value })} />
+          </div>
+          <Button label="Actualizar" onClick={handleUpdate} style={{ backgroundColor: '#5C90C5', border: '1px solid #5C90C5'}}/>
+          {mensaje && (
+              <Message severity={mensaje.type} text={mensaje.text} className='msg'/>
+          )}
+        </div>
+      </Dialog>
       <div className="filters mobile-filter-robots">
         <h1>Robots</h1>
         <div>
@@ -122,12 +194,14 @@ export const RobotAdmin= () => {
                         size="small" 
                         outlined 
                         style={{ color: '#5C90C5'}}
+                        onClick={() => openUpdateModal(robot)}
                       />
                             
                       <Button label="Borrar" 
                         severity="secondary"
                         size="small" 
                         outlined 
+                        onClick={() => handleDelete(robot.id_robot)}
                       />
                   </>
                  }
@@ -160,11 +234,11 @@ export const RobotAdmin= () => {
                 </td>
                 <td>
                   <button id="actualizar" className="btn-icon">
-                    <svg  xmlns="http://www.w3.org/2000/svg"  width={24}  height={24}  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  strokeWidth={2}  strokeLinecap="round"  strokeLinejoin="round"  className="icon icon-tabler icons-tabler-outline icon-tabler-edit"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" /><path d="M16 5l3 3" /></svg>
+                    <svg  xmlns="http://www.w3.org/2000/svg" onClick={() => openUpdateModal(robot)} width={24}  height={24}  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  strokeWidth={2}  strokeLinecap="round"  strokeLinejoin="round"  className="icon icon-tabler icons-tabler-outline icon-tabler-edit"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" /><path d="M16 5l3 3" /></svg>
                   </button>
                   
                    <button id="borrar" className="btn-icon">
-                     <svg  xmlns="http://www.w3.org/2000/svg"  width={24}  height={24}  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  strokeWidth={2}  strokeLinecap="round"  strokeLinejoin="round"  className="icon icon-tabler icons-tabler-outline icon-tabler-trash"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7l16 0" /><path d="M10 11l0 6" /><path d="M14 11l0 6" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /></svg>
+                     <svg  xmlns="http://www.w3.org/2000/svg" onClick={() => handleDelete(robot.id_robot)}  width={24}  height={24}  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  strokeWidth={2}  strokeLinecap="round"  strokeLinejoin="round"  className="icon icon-tabler icons-tabler-outline icon-tabler-trash"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7l16 0" /><path d="M10 11l0 6" /><path d="M14 11l0 6" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /></svg>
                    </button>
                 </td>
               </tr>

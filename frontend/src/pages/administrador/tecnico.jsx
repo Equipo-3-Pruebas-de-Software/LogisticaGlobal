@@ -5,6 +5,8 @@ import TecnicosCards from "../../components/general/tables/[Vista Supervisor]/te
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 import { Button } from 'primereact/button';
+import { Dialog } from 'primereact/dialog';
+import { Message } from 'primereact/message';
 
 export const TecnicosAdmin = () => {
   const [tecnicos, setTecnicos] = useState([]);
@@ -12,8 +14,16 @@ export const TecnicosAdmin = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [searchText, setSearchText] = useState("");
   const [filters, setFilters] = useState({ lugar: null, disponibilidad: null});
+  const [tecnicoEdit, setTecnicoEdit] = useState(null);
+  const [visibleModal, setVisibleModal] = useState(false);
+  const [mensaje, setMensaje] = useState(null);
 
   const tableRef = useRef(null);
+
+  const openUpdateModal = (supervisor) => {
+    setTecnicoEdit(supervisor);
+    setVisibleModal(true);
+  };
 
   useEffect(() => {
     fetch('/tecnicos/all')
@@ -61,6 +71,60 @@ export const TecnicosAdmin = () => {
       });
   }, []);
 
+  const handleDelete = async (rut) => {
+  try {
+    const response = await fetch('/api/auth/funcionarios-delete', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ rut, rol: 'técnico' }),
+    });
+
+    if (!response.ok) throw new Error('Error al eliminar');
+
+    setMensaje({ type: 'success', text: `Funcionario actualizado correctamente` });
+    // Eliminar del estado local
+    setTecnicos(prev => prev.filter(p => p.rut !== rut));
+  } catch (error) {
+    console.error('[ERROR BORRANDO SUPERVISOR]', error);
+      setMensaje({ type: 'error', text: 'Ocurrió un error al actualizar al funcionario' });
+  }
+};
+
+ const handleUpdate = async () => {
+    if (!tecnicoEdit?.rut) return;
+
+    try {
+      const { rut, password, firma } = tecnicoEdit;
+      
+      const response = await fetch('/api/auth/funcionarios-update', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          rut,
+          rol: 'técnico',
+          password: password? password : null,
+          firma: firma? firma : null,
+        }),
+      });
+
+      if (!response.ok) throw new Error('Error al actualizar');
+
+      setMensaje({ type: 'success', text: `Funcionario eliminado correctamente` });
+      // Actualiza en estado local (opcional, depende de backend)
+      setTecnicos(prev =>
+        prev.map(p => (p.rut === rut ? { ...p, ...tecnicoEdit } : p))
+      );
+
+    setTimeout(() => {
+      setVisibleModal(false);
+      setMensaje(null);
+    }, 1500);
+    } catch (error) {
+      console.error('[ERROR ACTUALIZANDO SUPERVISOR]', error);
+      setMensaje({ type: 'error', text: 'Ocurrió un error al eliminar al funcionario' });
+    }
+  };
+
   useEffect(() => {
     const updateRowsPerPage = () => {
       if (tableRef.current) {
@@ -100,6 +164,18 @@ export const TecnicosAdmin = () => {
 
   return (
     <>
+      <Dialog header="Actualizar Técnico" visible={visibleModal} onHide={() => setVisibleModal(false)}>
+        <div className="p-fluid">
+          <div className="field" style={{ marginBottom: '1rem'}}>
+            <label>Contraseña</label>
+            <InputText type="password" value={tecnicoEdit?.password || ''} onChange={(e) => setTecnicoEdit({ ...tecnicoEdit, password: e.target.value })} />
+          </div>
+          <Button label="Actualizar" onClick={handleUpdate} style={{ backgroundColor: '#5C90C5', border: '1px solid #5C90C5'}}/>
+          {mensaje && (
+            <Message severity={mensaje.type} text={mensaje.text} className='msg'/>
+          )}
+        </div>
+      </Dialog>
       <div className="filters mobile-filter-robots">
         <h1>Técnicos</h1>
         <div>
@@ -129,12 +205,15 @@ export const TecnicosAdmin = () => {
                             size="small" 
                             outlined 
                             style={{ color: '#5C90C5'}}
+                            onClick={() => openUpdateModal(tecnico)}
+
                         />
             
                         <Button label="Borrar" 
                             severity="secondary"
                             size="small" 
                             outlined 
+                            onClick={() => handleDelete(tecnico.rut)}
                         />
                     </>
                 }
@@ -171,11 +250,11 @@ export const TecnicosAdmin = () => {
 
                 <td>
                   <button id="actualizar" className="btn-icon">
-                    <svg  xmlns="http://www.w3.org/2000/svg"  width={24}  height={24}  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  strokeWidth={2}  strokeLinecap="round"  strokeLinejoin="round"  className="icon icon-tabler icons-tabler-outline icon-tabler-edit"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" /><path d="M16 5l3 3" /></svg>
+                    <svg  xmlns="http://www.w3.org/2000/svg" onClick={() => openUpdateModal(tecnico)} width={24}  height={24}  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  strokeWidth={2}  strokeLinecap="round"  strokeLinejoin="round"  className="icon icon-tabler icons-tabler-outline icon-tabler-edit"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" /><path d="M16 5l3 3" /></svg>
                   </button>
                   
                    <button id="borrar" className="btn-icon">
-                     <svg  xmlns="http://www.w3.org/2000/svg"  width={24}  height={24}  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  strokeWidth={2}  strokeLinecap="round"  strokeLinejoin="round"  className="icon icon-tabler icons-tabler-outline icon-tabler-trash"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7l16 0" /><path d="M10 11l0 6" /><path d="M14 11l0 6" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /></svg>
+                     <svg  xmlns="http://www.w3.org/2000/svg" onClick={() => handleDelete(tecnico.rut)}  width={24}  height={24}  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  strokeWidth={2}  strokeLinecap="round"  strokeLinejoin="round"  className="icon icon-tabler icons-tabler-outline icon-tabler-trash"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7l16 0" /><path d="M10 11l0 6" /><path d="M14 11l0 6" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /></svg>
                    </button>
                 </td>
               </tr>

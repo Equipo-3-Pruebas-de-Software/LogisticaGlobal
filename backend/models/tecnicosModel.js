@@ -38,7 +38,6 @@ const actualizarTecnico = (rut, clave, callback) => {
   `;
   db.query(query, [clave, rut], (err, result) => {
     if (err) {
-      console.log(2);
       return callback(err);
     }
     callback(null, result);

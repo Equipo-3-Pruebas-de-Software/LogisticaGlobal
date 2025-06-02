@@ -88,7 +88,6 @@ const uploadFicha = (req, res) => {
                 console.error('[VERIFICACIÓN DESCRIPCIONES ERROR]', err2.sqlMessage);
                 return res.status(500).json({ error: 'Error verificando descripciones' });
             }
-            console.log(allDescribed)
             if (!allDescribed) {
                 return res.json({ success: true, message: 'Ficha subida, no todos los robots tienen ficha' });
             }
