@@ -81,12 +81,12 @@ export const TecnicosAdmin = () => {
 
     if (!response.ok) throw new Error('Error al eliminar');
 
-    setMensaje({ type: 'success', text: `Funcionario actualizado correctamente` });
+    setMensaje({ type: 'success', text: `Funcionario eliminado correctamente` });
     // Eliminar del estado local
     setTecnicos(prev => prev.filter(p => p.rut !== rut));
   } catch (error) {
     console.error('[ERROR BORRANDO SUPERVISOR]', error);
-      setMensaje({ type: 'error', text: 'Ocurrió un error al actualizar al funcionario' });
+      setMensaje({ type: 'error', text: 'Ocurrió un error al eliminado al funcionario' });
   }
 };
 
@@ -109,7 +109,7 @@ export const TecnicosAdmin = () => {
 
       if (!response.ok) throw new Error('Error al actualizar');
 
-      setMensaje({ type: 'success', text: `Funcionario eliminado correctamente` });
+      setMensaje({ type: 'success', text: `Funcionario actualizado correctamente` });
       // Actualiza en estado local (opcional, depende de backend)
       setTecnicos(prev =>
         prev.map(p => (p.rut === rut ? { ...p, ...tecnicoEdit } : p))
@@ -121,7 +121,7 @@ export const TecnicosAdmin = () => {
     }, 1500);
     } catch (error) {
       console.error('[ERROR ACTUALIZANDO SUPERVISOR]', error);
-      setMensaje({ type: 'error', text: 'Ocurrió un error al eliminar al funcionario' });
+      setMensaje({ type: 'error', text: 'Ocurrió un error al actualizar al funcionario' });
     }
   };
 
