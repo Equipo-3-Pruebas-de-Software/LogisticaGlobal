@@ -1,5 +1,6 @@
 {
   "devDependencies": {
+    "cors": "^2.8.5",
     "cypress": "^14.3.2"
   }
 }
