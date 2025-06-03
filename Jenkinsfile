@@ -3,6 +3,8 @@ pipeline {
 
     environment {
         DOCKER_COMPOSE_CMD = "docker-compose -f docker-compose.yml"
+        DOCKERHUB_USER = 'hakdyr24'
+        DOCKERHUB_CREDENTIALS_ID = 'dockerhub-creds' // ID de tus credenciales en Jenkins
     }
 
     stages {
@@ -18,10 +20,10 @@ pipeline {
             }
         }
 
-        stage('Build Docker') {
+        stage('Crear .env del backend') {
             steps {
                 sh '''
-                    cat <<EOF > backend/.env
+                cat <<EOF > backend/.env
 DB_HOST=db
 DB_USER=root
 DB_PASSWORD=password
@@ -29,8 +31,27 @@ DB_NAME=incidentesdb
 DB_PORT=3306
 EOF
                 '''
+            }
+        }
+
+        stage('Build imágenes y Push a DockerHub') {
+            steps {
+                script {
+                    docker.withRegistry('https://index.docker.io/v1/', DOCKERHUB_CREDENTIALS_ID) {
+                        def backendImage = docker.build("${DOCKERHUB_USER}/logisticaglobal:backend", "backend")
+                        def frontendImage = docker.build("${DOCKERHUB_USER}/logisticaglobal:frontend", "frontend")
+
+                        backendImage.push()
+                        frontendImage.push()
+                    }
+                }
+            }
+        }
+
+        stage('Desplegar contenedores') {
+            steps {
                 sh "${DOCKER_COMPOSE_CMD} down"
-                sh "${DOCKER_COMPOSE_CMD} up --build -d"
+                sh "${DOCKER_COMPOSE_CMD} up -d"
             }
         }
 
