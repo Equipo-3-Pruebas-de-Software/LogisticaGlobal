@@ -30,62 +30,62 @@ describe('debería clasificar incidente', () => {
   });
 
   it('debería clasificar el incidente', () => {
-    cy.get('span[id="prioridad"]').type('1');
-    cy.get('div[id="gravedad"]').click();
+    cy.get('.modal-desktop span[id="prioridad"]').type('1');
+    cy.get('.modal-desktop div[id="gravedad"]').click();
     cy.get('li.p-dropdown-item')
       .contains('Alta')
       .click();
 
-    cy.get('.robot-container').each(($robotContainer) => {
+    cy.get('.modal-desktop .robot-container').each(($robotContainer) => {
       cy.wrap($robotContainer).click();
       cy.get(`li.p-dropdown-item`).first().click({ force: true });
     });
 
-    cy.get('.button-container .link-button').click();
+    cy.get('.modal-desktop .button-container .link-button').click();
     cy.get('.msg') 
       .should('be.visible')
       .and('contain', 'Incidente actualizado correctamente');
   });
 
   it('debería dar error porque falta el campo prioridad', () => {
-    cy.get('div[id="gravedad"]').click();
+    cy.get('.modal-desktop div[id="gravedad"]').click();
     cy.get('li.p-dropdown-item')
       .contains('Alta')
       .click();
 
-    cy.get('.robot-container').each(($robotContainer) => {
+    cy.get('.modal-desktop .robot-container').each(($robotContainer) => {
       cy.wrap($robotContainer).click();
       cy.get(`li.p-dropdown-item`).first().click({ force: true });
     });
 
-    cy.get('.button-container .link-button').click();
+    cy.get('.modal-desktop .button-container .link-button').click();
     cy.get('.msg') 
       .should('be.visible')
       .and('contain', 'Faltan campos obligatorios');
   });
 
   it('debería dar error porque falta el campo gravedad', () => {
-    cy.get('span[id="prioridad"]').type('1');
+    cy.get('.modal-desktop span[id="prioridad"]').type('1');
 
-    cy.get('.robot-container').each(($robotContainer) => {
+    cy.get('.modal-desktop .robot-container').each(($robotContainer) => {
       cy.wrap($robotContainer).click();
       cy.get(`li.p-dropdown-item`).first().click({ force: true });
     });
 
-    cy.get('.button-container .link-button').click();
+    cy.get('.modal-desktop .button-container .link-button').click();
     cy.get('.msg') 
       .should('be.visible')
       .and('contain', 'Faltan campos obligatorios');
   });
 
   it('debería dar error porque faltan los técnicos', () => {
-    cy.get('span[id="prioridad"]').type('1');
-    cy.get('div[id="gravedad"]').click();
+    cy.get('.modal-desktop span[id="prioridad"]').type('1');
+    cy.get('.modal-desktop div[id="gravedad"]').click();
     cy.get('li.p-dropdown-item')
       .contains('Alta')
       .click();
 
-    cy.get('.button-container .link-button').click();
+    cy.get('.modal-desktop .button-container .link-button').click();
     cy.get('.msg') 
       .should('be.visible')
       .and('contain', 'Todos los robots deben tener un técnico asignado');
