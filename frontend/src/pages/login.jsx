@@ -51,7 +51,7 @@ const Login = () => {
                     <h2>Iniciar Sesión</h2>
                     <div className="form-group">
                         <label htmlFor="rut">RUT</label>
-                        <InputText id="lugar" value={rut} required placeholder="Ingresa tu RUT" onChange={(e) => setRut(e.target.value)}/>
+                        <InputText id="rut" value={rut} required placeholder="Ingresa tu RUT" onChange={(e) => setRut(e.target.value)}/>
                         <p>Sin puntos y con guion</p>
                     </div>
                     <div className="form-group">
