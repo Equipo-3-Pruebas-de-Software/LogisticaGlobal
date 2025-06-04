@@ -14,7 +14,7 @@ pipeline {
                     if (env.BRANCH_NAME == 'jenkins-local') {
                         sh 'sed -i "s|VITE_API_URL=.*|VITE_API_URL=http://localhost:3000|" frontend/.env'
                     } else if (env.BRANCH_NAME == 'jenkins-ec2' || env.BRANCH_NAME == 'main') {
-                        sh 'sed -i "s|VITE_API_URL=.*|VITE_API_URL=http://18.227.72.177:3000|" frontend/.env'
+                        sh 'sed -i "s|VITE_API_URL=.*|VITE_API_URL=http://3.143.5.181:3000|" frontend/.env'
                     }
                 }
             }
@@ -58,6 +58,18 @@ EOF
         stage('Verificar Servicios') {
             steps {
                 sh "docker ps"
+            }
+        }
+
+        stage('Ejecutar pruebas Cypress') {
+            when {
+                anyOf {
+                    branch 'main'
+                    branch 'jenkins-ec2'
+                }
+            }
+            steps {
+                sh "${DOCKER_COMPOSE_CMD} run --rm cypress"
             }
         }
     }

@@ -29,5 +29,21 @@ services:
     depends_on:
       - backend
 
+  cypress:
+    image: cypress/included:13.7.3
+    depends_on:
+      - frontend
+    working_dir: /e2e
+    volumes:
+      - ./:/e2e
+    environment:
+      - CYPRESS_baseUrl=http://frontend:5173
+    command: >
+      sh -c "
+        echo 'Esperando a que frontend esté listo...';
+        npx wait-on http://frontend:5173 &&
+        npx cypress run --config-file cypress.config.js
+      "
+
 volumes:
   db_data:

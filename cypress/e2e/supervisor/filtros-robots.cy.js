@@ -1,6 +1,6 @@
 describe('Filtrar Robots', () => {
   beforeEach(() => {
-    cy.visit('http://localhost:5173/');
+    cy.visit('http://3.143.5.181:5173/');
     cy.get('input[id="rut"]').type('12345677-9');
     cy.get('input[id="password"]').type('clave123');
     cy.get('button[type="submit"]').click();
