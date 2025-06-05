@@ -1,8 +1,12 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'cypress/included:14.4.1' // Imagen oficial con todo preinstalado
+            args '-u root' // Necesario si usas comandos como `apt-get` o acceso a archivos restringidos
+        }
+    }
 
     triggers {
-        // Revisa cambios en el repositorio cada minuto. Cambia la frecuencia según necesidad.
         pollSCM('* * * * *')
     }
 
@@ -69,7 +73,7 @@ EOF
         stage('Ejecutar pruebas Cypress') {
             steps {
                 echo 'Running Cypress tests...'
-                sh 'npx cypress run --config-file cypress.config.js --headless --browser electron'
+                sh 'cypress run --config-file cypress.config.js --headless --browser electron'
             }
         }
     }
