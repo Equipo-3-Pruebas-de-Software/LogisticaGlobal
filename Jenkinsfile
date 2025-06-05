@@ -74,10 +74,8 @@ EOF
                 }
             }
             steps {
-                // Esperar unos segundos para asegurarse de que el frontend y backend estén listos
-                sh "sleep 10"
-                // Ejecutar pruebas Cypress desde el servicio definido en docker-compose
-                sh "${DOCKER_COMPOSE_CMD} run --rm cypress"
+                echo 'Running Cypress tests...'
+                sh 'npx cypress run --config-file cypress.config.js --headless --browser electron'
             }
         }
     }
