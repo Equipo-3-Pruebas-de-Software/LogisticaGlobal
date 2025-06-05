@@ -1,10 +1,5 @@
 pipeline {
-    agent {
-        docker {
-            image 'cypress/included:14.4.1' // Imagen oficial con todo preinstalado
-            args '-u root' // Necesario si usas comandos como `apt-get` o acceso a archivos restringidos
-        }
-    }
+    agent any
 
     triggers {
         pollSCM('* * * * *')
@@ -17,6 +12,15 @@ pipeline {
     }
 
     stages {
+        stage('Limpiar espacio') {
+            steps {
+                sh '''
+                echo "🧹 Limpiando Docker para liberar espacio..."
+                docker system prune -af --volumes
+                '''
+            }
+        }
+
         stage('Configurar entorno') {
             steps {
                 script {
@@ -71,6 +75,12 @@ EOF
         }
 
         stage('Ejecutar pruebas Cypress') {
+            agent {
+                docker {
+                    image 'cypress/included:14.4.1'
+                    args '-u root'
+                }
+            }
             steps {
                 echo 'Running Cypress tests...'
                 sh 'cypress run --config-file cypress.config.js --headless --browser electron'
