@@ -67,12 +67,6 @@ EOF
         }
 
         stage('Ejecutar pruebas Cypress') {
-            when {
-                anyOf {
-                    branch 'main'
-                    branch 'jenkins-ec2'
-                }
-            }
             steps {
                 echo 'Running Cypress tests...'
                 sh 'npx cypress run --config-file cypress.config.js --headless --browser electron'
