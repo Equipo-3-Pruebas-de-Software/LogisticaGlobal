@@ -1,10 +1,15 @@
 pipeline {
     agent any
 
+    triggers {
+        // Revisa cambios en el repositorio cada minuto. Cambia la frecuencia según necesidad.
+        pollSCM('* * * * *')
+    }
+
     environment {
         DOCKER_COMPOSE_CMD = "docker-compose -f docker-compose.yml"
         DOCKERHUB_USER = 'hakdyr24'
-        DOCKERHUB_CREDENTIALS_ID = 'dockerhub-creds' // ID de tus credenciales en Jenkins
+        DOCKERHUB_CREDENTIALS_ID = 'dockerhub-creds'
     }
 
     stages {
@@ -14,7 +19,7 @@ pipeline {
                     if (env.BRANCH_NAME == 'jenkins-local') {
                         sh 'sed -i "s|VITE_API_URL=.*|VITE_API_URL=http://localhost:3000|" frontend/.env'
                     } else if (env.BRANCH_NAME == 'jenkins-ec2' || env.BRANCH_NAME == 'main') {
-                        sh 'sed -i "s|VITE_API_URL=.*|VITE_API_URL=http://3.143.5.181:3000|" frontend/.env'
+                        sh 'sed -i "s|VITE_API_URL=.*|VITE_API_URL=http://18.117.154.175:3000|" frontend/.env'
                     }
                 }
             }
@@ -51,7 +56,7 @@ EOF
         stage('Desplegar contenedores') {
             steps {
                 sh "${DOCKER_COMPOSE_CMD} down"
-                sh "${DOCKER_COMPOSE_CMD} up -d"
+                sh "${DOCKER_COMPOSE_CMD} up -d --build"
             }
         }
 
@@ -69,6 +74,9 @@ EOF
                 }
             }
             steps {
+                // Esperar unos segundos para asegurarse de que el frontend y backend estén listos
+                sh "sleep 10"
+                // Ejecutar pruebas Cypress desde el servicio definido en docker-compose
                 sh "${DOCKER_COMPOSE_CMD} run --rm cypress"
             }
         }
