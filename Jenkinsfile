@@ -84,13 +84,16 @@ EOF
         stage('Ejecutar pruebas Cypress') {
             agent {
                 docker {
-                    image 'cypress/included:14.4.1'
-                    args '-u root'
+                    image 'cypress/base:18.16.0'
+                    args '-u root --ipc=host'
                 }
             }
             steps {
-                echo 'Running Cypress tests...'
-                sh 'cypress run --config-file cypress.config.js --headless --browser electron'
+                echo 'Instalando Cypress y ejecutando pruebas...'
+                sh '''
+                    npm install cypress@14.4.1
+                    npx cypress run --config-file cypress.config.js --headless --browser electron
+                '''
             }
         }
     }
