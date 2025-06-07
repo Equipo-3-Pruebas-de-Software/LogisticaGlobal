@@ -85,7 +85,7 @@ pipeline {
         stage('Run Cypress Tests') {
             steps {
                 echo 'Running Cypress tests...'
-                sh 'npx cypress run --config-file cypress.config.js --headless --browser electron'
+                bat 'npx cypress run --config-file cypress.config.js --headless --browser electron'
             }
         }
 
