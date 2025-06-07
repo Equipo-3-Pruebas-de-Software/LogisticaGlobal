@@ -27,7 +27,7 @@ pipeline {
                     if (env.BRANCH_NAME == 'jenkins-local') {
                         sh 'sed -i "s|VITE_API_URL=.*|VITE_API_URL=http://localhost:3000|" frontend/.env'
                     } else if (env.BRANCH_NAME == 'jenkins-ec2' || env.BRANCH_NAME == 'main') {
-                        sh 'sed -i "s|VITE_API_URL=.*|VITE_API_URL=http://3.139.240.205:3000|" frontend/.env'
+                        sh 'sed -i "s|VITE_API_URL=.*|VITE_API_URL=http://3.146.65.234:3000|" frontend/.env'
                     }
                 }
             }
@@ -65,6 +65,13 @@ EOF
             steps {
                 sh "${DOCKER_COMPOSE_CMD} down"
                 sh "${DOCKER_COMPOSE_CMD} up -d --build"
+            }
+        }
+
+	stage('Wait for Servers') {
+            steps {
+                echo 'Waiting for servers to start...'
+                sleep 10 // Ajusta el tiempo si es necesario
             }
         }
 

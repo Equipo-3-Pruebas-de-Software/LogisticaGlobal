@@ -1,6 +1,6 @@
 describe('Crear Incidentes', () => {
   beforeEach(() => {
-    cy.visit('http://3.139.240.205:5173/');
+    cy.visit('http://3.146.65.234:5173/');
     cy.get('input[id="rut"]').type('11111111-1');
     cy.get('input[id="password"]').type('clave123');
     cy.get('button[type="submit"]').click();
