@@ -69,6 +69,12 @@ pipeline {
                 bat "${DOCKER_COMPOSE_CMD} up -d --build"
             }
         }
+        stage('Wait for Servers') {
+            steps {
+                echo 'Waiting for servers to start...'
+                sleep 10 // Ajusta el tiempo si es necesario
+            }
+        }
 
         stage('Verificar Servicios') {
             steps {
@@ -76,14 +82,13 @@ pipeline {
             }
         }
 
-        stage('Ejecutar pruebas Cypress') {
-            // ❗ Esta sección requiere contenedores Linux en Windows o ajustes adicionales
-            // Si Docker Desktop está configurado para contenedores Linux, esto puede funcionar.
+        stage('Run Cypress Tests') {
             steps {
-                echo 'Ejecutando pruebas Cypress con Docker...'
-                bat 'docker run --rm -v %cd%:/e2e -w /e2e cypress/included:14.4.1 --config-file cypress.config.js --headless --browser electron'
+                echo 'Running Cypress tests...'
+                sh 'npx cypress run --config-file cypress.config.js --headless --browser electron'
             }
         }
+
     }
 
     post {
