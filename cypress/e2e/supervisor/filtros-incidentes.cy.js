@@ -48,7 +48,7 @@ describe('Filtrar Incidentes', () => {
   })
 
   it('debería filtrar por gravedad', () => {
-    const filterColumnIndex = 4 // Índice de la columna de gravedad
+    const filterColumnIndex = 6 // Índice de la columna de gravedad
     
     // Abrir dropdown de filtro
     cy.contains('span', 'Gravedad').click()
@@ -75,7 +75,7 @@ describe('Filtrar Incidentes', () => {
   })
 
   it('debería filtrar por prioridad', () => {
-    const filterColumnIndex = 3 // Índice de la columna de prioridad
+    const filterColumnIndex = 5 // Índice de la columna de prioridad
     
     // Abrir dropdown de filtro
     cy.contains('span', 'Prioridad').click()
@@ -102,7 +102,7 @@ describe('Filtrar Incidentes', () => {
   })
 
   it('debería filtrar por estado', () => {
-    const filterColumnIndex = 2 // Índice de la columna de estado
+    const filterColumnIndex = 4 // Índice de la columna de estado
     
     // Abrir dropdown de filtro
     cy.contains('span', 'Estado').click()
