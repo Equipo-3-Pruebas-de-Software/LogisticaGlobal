@@ -1,7 +1,3 @@
-export LANG=en_US.UTF-8
-export LC_ALL=en_US.UTF-8
-
-
 pipeline {
     agent any
 
@@ -10,6 +6,8 @@ pipeline {
     }
 
     environment {
+        LANG = 'en_US.UTF-8'
+        LC_ALL = 'en_US.UTF-8'
         DOCKER_COMPOSE_CMD = "docker-compose -f docker-compose.yml"
         DOCKERHUB_USER = 'hakdyr24'
         DOCKERHUB_CREDENTIALS_ID = 'dockerhub-creds'
@@ -73,6 +71,7 @@ pipeline {
                 bat "${DOCKER_COMPOSE_CMD} up -d --build"
             }
         }
+
         stage('Wait for Servers') {
             steps {
                 echo 'Waiting for servers to start...'
@@ -92,7 +91,6 @@ pipeline {
                 bat 'npx cypress run --config-file cypress.config.js --headless --browser electron'
             }
         }
-
     }
 
     post {
