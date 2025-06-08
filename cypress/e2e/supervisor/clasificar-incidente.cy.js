@@ -6,7 +6,6 @@ describe('Clasificar Incidente', () => {
   }
 
   before(() => {
-    // Configuración para ignorar errores específicos de la aplicación
     Cypress.on('uncaught:exception', (err) => {
       if (err.message.includes('hideOverlaysOnDocumentScrolling')) {
         return false
@@ -18,23 +17,23 @@ describe('Clasificar Incidente', () => {
   beforeEach(() => {
     cy.visit('http://192.168.56.1:5173/')
     
-    // Login con verificación robusta
-    cy.get('input[id="rut"]', { timeout: 10000 }).should('be.visible').type(userInfo.rut)
-    cy.get('input[id="password"]').type(userInfo.clave)
-    cy.get('button[type="submit"]').click()
+    // Login mejorado
+    cy.get('input[id="rut"]', { timeout: 15000 }).should('be.visible').type(userInfo.rut)
+    cy.get('input[id="password"]').should('be.visible').type(userInfo.clave)
+    cy.get('button[type="submit"]').should('be.visible').click()
     
-    // Verificar login exitoso
-    cy.url({ timeout: 10000 }).should('include', '/supervisor')
-    cy.contains(userInfo.nombre, { timeout: 10000 }).should('be.visible')
+    // Verificar login
+    cy.url({ timeout: 15000 }).should('include', '/supervisor')
+    cy.contains(userInfo.nombre, { timeout: 15000 }).should('be.visible')
 
-    // Navegar a Incidentes
-    cy.contains('a', 'Incidentes', { timeout: 10000 }).click()
+    // Navegar a Incidentes con más robustez
+    cy.contains('a', 'Incidentes', { timeout: 15000 }).should('be.visible').click()
     
-    // Esperar a que la tabla cargue completamente
-    cy.get('tbody.content-table', { timeout: 15000 }).should('exist')
-    cy.get('tbody.content-table tr', { timeout: 15000 }).should('have.length.gt', 0)
+    // Esperar a la tabla con más verificaciones
+    cy.get('tbody.content-table', { timeout: 20000 }).should('exist')
+    cy.get('tbody.content-table tr', { timeout: 20000 }).should('have.length.gt', 0)
 
-    // Encontrar y hacer clic en un incidente con estado "Creado"
+    // Encontrar incidente con estado "Creado"
     cy.get('tbody.content-table tr').then(($rows) => {
       const row = Array.from($rows).find(row => {
         const estado = Cypress.$(row).find('td').eq(3).text().trim().toLowerCase()
@@ -42,105 +41,102 @@ describe('Clasificar Incidente', () => {
       })
 
       if (row) {
-        cy.wrap(row).find('button#detalles').click({ force: true })
+        cy.wrap(row).find('button#detalles').should('be.visible').click({ force: true })
       } else {
-        // Si no hay incidentes en estado "Creado", crear uno para pruebas
         cy.log('No hay incidentes en estado "Creado", creando uno...')
         cy.exec('npm run create-test-incident').then(() => {
           cy.reload()
-          cy.get('tbody.content-table tr').first().find('button#detalles').click({ force: true })
+          cy.get('tbody.content-table tr', { timeout: 20000 }).first().find('button#detalles').click({ force: true })
         })
       }
     })
+
+    // Esperar a que el modal de detalles esté completamente cargado
+    cy.get('.p-dialog-content', { timeout: 15000 }).should('be.visible')
   })
 
-  it('debería clasificar el incidente correctamente', () => {
-    // Seleccionar prioridad
-    cy.get('span[id="prioridad"]').clear().type('1', { delay: 100 })
-    
-    // Seleccionar gravedad
-    cy.get('div[id="gravedad"]').click()
-    cy.get('li.p-dropdown-item:visible', { timeout: 8000 })
-      .contains('Alta')
-      .click({ force: true })
+  // Función auxiliar para seleccionar en dropdowns
+  const selectFromDropdown = (selector, optionText) => {
+    cy.get(selector).should('be.visible').click()
+    cy.get('div.p-dropdown-panel', { timeout: 10000 }).should('be.visible')
+    cy.get('li.p-dropdown-item:visible').contains(optionText).should('be.visible').click()
+  }
 
-    // Asignar técnicos a robots
-    cy.get('.robot-container').each(($robotContainer, index) => {
-      cy.wrap($robotContainer).click()
-      cy.get('li.p-dropdown-item:visible', { timeout: 8000 })
-        .first()
-        .click({ force: true })
+  it('debería clasificar el incidente correctamente', () => {
+    // Prioridad
+    cy.get('span[id="prioridad"]').should('be.visible').clear().type('1', { delay: 100 })
+    
+    // Gravedad
+    selectFromDropdown('div[id="gravedad"]', 'Alta')
+
+    // Asignar técnicos
+    cy.get('.robot-container').each(($robotContainer) => {
+      cy.wrap($robotContainer).should('be.visible').click()
+      cy.get('div.p-dropdown-panel', { timeout: 10000 }).should('be.visible')
+      cy.get('li.p-dropdown-item:visible').first().should('be.visible').click()
     })
 
     // Enviar formulario
-    cy.get('.button-container .link-button').click()
+    cy.get('.button-container .link-button').should('be.visible').click()
     
-    // Verificar mensaje de éxito
-    cy.get('.p-inline-message-success', { timeout: 10000 })
+    // Verificar éxito
+    cy.get('.p-inline-message-success', { timeout: 15000 })
       .should('be.visible')
       .and('contain', 'Incidente actualizado correctamente')
   })
 
   it('debería mostrar error cuando falta el campo prioridad', () => {
-    // Seleccionar solo gravedad
-    cy.get('div[id="gravedad"]').click()
-    cy.get('li.p-dropdown-item:visible')
-      .contains('Alta')
-      .click({ force: true })
+    // Solo gravedad
+    selectFromDropdown('div[id="gravedad"]', 'Alta')
 
     // Asignar técnicos
     cy.get('.robot-container').each(($robotContainer) => {
-      cy.wrap($robotContainer).click()
-      cy.get('li.p-dropdown-item:visible')
-        .first()
-        .click({ force: true })
+      cy.wrap($robotContainer).should('be.visible').click()
+      cy.get('div.p-dropdown-panel', { timeout: 10000 }).should('be.visible')
+      cy.get('li.p-dropdown-item:visible').first().should('be.visible').click()
     })
 
     // Enviar formulario
-    cy.get('.button-container .link-button').click()
+    cy.get('.button-container .link-button').should('be.visible').click()
     
-    // Verificar mensaje de error
-    cy.get('.p-inline-message-error', { timeout: 8000 })
+    // Verificar error
+    cy.get('.p-inline-message-error', { timeout: 15000 })
       .should('be.visible')
       .and('contain', 'Faltan campos obligatorios')
   })
 
   it('debería mostrar error cuando falta el campo gravedad', () => {
     // Solo prioridad
-    cy.get('span[id="prioridad"]').clear().type('1', { delay: 100 })
+    cy.get('span[id="prioridad"]').should('be.visible').clear().type('1', { delay: 100 })
 
     // Asignar técnicos
     cy.get('.robot-container').each(($robotContainer) => {
-      cy.wrap($robotContainer).click()
-      cy.get('li.p-dropdown-item:visible')
-        .first()
-        .click({ force: true })
+      cy.wrap($robotContainer).should('be.visible').click()
+      cy.get('div.p-dropdown-panel', { timeout: 10000 }).should('be.visible')
+      cy.get('li.p-dropdown-item:visible').first().should('be.visible').click()
     })
 
     // Enviar formulario
-    cy.get('.button-container .link-button').click()
+    cy.get('.button-container .link-button').should('be.visible').click()
     
-    // Verificar mensaje de error
-    cy.get('.p-inline-message-error', { timeout: 8000 })
+    // Verificar error
+    cy.get('.p-inline-message-error', { timeout: 15000 })
       .should('be.visible')
       .and('contain', 'Faltan campos obligatorios')
   })
 
   it('debería mostrar error cuando faltan técnicos asignados', () => {
     // Prioridad y gravedad
-    cy.get('span[id="prioridad"]').clear().type('1', { delay: 100 })
-    cy.get('div[id="gravedad"]').click()
-    cy.get('li.p-dropdown-item:visible')
-      .contains('Alta')
-      .click({ force: true })
+    cy.get('span[id="prioridad"]').should('be.visible').clear().type('1', { delay: 100 })
+    selectFromDropdown('div[id="gravedad"]', 'Alta')
 
     // No asignar técnicos
     
     // Enviar formulario
-    cy.get('.button-container .link-button').click()
+    cy.get('.button-container .link-button').should('be.visible').click()
     
-    // Verificar mensaje de error
-    cy.get('.p-inline-message-error', { timeout: 8000 })
+    // Verificar error
+    cy.get('.p-inline-message-error', { timeout: 15000 })
       .should('be.visible')
       .and('contain', 'Todos los robots deben tener un técnico asignado')
   })
