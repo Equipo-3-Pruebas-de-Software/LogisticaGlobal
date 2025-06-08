@@ -7,7 +7,7 @@ describe('Clasificar Incidente', () => {
   const userName = 'Margarita Rodriguez'
 
   before(() => {
-    // Manejar excepciones no controladas específicas
+    // Ignorar errores irrelevantes de la app
     Cypress.on('uncaught:exception', (err) => {
       if (err.message.includes('hideOverlaysOnDocumentScrolling')) {
         return false
@@ -17,7 +17,7 @@ describe('Clasificar Incidente', () => {
   })
 
   beforeEach(() => {
-    // Visitar la página y hacer login
+    // Login
     cy.visit('http://192.168.56.1:5173/')
     cy.get('input[id="rut"]', { timeout: 10000 }).should('be.visible').type(userCredentials.rut)
     cy.get('input[id="password"]').type(userCredentials.password)
@@ -27,18 +27,14 @@ describe('Clasificar Incidente', () => {
     cy.url({ timeout: 10000 }).should('include', '/supervisor')
     cy.contains(userName, { timeout: 10000 }).should('be.visible')
 
-    // Navegar a la sección de Incidentes
-    cy.contains('a', 'Incidentes', { timeout: 8000 }).click()
+    // Navegar a sección de Incidentes
+    cy.contains('a', 'Incidentes', { timeout: 10000 }).click()
 
-    // Esperar carga de la tabla
+    // Esperar carga de tabla
     cy.get('tbody.content-table', { timeout: 15000 }).should('exist')
     cy.get('tbody.content-table tr', { timeout: 15000 }).should('have.length.gt', 0)
 
-    // Abrir incidente con estado "Creado" o crear uno nuevo si no existe
-    abrirIncidenteCreado()
-  })
-
-  const abrirIncidenteCreado = () => {
+    // Abrir incidente en estado "Creado" o crear uno
     cy.get('tbody.content-table tr').then(($rows) => {
       const creado = Array.from($rows).find(row =>
         Cypress.$(row).find('td').eq(3).text().trim().toLowerCase() === 'creado'
@@ -57,7 +53,7 @@ describe('Clasificar Incidente', () => {
         })
       }
     })
-  }
+  })
 
   const seleccionarGravedad = (valor = 'Alta') => {
     cy.get('div[id="gravedad"]').click()
@@ -91,7 +87,7 @@ describe('Clasificar Incidente', () => {
   })
 
   it('debería mostrar error cuando falta el campo prioridad', () => {
-    seleccionarGravedad('Alta')
+    seleccionarGravedad()
     asignarTecnicos()
     enviarFormulario()
 
@@ -112,7 +108,7 @@ describe('Clasificar Incidente', () => {
 
   it('debería mostrar error cuando faltan técnicos asignados', () => {
     cy.get('span#prioridad').clear().type('1', { delay: 100 })
-    seleccionarGravedad('Alta')
+    seleccionarGravedad()
     enviarFormulario()
 
     cy.get('.p-inline-message-error', { timeout: 8000 })
