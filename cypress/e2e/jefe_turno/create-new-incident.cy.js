@@ -20,7 +20,7 @@ describe('Crear Incidentes', () => {
       .should('include', '/jefe_turno');
     
     // Verificar que algún elemento único de la página de jefe de turno está visible
-    cy.get('div.jefe-turno-container', { timeout: 15000 })
+    cy.get('btn-crear-incidente p-button p-component', { timeout: 15000 })
       .should('be.visible');
   });
 
