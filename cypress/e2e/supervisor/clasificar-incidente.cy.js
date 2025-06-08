@@ -16,7 +16,7 @@ describe('Clasificar Incidente', () => {
   })
 
   beforeEach(() => {
-    cy.visit('http://localhost:5173/')
+    cy.visit('http://host.docker.internal:5173/')
     
     // Login con verificación robusta
     cy.get('input[id="rut"]', { timeout: 10000 }).should('be.visible').type(userInfo.rut)
