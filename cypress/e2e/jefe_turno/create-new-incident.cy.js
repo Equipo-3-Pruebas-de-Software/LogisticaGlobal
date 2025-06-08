@@ -1,6 +1,6 @@
 describe('Crear Incidentes', () => {
   beforeEach(() => {
-    cy.visit('http://host.docker.internal:5173/');
+    cy.visit('http://192.168.56.1:5173/');
     cy.get('input[id="rut"]').type('11111111-1');
     cy.get('input[id="password"]').type('clave123');
     cy.get('button[type="submit"]').click();
