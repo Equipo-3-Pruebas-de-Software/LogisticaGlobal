@@ -130,7 +130,7 @@ describe('Filtrar Incidentes', () => {
 
   it('debería filtrar por búsqueda', () => {
     const searchText = "zona de"
-    const searchColumnIndex = 1 // Índice de la columna a buscar
+    const searchColumnIndex = 2 // Índice de la columna a buscar
     
     // Realizar búsqueda
     cy.get('input[id="busqueda"]', { timeout: 8000 })
