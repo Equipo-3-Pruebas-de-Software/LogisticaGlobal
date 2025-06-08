@@ -18,7 +18,7 @@ export default function CrearIncidenteForm() {
   
 
   useEffect(() => {
-    const API_URL = 'http://192.168.56.1:3000';
+    const API_URL = 'http://localhost:3000';
 
     fetch(`${API_URL}/robots`)
       .then((response) => {

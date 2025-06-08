@@ -5,7 +5,7 @@ beforeEach(() => {
     cy.spy(win.console, 'warn')
   })
 
-  cy.visit('http://192.168.56.1:5173/', {
+  cy.visit('http://localhost:5173/', {
     onBeforeLoad(win) {
       cy.stub(win.console, 'error').as('consoleError')
       cy.stub(win.console, 'warn').as('consoleWarn')

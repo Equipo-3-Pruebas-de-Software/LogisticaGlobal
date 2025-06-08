@@ -26,11 +26,11 @@ pipeline {
         stage('Configurar entorno') {
             steps {
                 script {
-                    if (env.BRANCH_NAME == 'jenkins-local') {
+                    if (env.BRANCH_NAME == 'jenkins-local' || env.BRANCH_NAME == 'main') {
                         bat '''
-                        powershell -Command "(Get-Content frontend/.env) -replace 'VITE_API_URL=.*', 'VITE_API_URL=http://192.168.56.1:3000' | Set-Content frontend/.env"
+                        powershell -Command "(Get-Content frontend/.env) -replace 'VITE_API_URL=.*', 'VITE_API_URL=http://localhost:3000' | Set-Content frontend/.env"
                         '''
-                    } else if (env.BRANCH_NAME == 'jenkins-ec2' || env.BRANCH_NAME == 'main') {
+                    } else if (env.BRANCH_NAME == 'jenkins-ec2') {
                         bat '''
                         powershell -Command "(Get-Content frontend/.env) -replace 'VITE_API_URL=.*', 'VITE_API_URL=http://3.139.240.205:3000' | Set-Content frontend/.env"
                         '''
