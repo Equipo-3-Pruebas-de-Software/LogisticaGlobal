@@ -1,29 +1,42 @@
 describe('Clasificar Incidente', () => {
-  const userInfo = {
-    nombre: "Margarita Rodriguez",
-    rut: "12345677-9",
-    clave: "clave123",
+  const userCredentials = {
+    rut: '12345677-9',
+    password: 'clave123'
   }
 
-  const seleccionarGravedad = (valor = 'Alta') => {
-    cy.get('div[id="gravedad"]').click()
-    cy.get('li.p-dropdown-item:visible', { timeout: 8000 })
-      .contains(valor)
-      .click({ force: true })
-  }
+  const userName = 'Margarita Rodriguez'
 
-  const asignarTecnicos = () => {
-    cy.get('.robot-container').each(($robotContainer) => {
-      cy.wrap($robotContainer).click()
-      cy.get('li.p-dropdown-item:visible', { timeout: 8000 })
-        .first()
-        .click({ force: true })
+  before(() => {
+    // Manejar excepciones no controladas específicas
+    Cypress.on('uncaught:exception', (err) => {
+      if (err.message.includes('hideOverlaysOnDocumentScrolling')) {
+        return false
+      }
+      return true
     })
-  }
+  })
 
-  const enviarFormulario = () => {
-    cy.get('.button-container .link-button').click()
-  }
+  beforeEach(() => {
+    // Visitar la página y hacer login
+    cy.visit('http://192.168.56.1:5173/')
+    cy.get('input[id="rut"]', { timeout: 10000 }).should('be.visible').type(userCredentials.rut)
+    cy.get('input[id="password"]').type(userCredentials.password)
+    cy.get('button[type="submit"]').click()
+
+    // Verificar login exitoso
+    cy.url({ timeout: 10000 }).should('include', '/supervisor')
+    cy.contains(userName, { timeout: 10000 }).should('be.visible')
+
+    // Navegar a la sección de Incidentes
+    cy.contains('a', 'Incidentes', { timeout: 8000 }).click()
+
+    // Esperar carga de la tabla
+    cy.get('tbody.content-table', { timeout: 15000 }).should('exist')
+    cy.get('tbody.content-table tr', { timeout: 15000 }).should('have.length.gt', 0)
+
+    // Abrir incidente con estado "Creado" o crear uno nuevo si no existe
+    abrirIncidenteCreado()
+  })
 
   const abrirIncidenteCreado = () => {
     cy.get('tbody.content-table tr').then(($rows) => {
@@ -46,26 +59,25 @@ describe('Clasificar Incidente', () => {
     })
   }
 
-  before(() => {
-    Cypress.on('uncaught:exception', (err) => {
-      if (err.message.includes('hideOverlaysOnDocumentScrolling')) return false
-      return true
+  const seleccionarGravedad = (valor = 'Alta') => {
+    cy.get('div[id="gravedad"]').click()
+    cy.get('li.p-dropdown-item:visible', { timeout: 8000 })
+      .contains(valor)
+      .click({ force: true })
+  }
+
+  const asignarTecnicos = () => {
+    cy.get('.robot-container').each(($robotContainer) => {
+      cy.wrap($robotContainer).click()
+      cy.get('li.p-dropdown-item:visible', { timeout: 8000 })
+        .first()
+        .click({ force: true })
     })
-  })
+  }
 
-  beforeEach(() => {
-    cy.visit('http://192.168.56.1:5173/')
-    cy.get('input#rut', { timeout: 10000 }).should('be.visible').type(userInfo.rut)
-    cy.get('input#password').type(userInfo.clave)
-    cy.get('button[type="submit"]').click()
-    cy.url({ timeout: 10000 }).should('include', '/supervisor')
-    cy.contains(userInfo.nombre, { timeout: 10000 }).should('be.visible')
-
-    cy.contains('a', 'Incidentes', { timeout: 10000 }).click()
-    cy.get('tbody.content-table', { timeout: 15000 }).should('exist')
-    cy.get('tbody.content-table tr', { timeout: 15000 }).should('have.length.gt', 0)
-    abrirIncidenteCreado()
-  })
+  const enviarFormulario = () => {
+    cy.get('.button-container .link-button').click()
+  }
 
   it('debería clasificar el incidente correctamente', () => {
     cy.get('span#prioridad').clear().type('1', { delay: 100 })
@@ -79,7 +91,7 @@ describe('Clasificar Incidente', () => {
   })
 
   it('debería mostrar error cuando falta el campo prioridad', () => {
-    seleccionarGravedad()
+    seleccionarGravedad('Alta')
     asignarTecnicos()
     enviarFormulario()
 
@@ -100,7 +112,7 @@ describe('Clasificar Incidente', () => {
 
   it('debería mostrar error cuando faltan técnicos asignados', () => {
     cy.get('span#prioridad').clear().type('1', { delay: 100 })
-    seleccionarGravedad()
+    seleccionarGravedad('Alta')
     enviarFormulario()
 
     cy.get('.p-inline-message-error', { timeout: 8000 })
