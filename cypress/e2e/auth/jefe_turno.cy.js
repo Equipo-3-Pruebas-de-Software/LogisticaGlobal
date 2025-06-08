@@ -9,7 +9,7 @@ describe('auth jefe_turno', () => {
   let loggedIn = false;
 
   it ("Debería darle credenciales incorrectas", () => {
-    cy.visit('http://localhost:5173/');
+    cy.visit('http://frontend:5173/');
     cy.get('input[id="rut"]').type('11111112-1');
     cy.get('input[id="password"]').type('clave123');
     cy.get('button[type="submit"]').click();
@@ -17,7 +17,7 @@ describe('auth jefe_turno', () => {
   })
 
   it ("Debería poder entrar a la Home y luego cerrar sesión", () => {
-    cy.visit('http://localhost:5173/');
+    cy.visit('http://frontend:5173/');
     cy.get('input[id="rut"]').type(userInfo.rut);
     cy.get('input[id="password"]').type(userInfo.clave);
     cy.get('button[type="submit"]').click();
