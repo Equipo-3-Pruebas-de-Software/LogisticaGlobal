@@ -84,15 +84,22 @@ EOF
         stage('Ejecutar pruebas Cypress') {
             agent {
                 docker {
-                    image 'cypress/base:18.16.0'
-                    args '-u root --ipc=host'
+                    image 'cypress/browsers:node18.16.0-chrome114'  // Más ligera (~600MB)
+                    args '-u root --ipc=host --shm-size=2gb'  // Aumentar memoria compartida
+                    reuseNode true  // Reutilizar workspace
                 }
             }
             steps {
-                echo 'Instalando Cypress y ejecutando pruebas...'
+                echo 'Running Cypress tests with Chrome...'
                 sh '''
-                    npm install cypress@14.4.1
-                    npx cypress run --config-file cypress.config.js --headless --browser electron
+                    # Limpiar cache antes de instalar
+                    npm cache clean --force
+                    
+                    # Instalar Cypress sin cache
+                    npm install cypress@14.4.1 --no-cache --prefer-offline
+                    
+                    # Ejecutar pruebas en Chrome (más ligero que Electron)
+                    npx cypress run --config-file cypress.config.js --headless --browser chrome
                 '''
             }
         }
