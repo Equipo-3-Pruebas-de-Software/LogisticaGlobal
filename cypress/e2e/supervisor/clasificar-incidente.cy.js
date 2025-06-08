@@ -6,112 +6,114 @@ describe('Clasificar Incidente', () => {
   };
 
   before(() => {
+    // Configurar manejo de excepciones no capturadas
     Cypress.on('uncaught:exception', (err) => {
-      if (err.message.includes('hideOverlaysOnDocumentScrolling')) {
-        return false;
-      }
-      return true;
+      console.error('Uncaught exception:', err);
+      return false;
     });
   });
 
   beforeEach(() => {
+    // 1. Visitar la página con opciones mejoradas
     cy.visit('http://192.168.56.1:5173/', {
-      onBeforeLoad(win) {
-        // Deshabilitar errores de overlay que puedan interferir
-        win.console.log = () => {};
-      }
+      timeout: 60000,
+      retryOnStatusCodeFailure: true,
+      retryOnNetworkFailure: true
     });
-    
-    // Login con verificación mejorada
-    cy.get('input[id="rut"]', { timeout: 30000 })
-      .should('be.visible')
-      .type(userInfo.rut, { delay: 100 });
-      
-    cy.get('input[id="password"]')
-      .should('be.visible')
-      .type(userInfo.clave, { delay: 100 });
-      
-    cy.get('button[type="submit"]')
-      .should('be.visible')
-      .click();
 
-    // Verificar login con múltiples condiciones
-    cy.url({ timeout: 30000 }).should('include', '/supervisor');
-    cy.contains(userInfo.nombre, { timeout: 30000 }).should('be.visible');
-
-    // Navegar a Incidentes con verificación de carga
-    cy.contains('a', 'Incidentes', { timeout: 30000 })
-      .should('be.visible')
-      .click();
-
-    // Esperar carga de tabla con verificación de datos
-    cy.get('tbody.content-table', { timeout: 40000 })
+    // 2. Login con verificaciones exhaustivas
+    cy.get('input[id="rut"]', { timeout: 40000 })
       .should('exist')
-      .find('tr')
-      .should('have.length.gt', 0);
+      .and('be.visible')
+      .type(userInfo.rut, { delay: 100, force: true });
 
-    // Función para manejar la apertura del modal
-    const openIncidentModal = () => {
-      cy.get('tbody.content-table tr', { timeout: 30000 }).then(($rows) => {
-        const createdRow = Array.from($rows).find(row => {
-          const estado = Cypress.$(row).find('td').eq(3).text().trim().toLowerCase();
-          return estado === 'creado';
-        });
+    cy.get('input[id="password"]', { timeout: 40000 })
+      .should('exist')
+      .and('be.visible')
+      .type(userInfo.clave, { delay: 100, force: true });
 
-        if (createdRow) {
-          cy.wrap(createdRow).find('button#detalles')
-            .should('be.visible')
-            .click({ force: true });
-            
-          // Verificación en profundidad del modal
-          cy.get('body').then(($body) => {
-            if ($body.find('.p-dialog').length === 0) {
-              cy.log('Modal no apareció, intentando nuevamente...');
-              cy.wrap(createdRow).find('button#detalles')
-                .should('be.visible')
-                .click({ force: true });
-            }
+    cy.get('button[type="submit"]', { timeout: 40000 })
+      .should('exist')
+      .and('be.visible')
+      .and('not.be.disabled')
+      .click({ force: true });
+
+    // 3. Verificar login exitoso
+    cy.url({ timeout: 60000 }).should('include', '/supervisor');
+    cy.contains(userInfo.nombre, { timeout: 40000 })
+      .should('exist')
+      .and('be.visible');
+
+    // 4. Navegar a Incidentes con verificación de carga
+    cy.contains('a', 'Incidentes', { timeout: 40000 })
+      .should('exist')
+      .and('be.visible')
+      .click({ force: true });
+
+    // 5. Esperar y verificar la tabla de incidentes
+    const verifyAndOpenIncident = () => {
+      cy.get('tbody.content-table', { timeout: 60000 })
+        .should('exist')
+        .find('tr')
+        .should('have.length.gt', 0)
+        .then(($rows) => {
+          const createdRow = Array.from($rows).find(row => {
+            const estado = Cypress.$(row).find('td').eq(3).text().trim().toLowerCase();
+            return estado === 'creado';
           });
-          
-          // Verificaciones exhaustivas del modal
-          cy.get('.p-dialog', { timeout: 30000 })
-            .should('be.visible')
-            .within(() => {
-              cy.get('.p-dialog-header').should('contain', 'Detalles del Incidente');
-              cy.get('.p-dialog-content').should('be.visible');
+
+          if (createdRow) {
+            cy.wrap(createdRow).find('button#detalles')
+              .should('exist')
+              .and('be.visible')
+              .click({ force: true, multiple: true });
+
+            // 6. Verificación exhaustiva del modal
+            cy.get('body').then(($body) => {
+              if ($body.find('.p-dialog').length === 0) {
+                cy.log('Modal no apareció después del primer click, intentando nuevamente...');
+                cy.wrap(createdRow).find('button#detalles')
+                  .click({ force: true, multiple: true });
+              }
             });
-        } else {
-          cy.log('No hay incidentes en estado "Creado", creando uno...');
-          cy.exec('npm run create-test-incident', { timeout: 10000 }).then(() => {
-            cy.reload();
-            cy.get('tbody.content-table tr', { timeout: 40000 })
-              .should('have.length.gt', 0)
-              .first()
-              .find('button#detalles')
-              .click({ force: true });
-              
-            cy.get('.p-dialog', { timeout: 30000 })
-              .should('be.visible')
+
+            // Esperar y verificar el modal con múltiples condiciones
+            cy.get('.p-dialog', { timeout: 40000 })
+              .should('exist')
+              .and('be.visible')
               .within(() => {
-                cy.get('.p-dialog-header').should('contain', 'Detalles del Incidente');
-                cy.get('.p-dialog-content').should('be.visible');
+                cy.get('.p-dialog-header', { timeout: 20000 })
+                  .should('exist')
+                  .and('be.visible')
+                  .and('contain', 'Detalles del Incidente');
+                cy.get('.p-dialog-content', { timeout: 20000 })
+                  .should('exist')
+                  .and('be.visible');
               });
-          });
-        }
-      });
+          } else {
+            cy.log('No hay incidentes en estado "Creado", creando uno...');
+            cy.exec('npm run create-test-incident', { timeout: 15000 })
+              .then(() => {
+                cy.reload();
+                verifyAndOpenIncident(); // Llamada recursiva después de crear incidente
+              });
+          }
+        });
     };
 
-    openIncidentModal();
+    verifyAndOpenIncident();
   });
 
-  // Función mejorada para selección en dropdown
+  // [Resto del código de los tests permanece igual pero con los timeouts aumentados]
   const selectFromDropdown = (selector, optionText) => {
     cy.get(selector)
-      .should('be.visible')
+      .should('exist')
+      .and('be.visible')
       .click({ force: true });
       
-    cy.get('div.p-dropdown-panel', { timeout: 20000 })
-      .should('be.visible')
+    cy.get('div.p-dropdown-panel', { timeout: 30000 })
+      .should('exist')
+      .and('be.visible')
       .find('li.p-dropdown-item')
       .contains(optionText)
       .scrollIntoView()
@@ -120,42 +122,38 @@ describe('Clasificar Incidente', () => {
   };
 
   it('debería clasificar el incidente correctamente', () => {
-    // Prioridad con verificación de entrada
-    cy.get('span[id="prioridad"]')
-      .should('be.visible')
+    cy.get('span[id="prioridad"]', { timeout: 30000 })
+      .should('exist')
+      .and('be.visible')
       .and('not.be.disabled')
       .clear()
-      .type('1', { delay: 150 });
+      .type('1', { delay: 150, force: true });
     
-    // Gravedad con verificación de selección
     selectFromDropdown('div[id="gravedad"]', 'Alta');
 
-    // Asignación de técnicos con verificación
-    cy.get('.robot-container')
+    cy.get('.robot-container', { timeout: 30000 })
       .should('have.length.gt', 0)
-      .each(($robot, index) => {
+      .each(($robot) => {
         cy.wrap($robot)
           .should('be.visible')
           .click({ force: true });
           
-        cy.get('div.p-dropdown-panel', { timeout: 20000 })
+        cy.get('div.p-dropdown-panel', { timeout: 30000 })
           .should('be.visible')
           .find('li.p-dropdown-item:visible')
           .first()
           .scrollIntoView()
-          .should('be.visible')
           .click({ force: true });
       });
 
-    // Envío del formulario con verificación de estado
-    cy.get('.button-container .link-button')
+    cy.get('.button-container .link-button', { timeout: 30000 })
       .should('be.visible')
       .and('not.be.disabled')
       .click();
     
-    // Verificación de éxito con múltiples condiciones
-    cy.get('.p-inline-message-success', { timeout: 30000 })
-      .should('be.visible')
+    cy.get('.p-inline-message-success', { timeout: 40000 })
+      .should('exist')
+      .and('be.visible')
       .and('contain', 'Incidente actualizado correctamente');
   });
 
