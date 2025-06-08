@@ -1,10 +1,12 @@
 describe('Crear Incidentes', () => {
   beforeEach(() => {
     cy.visit('http://192.168.56.1:5173/');
-    cy.get('input[id="rut"]').type('11111111-1');
+    cy.get('input[id="rut"]', { timeout: 10000 }).should('be.visible').type('11111111-1');
     cy.get('input[id="password"]').type('clave123');
     cy.get('button[type="submit"]').click();
     cy.url().should('include', '/jefe_turno');
+    // Esperar a que la página esté completamente cargada
+    cy.get('h1').contains('Panel Jefe de Turno').should('be.visible');
   });
 
   const cerrarSesion = () => {
@@ -13,21 +15,36 @@ describe('Crear Incidentes', () => {
     cy.get('input[id="rut"]').should('be.visible'); 
   };
 
-  const seleccionarRobots = () => {
-    // Esperar a que el dropdown esté disponible
-    cy.get('div[id="robots"]').should('be.visible').click();
-    
-    // Esperar a que los items del multiselect estén cargados
-    cy.get('li.p-multiselect-item', { timeout: 10000 })
-      .should('have.length.gt', 0)
-      .first()
+  const abrirMultiSelect = () => {
+    // Esperar y verificar que el multiselect esté visible y habilitado
+    cy.get('div[id="robots"]', { timeout: 15000 })
+      .should('be.visible')
+      .and('not.be.disabled')
       .click();
+    
+    // Esperar a que el dropdown esté completamente abierto
+    cy.get('div.p-multiselect-panel', { timeout: 10000 })
+      .should('be.visible')
+      .find('li.p-multiselect-item')
+      .should('have.length.gt', 0);
+  };
 
+  const seleccionarRobots = () => {
+    abrirMultiSelect();
+    
+    // Seleccionar el primer robot
+    cy.get('li.p-multiselect-item')
+      .first()
+      .should('be.visible')
+      .click();
+    
+    // Seleccionar el último robot
     cy.get('li.p-multiselect-item')
       .last()
+      .should('be.visible')
       .click();
 
-    // Cerrar el dropdown haciendo clic fuera
+    // Cerrar el dropdown
     cy.get('body').click(0, 0);
   };
 
@@ -38,7 +55,7 @@ describe('Crear Incidentes', () => {
     seleccionarRobots();
 
     cy.get('button[type="submit"]').click();
-    cy.get('.msg', { timeout: 10000 }) 
+    cy.get('.p-toast-message-success', { timeout: 15000 }) 
       .should('be.visible')
       .and('contain', 'Incidente creado');
 
@@ -51,7 +68,7 @@ describe('Crear Incidentes', () => {
     seleccionarRobots();
 
     cy.get('button[type="submit"]').click();
-    cy.get('.msg', { timeout: 10000 }) 
+    cy.get('.p-toast-message-error', { timeout: 15000 }) 
       .should('be.visible')
       .and('contain', 'Todos los campos son obligatorios');
 
@@ -64,7 +81,7 @@ describe('Crear Incidentes', () => {
     seleccionarRobots();
 
     cy.get('button[type="submit"]').click();
-    cy.get('.msg', { timeout: 10000 }) 
+    cy.get('.p-toast-message-error', { timeout: 15000 }) 
       .should('be.visible')
       .and('contain', 'Todos los campos son obligatorios');
       
@@ -76,7 +93,7 @@ describe('Crear Incidentes', () => {
     cy.get('textarea[id="descripcion"]').type("El robot se detuvo repentinamente en la zona de carga, causando un retraso en la operación. Se recomienda revisar el estado del robot y reiniciar su sistema.");
     
     cy.get('button[type="submit"]').click();
-    cy.get('.msg', { timeout: 10000 }) 
+    cy.get('.p-toast-message-error', { timeout: 15000 }) 
       .should('be.visible')
       .and('contain', 'Todos los campos son obligatorios');
 
