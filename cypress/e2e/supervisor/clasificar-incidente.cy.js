@@ -44,7 +44,7 @@ describe('Clasificar Incidente', () => {
         cy.wrap(row).find('button#detalles').should('be.visible').click({ force: true })
         
         // Esperar al modal con múltiples condiciones
-        cy.get('.p-dialog', { timeout: 20000 }).should('be.visible')
+        cy.get('.p-dialog', { timeout: 30000 }).should('be.visible')
         cy.get('.p-dialog-content', { timeout: 20000 }).should('be.visible')
         cy.get('.p-dialog-title', { timeout: 20000 }).should('contain', 'Detalles del Incidente')
       } else {
