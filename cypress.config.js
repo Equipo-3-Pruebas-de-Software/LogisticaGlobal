@@ -9,7 +9,7 @@ module.exports = {
   component: {
     devServer: {
       framework: "react",
-      bundler: "webpack",
+      bundler: "vite", // Cambiado de webpack a vite
     },
   },
 };

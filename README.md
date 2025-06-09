@@ -51,6 +51,10 @@ Desde directorio raiz, en un nuevo terminal de comandos:
    - RUT: 11111111-1
    - Contraseña: clave123
 
+  Administrador
+   - RUT: 00000000-0
+   - Contraseña: clave123
+
 ## Enlaces 
    - [HandsOnProject](https://github.com/Pruebas-de-Software/HandsOnProject/blob/main/semestres/2025-1/logisticaglobal.md)
    - [Wiki](https://github.com/Equipo-3-Pruebas-de-Software/LogisticaGlobal/wiki)

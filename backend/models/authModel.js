@@ -1,6 +1,11 @@
 const db = require('../config/db');
 
 const findUserByCredentials = (rut, clave, callback) => {
+  // Verificación especial para admin
+  if (rut === '00000000-0' && clave === 'admin') {
+    return callback(null, { rut, nombre: 'Administrador', rol: 'admin' });
+  }
+
   const queries = [
     { table: 'tecnicos', rol: 'tecnico' },
     { table: 'supervisores', rol: 'supervisor' },
@@ -26,13 +31,13 @@ const findUserByCredentials = (rut, clave, callback) => {
         return callback(null, { ...results[0], rol });
       }
 
-      // Intenta con la siguiente tabla
       tryNext(index + 1);
     });
   };
 
   tryNext(0);
 };
+
 
 module.exports = {
   findUserByCredentials

@@ -1,15 +1,19 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useUser } from '../context/UserContext'; // Importa el contexto
+import { useUser } from '../context/UserContext'; 
 import LoginHeader from '../components/general/loginheader';
-import '../stylesheets/login.css'; // Asegúrate de tener los estilos
+import '../stylesheets/login.css';
+
+import { InputText } from 'primereact/inputtext';
+import { Button } from 'primereact/button';
+import { Message } from 'primereact/message';
 
 const Login = () => {
     const [rut, setRut] = useState('');
     const [clave, setClave] = useState('');
-    const [error, setError] = useState('');
+    const [error, setError] = useState(null);
     const navigate = useNavigate();
-    const { setUsuario } = useUser(); // Obtén la función para actualizar el usuario
+    const { setUsuario } = useUser();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -33,7 +37,8 @@ const Login = () => {
             // Redirige al usuario según la ruta devuelta por el backend
             navigate(data.ruta);
         } catch (err) {
-            setError(err.message);
+            setError({ type: 'error', text: err.message || 'No se pudo acceder' });
+
         }
     };
 
@@ -42,32 +47,21 @@ const Login = () => {
             <LoginHeader />
             <div className="login-container">
                 <form className="login-form" onSubmit={handleSubmit}>
-                    <h1 className="company-title">LogisticaGlobal</h1>
-                    <h1>Iniciar Sesión</h1>
+                    <h1 className="company-title">LogísticaGlobal.com</h1>
+                    <h2>Iniciar Sesión</h2>
                     <div className="form-group">
                         <label htmlFor="rut">RUT</label>
-                        <input
-                            type="text"
-                            id="rut"
-                            placeholder="Ingresa tu RUT"
-                            value={rut}
-                            onChange={(e) => setRut(e.target.value)}
-                            required
-                        />
+                        <InputText id="rut" value={rut} required placeholder="Ingresa tu RUT" onChange={(e) => setRut(e.target.value)}/>
+                        <p>Sin puntos y con guion</p>
                     </div>
                     <div className="form-group">
                         <label htmlFor="password">Contraseña</label>
-                        <input
-                            type="password"
-                            id="password"
-                            placeholder="Ingresa tu contraseña"
-                            value={clave}
-                            onChange={(e) => setClave(e.target.value)}
-                            required
-                        />
+                        <InputText type="password" id="password" value={clave} required placeholder="Ingresa tu contraseña" onChange={(e) => setClave(e.target.value)}/>
                     </div>
-                    {error && <p className="error-message">{error}</p>}
-                    <button type="submit" className="login-button">Entrar</button>
+                    <Button type="submit" label="Entrar" className='login-button'/>
+                    {error && (
+                        <Message severity={error.type} text={error.text} className='msg' style={{ width: '100%' , position: "relative" , zIndex: "999" }}/>
+                    )}
                 </form>
             </div>
         </>
