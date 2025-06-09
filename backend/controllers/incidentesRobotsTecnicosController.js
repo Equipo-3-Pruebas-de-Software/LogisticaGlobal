@@ -32,7 +32,7 @@ const assignTecnico = (req, res) => {
           return db.rollback(() => res.status(500).json({ error: 'Error actualizando disponibilidad del técnico' }));
         }
 
-        updateEstadoRobot(id_robot, "En reparación", (err3) => {
+        updateEstadoRobot(id_robot, "en reparación", (err3) => {
           if (err3) {
             console.error('[ACTUALIZAR ESTADO ERROR]', err3.sqlMessage);
             return db.rollback(() => res.status(500).json({ error: 'Error actualizando estado del robot' }));

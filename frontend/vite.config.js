@@ -26,6 +26,10 @@ export default defineConfig({
         target: BACKEND_URL,
         changeOrigin: true,
       },
+      '/incidentes-robots-tecnicos/robots-asignados': {
+        target: BACKEND_URL,
+        changeOrigin: true,
+      },
       '/incidentes-robots-tecnicos': {
         target: BACKEND_URL,
         changeOrigin: true,

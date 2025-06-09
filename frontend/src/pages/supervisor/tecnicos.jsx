@@ -32,7 +32,7 @@ export const TecnicosSupervisor = () => {
 
               let incidente = null
 
-              if (incidenteData.length > 2) {
+              if (incidenteData.length > 1) {
                 incidente = incidenteData.reduce((masReciente, actual) => {
                   const fechaActual = new Date(actual.fecha_asignacion);
                   const fechaMasReciente = new Date(masReciente.fecha_asignacion);
@@ -43,6 +43,8 @@ export const TecnicosSupervisor = () => {
               }
 
               incidenteDataArray.push(incidenteData);
+
+              console.log(incidenteData)
 
               return {
                 rut: tecnico.rut,
