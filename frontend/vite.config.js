@@ -2,7 +2,7 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react-swc'
 
 // Definimos la URL base del backend una sola vez
-const BACKEND_URL = 'http://localhost:3000';
+const BACKEND_URL = 'http://192.168.1.88:3000';
 
 // https://vite.dev/config/
 export default defineConfig({

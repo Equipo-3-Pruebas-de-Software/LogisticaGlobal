@@ -1,68 +1,93 @@
-beforeEach(() => {
-  // Verificar consola para errores
-  Cypress.on('window:before:load', (win) => {
-    cy.spy(win.console, 'error')
-    cy.spy(win.console, 'warn')
-  })
+describe('debería clasificar incidente', () => {
+  const userInfo = {
+    nombre: "Margarita Rodriguez",
+    rut: "12345677-9",
+    clave: "clave123",
+  }
 
-  cy.visit('http://localhost:5173/', {
-    onBeforeLoad(win) {
-      cy.stub(win.console, 'error').as('consoleError')
-      cy.stub(win.console, 'warn').as('consoleWarn')
-    }
-  })
-  
-  // Login con verificaciones mejoradas
-  cy.get('input[id="rut"]', { timeout: 30000 }).should('be.visible').type(userInfo.rut)
-  cy.get('input[id="password"]').should('be.visible').type(userInfo.clave)
-  cy.get('button[type="submit"]').should('be.visible').click()
-  
-  // Verificar login con más tolerancia
-  cy.url({ timeout: 30000 }).should('include', '/supervisor')
-  cy.contains(userInfo.nombre, { timeout: 30000 }).should('be.visible')
+  beforeEach(() => {
+    cy.visit('http://192.168.1.88:5173/');
+    cy.get('input[id="rut"]').type(userInfo.rut);
+    cy.get('input[id="password"]').type(userInfo.clave);
+    cy.get('button[type="submit"]').click();
+    cy.url().should('include', '/supervisor');
+    cy.contains(userInfo.nombre)
 
-  // Navegar a Incidentes con esperas inteligentes
-  cy.contains('a', 'Incidentes', { timeout: 30000 }).should('be.visible').click()
-  
-  // Esperar a la tabla con más condiciones
-  cy.get('tbody.content-table', { timeout: 40000 }).should('exist')
-  cy.get('tbody.content-table tr', { timeout: 40000 }).should('have.length.gt', 0)
+    cy.contains('a', 'Incidentes').click();
 
-  // Encontrar y manejar incidentes con estado "Creado"
-  cy.get('tbody.content-table tr').then(($rows) => {
-    const row = Array.from($rows).find(row => {
-      const estado = Cypress.$(row).find('td').eq(3).text().trim().toLowerCase()
-      return estado === 'creado'
-    })
+    cy.get('tbody.content-table tr').then(($rows) => {
+      const row = Array.from($rows).find(row => {
+        const estado = Cypress.$(row).find('td').eq(3).text().trim().toLowerCase();
+        return estado === 'creado';
+      });
 
-    if (row) {
-      cy.screenshot('antes-de-detalles')
-      cy.wrap(row).find('button#detalles').should('be.visible').click({ force: true })
-      cy.screenshot('despues-de-detalles')
-      
-      // Esperar al modal con múltiples condiciones y mayor timeout
-      cy.get('.p-dialog', { timeout: 60000 })
-        .should('exist')
-        .and('be.visible')
-      cy.get('.p-dialog-content', { timeout: 30000 }).should('be.visible')
-      cy.get('.p-dialog-title', { timeout: 30000 }).should('contain', 'Detalles del Incidente')
-    } else {
-      cy.log('No hay incidentes en estado "Creado", creando uno...')
-      cy.exec('npm run create-test-incident').then(() => {
-        cy.reload()
-        cy.get('tbody.content-table tr', { timeout: 40000 }).should('have.length.gt', 0)
-        cy.get('tbody.content-table tr').first().find('button#detalles').click({ force: true })
-        
-        // Esperar al modal después de crear incidente
-        cy.get('.p-dialog', { timeout: 60000 })
-          .should('exist')
-          .and('be.visible')
-        cy.get('.p-dialog-content', { timeout: 30000 }).should('be.visible')
-      })
-    }
-  })
+      if (row) {
+        cy.wrap(row).find('button#detalles').click();
+      } else {
+        throw new Error("No se encontró ninguna fila con estado 'Creado' o 'creado'");
+      }
+    });
+  });
 
-  // Verificar que no haya errores en consola
-  cy.get('@consoleError').should('not.be.called')
-  cy.get('@consoleWarn').should('not.be.called')
+  it('debería clasificar el incidente', () => {
+    cy.get('span[id="prioridad"]').type('1');
+    cy.get('div[id="gravedad"]').click();
+    cy.get('li.p-dropdown-item')
+      .contains('Alta')
+      .click();
+
+    cy.get('.robot-container').each(($robotContainer) => {
+      cy.wrap($robotContainer).click();
+      cy.get(`li.p-dropdown-item`).first().click({ force: true });
+    });
+
+    cy.get('.button-container .link-button').click();
+    cy.get('.msg') 
+      .should('be.visible')
+      .and('contain', 'Incidente actualizado correctamente');
+  });
+
+  it('debería dar error porque falta el campo prioridad', () => {
+    cy.get('div[id="gravedad"]').click();
+    cy.get('li.p-dropdown-item')
+      .contains('Alta')
+      .click();
+
+    cy.get('.robot-container').each(($robotContainer) => {
+      cy.wrap($robotContainer).click();
+      cy.get(`li.p-dropdown-item`).first().click({ force: true });
+    });
+
+    cy.get('.button-container .link-button').click();
+    cy.get('.msg') 
+      .should('be.visible')
+      .and('contain', 'Faltan campos obligatorios');
+  });
+
+  it('debería dar error porque falta el campo gravedad', () => {
+    cy.get('span[id="prioridad"]').type('1');
+
+    cy.get('.robot-container').each(($robotContainer) => {
+      cy.wrap($robotContainer).click();
+      cy.get(`li.p-dropdown-item`).first().click({ force: true });
+    });
+
+    cy.get('.button-container .link-button').click();
+    cy.get('.msg') 
+      .should('be.visible')
+      .and('contain', 'Faltan campos obligatorios');
+  });
+
+  it('debería dar error porque faltan los técnicos', () => {
+    cy.get('span[id="prioridad"]').type('1');
+    cy.get('div[id="gravedad"]').click();
+    cy.get('li.p-dropdown-item')
+      .contains('Alta')
+      .click();
+
+    cy.get('.button-container .link-button').click();
+    cy.get('.msg') 
+      .should('be.visible')
+      .and('contain', 'Todos los robots deben tener un técnico asignado');
+  });
 })
