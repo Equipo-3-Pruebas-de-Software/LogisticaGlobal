@@ -41,7 +41,7 @@ const RobotsAsignados = () => {
 
     const fetchRobots = async () => {
       try {
-        const response = await fetch(`/incidentes-robots-tecnicos/robots-asignados/${usuario.rut}`);
+        const response = await fetch(`http://192.168.1.88:3000/tecnicos/robots-asignados/${usuario.rut}`);
         const data = await response.json();
         setRobots(data);
       } catch (err) {

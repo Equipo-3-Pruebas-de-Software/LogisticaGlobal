@@ -22,7 +22,9 @@ export default function CrearIncidenteForm() {
   
 
   useEffect(() => {
-    fetch('/robots')
+    const API_URL = 'http://localhost:3000';
+
+    fetch(`${API_URL}/robots`)
       .then((response) => {
         if (!response.ok) throw new Error('Error al obtener los robots');
         return response.json();
