@@ -4,7 +4,7 @@ import { BrowserRouter } from "react-router-dom";
 import './stylesheets/index.css';
 import App from './App';
 import { UserProvider } from './context/UserContext'; // Importa el proveedor
-//prueba!
+//prueba
 ReactDOM.createRoot(document.getElementById('root')).render(
     <React.StrictMode>
         <BrowserRouter>
