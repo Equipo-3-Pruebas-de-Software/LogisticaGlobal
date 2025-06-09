@@ -60,7 +60,5 @@ Desde directorio raiz, en un nuevo terminal de comandos:
    - Las contraseñas actuales no tienen un proceso de encriptado para mejorar la seguridad de estas, pero en un proceso futuro se tiene contemplada esta implementación.
    - En la lógica final, un técnico puede cambiar el estado del robot pero no puede cambiar el estado del incidente.
 
-prueba video (eliminar despues)
-
 
 
