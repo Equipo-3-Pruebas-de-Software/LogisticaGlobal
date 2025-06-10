@@ -16,6 +16,7 @@ describe('Filtrar Incidentes', () => {
 
   beforeEach(() => {
     // Visitar la página y hacer login
+    //prueba
     cy.visit('http://192.168.56.1:5173/')
     cy.get('input[id="rut"]', { timeout: 10000 }).should('be.visible').type(userCredentials.rut)
     cy.get('input[id="password"]').type(userCredentials.password)
