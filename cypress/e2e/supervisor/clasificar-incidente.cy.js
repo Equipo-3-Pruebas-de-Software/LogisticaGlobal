@@ -6,7 +6,7 @@ describe('debería clasificar incidente', () => {
   }
 
   beforeEach(() => {
-    cy.visit('http://localhost:5173/');
+    cy.visit('http://192.168.56.1:5173/');
     cy.get('input[id="rut"]').type(userInfo.rut);
     cy.get('input[id="password"]').type(userInfo.clave);
     cy.get('button[type="submit"]').click();

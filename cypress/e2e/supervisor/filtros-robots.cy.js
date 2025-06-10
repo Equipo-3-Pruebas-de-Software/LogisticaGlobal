@@ -16,7 +16,7 @@ describe('Filtrar Robots', () => {
 
   beforeEach(() => {
     // Login y navegación a sección Robots
-    cy.visit('http://localhost:5173/');
+    cy.visit('http://192.168.56.1:5173/');
     cy.get('input[id="rut"]', { timeout: 10000 }).should('be.visible').type(userCredentials.rut);
     cy.get('input[id="password"]').type(userCredentials.password);
     cy.get('button[type="submit"]').click();
