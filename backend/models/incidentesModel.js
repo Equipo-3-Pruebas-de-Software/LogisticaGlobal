@@ -1,11 +1,11 @@
 const db = require('../config/db');
 
-const createIncidente = ({ lugar, descripcion }, callback) => {
+const createIncidente = ({ lugar, descripcion , jefe_turno_asignado}, callback) => {
   const query = `
-    INSERT INTO incidentes (lugar, descripcion, estado, fecha_creado, firmado)
-    VALUES (?, ?, 'creado', CURRENT_TIMESTAMP, 0)
+    INSERT INTO incidentes (lugar, descripcion, estado, fecha_creado, firmado, jefe_turno_asignado)
+    VALUES (?, ?, 'creado', CURRENT_TIMESTAMP, 0, ?)
   `;
-  db.query(query, [lugar, descripcion], (err, result) => {
+  db.query(query, [lugar, descripcion, jefe_turno_asignado], (err, result) => {
     if (err) return callback(err);
     callback(null, result.insertId); // return id_incidentes
   });
@@ -58,6 +58,21 @@ const resolveIncidente = (id_incidente, callback) => {
   db.query(query, [id_incidente], callback);
 }
 
+const readIncidenteSupervisor = (rut_supervisor, callback) => {
+  const query = 'SELECT * FROM incidentes WHERE supervisor_asignado = ?';
+  db.query(query, rut_supervisor, (err, results) => {
+    if (err) return callback(err);
+    callback(null, results);
+  });
+};
+
+const readIncidenteJefeTurno = (rut_jefe_turno, callback) => {
+  const query = 'SELECT * FROM incidentes WHERE jefe_turno_asignado = ?';
+  db.query(query, rut_jefe_turno, (err, results) => {
+    if (err) return callback(err);
+    callback(null, results);
+  });
+};
 
 module.exports = {
   createIncidente,
@@ -65,6 +80,8 @@ module.exports = {
   readIncidente,
   readAllIncidentes,
   setFechaEsperaAprovacion,
-  resolveIncidente
+  resolveIncidente,
+  readIncidenteSupervisor,
+  readIncidenteJefeTurno
 };
 

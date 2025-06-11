@@ -7,6 +7,7 @@ import { MultiSelect } from 'primereact/multiselect';
 import { Button } from 'primereact/button';
 import { Message } from 'primereact/message';
 
+import { useUser } from '../../context/UserContext';
 
 
 export default function CrearIncidenteForm() {
@@ -15,10 +16,15 @@ export default function CrearIncidenteForm() {
   const [robotsSeleccionados, setRobotsSeleccionados] = useState([]);
   const [robotsDisponibles, setRobotsDisponibles] = useState([]);
   const [mensaje, setMensaje] = useState(null);
+
+  const { usuario } = useUser();
+  const jefe = usuario.rut
   
 
   useEffect(() => {
-    fetch('/robots')
+    const API_URL = 'http://localhost:3000';
+
+    fetch(`${API_URL}/robots`)
       .then((response) => {
         if (!response.ok) throw new Error('Error al obtener los robots');
         return response.json();
@@ -52,7 +58,8 @@ export default function CrearIncidenteForm() {
         body: JSON.stringify({
           lugar: lugar,
           descripcion: descripcion,
-          robots: robotsSeleccionados
+          robots: robotsSeleccionados,
+          jefe_turno_asignado: jefe
         })
       });
 

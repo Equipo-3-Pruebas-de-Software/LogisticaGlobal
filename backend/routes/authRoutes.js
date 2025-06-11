@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { findUserByCredentials } = require('../models/authModel');
-const { crearFuncionario } = require("../controllers/funcionariosController")
+const { crearFuncionario, actualizarFuncionario, borrarFuncionario, getSupervisoresIncidentes, getJefesTurnoIncidentes } = require("../controllers/funcionariosController")
 
 router.post('/login', (req, res) => {
   const { rut, clave } = req.body;
@@ -24,6 +24,10 @@ router.post('/login', (req, res) => {
   });
 });
 
-router.post("/funcionarios",crearFuncionario)
+router.post("/funcionarios", crearFuncionario);
+router.patch("/funcionarios-update", actualizarFuncionario);
+router.patch("/funcionarios-delete", borrarFuncionario);
+router.get("/supervisores", getSupervisoresIncidentes);
+router.get("/jefes-turno", getJefesTurnoIncidentes);
 
 module.exports = router;

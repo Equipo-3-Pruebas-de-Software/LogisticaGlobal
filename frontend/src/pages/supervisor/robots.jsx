@@ -3,6 +3,7 @@ import Tables from "../../components/general/tables";
 
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
+import RobotsCards from "../../components/general/tables/[Vista Supervisor]/robot-cards";
 
 export const RobotsSupervisor = () => {
   const [robots, setRobots] = useState([]);
@@ -55,6 +56,8 @@ export const RobotsSupervisor = () => {
       });
   }, []);
 
+  console.log(robots)
+
   useEffect(() => {
     const updateRowsPerPage = () => {
       if (tableRef.current) {
@@ -93,7 +96,7 @@ export const RobotsSupervisor = () => {
 
   return (
     <>
-      <div className="filters">
+      <div className="filters mobile-filter-robots">
         <h1>Robots</h1>
         <div>
           <InputText id="busqueda" placeholder="Buscar..." value={searchText} onChange={(e) => setSearchText(e.target.value)} />
@@ -107,7 +110,15 @@ export const RobotsSupervisor = () => {
           />
         </div>
       </div>
-        
+      
+      <div className="card-container">  
+        {
+          filteredRobots?.map((robot) => (
+            <RobotsCards key={robot.id_robot} robot={robot}/>
+          ))
+        }
+      </div>
+
       <div className="table-container" ref={tableRef}>
         <Tables
           header={

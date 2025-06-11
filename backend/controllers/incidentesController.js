@@ -6,16 +6,16 @@ const { checkFirma } = require('../models/supervisoresModel');
 const { setDisponibilidad } = require('../models/tecnicosModel');
 
 const createIncidenteWithRobots = (req, res) => {
-  const { lugar, descripcion, robots } = req.body;
+  const { lugar, descripcion, robots , jefe_turno_asignado} = req.body;
 
-  if (!lugar || !descripcion || !Array.isArray(robots) || robots.length === 0) {
+  if (!lugar || !descripcion || !jefe_turno_asignado ||!Array.isArray(robots) || robots.length === 0) {
     return res.status(400).json({ error: 'Datos incompletos' });
   }
 
   db.beginTransaction((err) => {
     if (err) return res.status(500).json({ error: 'Error iniciando transacción' });
 
-    createIncidente({ lugar, descripcion }, (err, incidenteId) => {
+    createIncidente({ lugar, descripcion , jefe_turno_asignado }, (err, incidenteId) => {
       if (err) return db.rollback(() => res.status(500).json({ error: 'Error creando incidente' }));
 
       let completed = 0;
@@ -84,7 +84,7 @@ const getIncidente = (req, res) => {
         return res.status(500).json({ error: 'Error obteniendo detalles' });
       }
 
-      res.json({ incidente, detalles });
+      res.status(200).json({ incidente, detalles });
     });
   });
 };
@@ -140,7 +140,7 @@ const finalUpdateIncidente = (req, res) => {
                 return db.rollback(() => res.status(500).json({ error: 'Error actualizando disponibilidad del técnico' }));
               }
 
-              updateEstadoRobot(detalle.id_robot, 'Operativo', (err6) => {
+              updateEstadoRobot(detalle.id_robot, 'operativo', (err6) => {
                 if (err6) {
                   return db.rollback(() => res.status(500).json({ error: 'Error actualizando estado del robot' }));
                 }

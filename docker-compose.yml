@@ -1,0 +1,32 @@
+services:
+  db:
+    image: hakdyr24/logisticaglobal:mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: incidentesdb
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+  backend:
+    image: hakdyr24/logisticaglobal:backend
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./backend/.env
+    depends_on:
+      - db
+    command: ["bash", "-c", "/wait-for-it.sh db:3306 -t 60 -- npm start"]
+
+  frontend:
+    image: hakdyr24/logisticaglobal:frontend
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    environment:
+      - VITE_API_URL=http://localhost:3000
+volumes:
+  db_data:

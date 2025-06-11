@@ -1,0 +1,32 @@
+FROM node:18
+
+# Instalar dos2unix para limpiar los CRLF y dependencias básicas
+RUN apt-get update && apt-get install -y dos2unix && rm -rf /var/lib/apt/lists/*
+
+# Copiar y preparar wait-for-it.sh (asegurando formato Unix)
+COPY wait-for-it.sh /wait-for-it.sh
+RUN dos2unix /wait-for-it.sh && \
+    chmod +x /wait-for-it.sh
+
+# Establecer directorio de trabajo
+WORKDIR /app
+
+# Instalar dependencias (copia primero solo package.json para mejor caching)
+COPY package*.json ./
+RUN npm install && \
+    npm install cors && \
+    npm cache clean --force
+
+# Copiar el resto de la aplicación (excluyendo node_modules)
+COPY . .
+
+# Limpiar posibles CRLF en archivos de la aplicación
+RUN find . -type f -name "*.sh" -exec dos2unix {} \; && \
+    find . -type f -name "*.js" -exec dos2unix {} \;
+
+# Variables de entorno y puerto
+ENV NODE_ENV=production
+EXPOSE 3000
+
+# Comando de inicio (usando forma exec para mejor manejo de señales)
+CMD ["npm", "start"]

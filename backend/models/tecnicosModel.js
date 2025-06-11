@@ -1,7 +1,7 @@
 const db = require('../config/db');
 
 const getTecnicosDisponibles = (callback) => {
-  const query = 'SELECT * FROM tecnicos WHERE disponibilidad = 1';
+  const query = 'SELECT * FROM tecnicos WHERE disponibilidad = 1 AND activo = 1';
   db.query(query, (err, results) => {
     if (err) return callback(err);
     callback(null, results);
@@ -23,7 +23,7 @@ const setDisponibilidad = (rut_tecnico, disponibilidad, callback) => {
 };
 
 const readAllTecnicos = () => {
-  const query = 'SELECT * FROM tecnicos';
+  const query = 'SELECT * FROM tecnicos WHERE activo = 1';
   return new Promise((resolve, reject) => {
     db.query(query, (err, results) => {
       if (err) return reject(err);
@@ -32,9 +32,35 @@ const readAllTecnicos = () => {
   });
 };
 
+const actualizarTecnico = (rut, clave, callback) => {
+  const query = `
+    UPDATE tecnicos SET clave = ? WHERE rut = ?
+  `;
+  db.query(query, [clave, rut], (err, result) => {
+    if (err) {
+      return callback(err);
+    }
+    callback(null, result);
+  });
+};
+
+const borrarTecnico = (rut, callback) => {
+  const query = `
+    UPDATE tecnicos SET activo = 0 WHERE rut = ?
+  `;
+  db.query(query, rut, (err, result) => {
+    if (err) {
+      return callback(err);
+    }
+    callback(null, result);
+  });
+};
+
 module.exports = { 
   getTecnicosDisponibles,
   setDisponibilidad,
   readAllTecnicos,
-  crearTecnico
+  crearTecnico,
+  actualizarTecnico,
+  borrarTecnico
 };

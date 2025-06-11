@@ -1,5 +1,5 @@
 const db = require('../config/db');
-const { getRobotsByTecnico, assignTecnicoToRobot, addFicha, checkFinished } = require('../models/incidentesRobotsTecnicosModel');
+const { getRobotsByTecnico, assignTecnicoToRobot, addFicha, checkFinished, getDescripcion } = require('../models/incidentesRobotsTecnicosModel');
 const { setDisponibilidad } = require('../models/tecnicosModel');
 const { setFechaEsperaAprovacion } = require('../models/incidentesModel');
 const { updateEstadoRobot } = require('../models/robotsModel');
@@ -32,7 +32,7 @@ const assignTecnico = (req, res) => {
           return db.rollback(() => res.status(500).json({ error: 'Error actualizando disponibilidad del técnico' }));
         }
 
-        updateEstadoRobot(id_robot, "En reparación", (err3) => {
+        updateEstadoRobot(id_robot, "en reparación", (err3) => {
           if (err3) {
             console.error('[ACTUALIZAR ESTADO ERROR]', err3.sqlMessage);
             return db.rollback(() => res.status(500).json({ error: 'Error actualizando estado del robot' }));
@@ -62,7 +62,7 @@ const getRobotsForTecnico = (req, res) => {
       return res.status(500).json({ error: 'Error obteniendo robots asignados' });
     }
 
-    res.json(robots);
+    res.status(200).json(robots);
   });
 };
 
@@ -88,7 +88,6 @@ const uploadFicha = (req, res) => {
                 console.error('[VERIFICACIÓN DESCRIPCIONES ERROR]', err2.sqlMessage);
                 return res.status(500).json({ error: 'Error verificando descripciones' });
             }
-            console.log(allDescribed)
             if (!allDescribed) {
                 return res.json({ success: true, message: 'Ficha subida, no todos los robots tienen ficha' });
             }
@@ -105,9 +104,27 @@ const uploadFicha = (req, res) => {
     });
 };
 
+const getFicha = (req, res) => {
+  const { id_incidente, id_robot, rut_tecnico } = req.body;
+  if (!id_incidente || !id_robot || !rut_tecnico ) {
+        return res.status(400).json({ error: 'Faltan datos requeridos' });
+  }
+  getDescripcion(id_incidente, id_robot, rut_tecnico, (err, result) => {
+    if (err) {
+      console.error('[GET DESCRIPCION ERROR]', err.sqlMessage);
+      return res.status(500).json({ error: 'Error al obtener la ficha' });
+    }
+    if (!result) {
+      return res.status(404).json({ error: 'Ficha no encontrada' })
+    }
+    res.status(200).json(result);
+  });
+};
+
 
 module.exports = {
     assignTecnico,
     getRobotsForTecnico,
-    uploadFicha
+    uploadFicha,
+    getFicha
 }
