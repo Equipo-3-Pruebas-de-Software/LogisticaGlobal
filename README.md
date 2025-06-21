@@ -15,6 +15,9 @@ Este es el repositorio del equipo 3, cuyos integrantes son:
   - [Presentación entrega 1](https://usmcl-my.sharepoint.com/:p:/g/personal/valentina_castillov_usm_cl/EYV3yfHt4w1Ni9QUvV4qyOEBkaqrvA5PQOtYOJBE8HsjOA?e=H1knpA)
 - [Video entrega 2](https://youtu.be/JysALs6Ovfw)
   - [Presentación entrega 2](https://usmcl-my.sharepoint.com/:p:/g/personal/valentina_castillov_usm_cl/EQo9sztYOetJizY5BMrkVKEBkAe5D0mYgmAOib0OUNwk0w?e=6JTkRw)
+- [Video entrega 3]()
+  - [Presentación entrega 3](https://usmcl-my.sharepoint.com/:p:/g/personal/valentina_castillov_usm_cl/Eci9v7fS-DBPrs2TLG4SpTsB_8HDW5wzak0_JyfAEHeY_A?e=sSCSW5)
+  - [Informe entrega 3](https://github.com/Equipo-3-Pruebas-de-Software/LogisticaGlobal/blob/main/Entrega3.md)
 
 ### Wikis
 - [HandsOnProject](https://github.com/Pruebas-de-Software/HandsOnProject/blob/main/semestres/2025-1/logisticaglobal.md)
