@@ -40,8 +40,18 @@ En cuanto a las pruebas, se desarrollaron casos básicos automatizados con Cypre
 Finalmente, el equipo preparó la cápsula explicativa que se pedía en los requerimientos de la entrega, además de preparar todo lo necesario para la presentación en clases, la cual fue un éxito. Así, se dio por finalizada la primera etapa del proyecto, estableciendo una base sólida para avanzar en las siguientes entregas.
 
 ## Entrega 2
-jeje pendiente
- 
+En la segunda entrega, el equipo avanzó tanto en el desarrollo de nuevas funcionalidades como en la automatización del despliegue del sistema. Los principales requisitos abordados en esta etapa fueron:
+
+1. Mejorar el diseño responsive en toda la aplicación para una visualización adecuada desde distintos dispositivos.
+2. Incorporar una vista dedicada para el perfil de administrador, con acceso a funcionalidades específicas de gestión.
+3. Permitir el registro de nuevos funcionarios en el sistema.
+4. Habilitar la edición y eliminación de funcionarios y robots.
+5. Mejorar la interfaz y usabilidad de las vistas de supervisor y técnico.
+
+El foco central de esta entrega fue la implementación de un pipeline de integración continua utilizando Jenkins. Para esto, se construyeron imágenes de la aplicación con Docker, que fueron almacenadas en Docker Hub. Cada vez que Jenkins ejecuta el pipeline, estas imágenes se actualizan automáticamente y se despliegan en AWS, asegurando así un flujo de publicación continuo y controlado.
+
+Tal como se solicitaba en los requerimientos, el equipo preparó una cápsula explicativa que resumía los avances realizados. Con estos desarrollos, el sistema alcanzó un mayor grado de madurez técnica, permitiendo avanzar hacia una versión más robusta y cercana al producto final.
+
 ## Entrega 3
 jeje por hacer
 
