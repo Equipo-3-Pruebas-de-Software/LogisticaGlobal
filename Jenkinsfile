@@ -22,7 +22,7 @@ pipeline {
                 '''
             }
         }
-
+        //test
         stage('Configurar entorno') {
             steps {
                 script {
