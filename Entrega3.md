@@ -6,7 +6,7 @@ a
 a
 
 ## Descripción del trabajo realizado
-En esta tercera entrega el objetivo fué integra el uso de selenium en la cobertura de pruebas de nuestra aplicación web, complementando las pruebas mediante interaz gráfica realizadas previamente con Cypress para evaluar y validar interacciones reales del usuario y sus credenciales en el navegador, para esto se realizó:
+En esta tercera entrega el objetivo fué integra el uso de selenium en la cobertura de pruebas de nuestra aplicación web, complementando las pruebas mediante interfaz gráfica realizadas previamente con Cypress para evaluar y validar interacciones reales del usuario y sus credenciales en el navegador. para esto se realizó:
 ### Incorporación de selenium e instrucciones mediante código
 Se desarrollaron en selenium pruebas de la misma manera a las realizadas con Cypress, enfocadas en validar el flujo de registro de incidentes por parte del jefe de turno, quien sería el primer actor de nuestro sistema de gestión de incidentes. Las pruebas se escribieron en JavaScript mediante las librerias "selenium-webdriver", lo que permite integrar las pruebas al entorno Node.js del proyecto para simular pasos como:
 * Inicio de sesión con credenciales.
@@ -14,11 +14,11 @@ Se desarrollaron en selenium pruebas de la misma manera a las realizadas con Cyp
 * Validación de campos requeridos.
 * Envío y recepción de mensajes de confirmación de error.
 ### Integración de pruebas a  pipeline CI/CD
-Ya definidas las pruebas y validadas de manera local, fueron integradas al pipeline de integración continua implementado previamente en Jenkins, lo que significó los siiguientes cambiios en el proyecto:
+Ya definidas las pruebas y validadas de manera local, fueron integradas al pipeline de integración continua implementado previamente en Jenkins, lo que significó los siguientes cambios en el proyecto:
 *  Nuevos Scrips de Selenium en repositorio Github (para establecer pruebas)
 *  Actualización de archivo Jenkinsfile para incluir ejecución de pruebas mediante Selenium.
 *  Modificación en la configuración de etornos en nuestra máquina virtual AWS.
-*  Inegración de notificaciones en Slack, incluyendo los resultados obtenidos por Selenium.
+*  Integración de notificaciones en Slack, incluyendo los resultados obtenidos por Selenium.
 
 
 ## Proyecto, paso a paso.
