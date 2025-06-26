@@ -25,7 +25,7 @@ const usuarios = [
   }
 ];
 
-const BASE_URL = "http://localhost:5173";
+const BASE_URL = "http://192.168.56.1:5173";
 
 // --- Función login ---
 async function login(driver, rut, clave) {

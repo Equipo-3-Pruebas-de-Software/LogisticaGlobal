@@ -30,9 +30,9 @@ pipeline {
                         bat '''
                         powershell -Command "(Get-Content frontend/.env) -replace 'VITE_API_URL=.*', 'VITE_API_URL=http://localhost:3000' | Set-Content frontend/.env"
                         '''
-                    } else if (env.BRANCH_NAME == 'jenkins-ec2') {
+                    } else if (env.BRANCH_NAME == 'selenium-jenkins-test') {
                         bat '''
-                        powershell -Command "(Get-Content frontend/.env) -replace 'VITE_API_URL=.*', 'VITE_API_URL=http://3.139.240.205:3000' | Set-Content frontend/.env"
+                        powershell -Command "(Get-Content frontend/.env) -replace 'VITE_API_URL=.*', 'VITE_API_URL=http://192.168.56.1:3000' | Set-Content frontend/.env"
                         '''
                     }
                 }
@@ -84,14 +84,47 @@ pipeline {
                 bat "docker ps"
             }
         }
-
+        /*
         stage('Run Cypress Tests') {
             steps {
                 echo 'Running Cypress tests...'
                 bat 'npx cypress run --config-file cypress.config.js --headless --browser electron'
             }
+        } 
+        */
+        // ===== NUEVO STAGE PARA SELENIUM =====
+        stage('Setup Selenium Environment') {
+            steps {
+                // Instalar Node.js
+                bat 'npm install -g npm@latest'
+                
+                // Descargar e instalar ChromeDriver
+                bat """
+                curl -o chromedriver.zip "${env.CHROME_DRIVER_URL}"
+                tar -xf chromedriver.zip
+                move chromedriver-win64\\chromedriver.exe .\\chromedriver.exe
+                del chromedriver.zip
+                rmdir /s /q chromedriver-win64
+                """
+            }
         }
+
+        stage('Run Selenium Tests') {
+            steps {
+                dir('selenium') {
+                    // Instalar dependencias de npm
+                    bat 'npm install'
+                    
+                    // Ejecutar pruebas
+                    bat 'node auth.js'
+                    bat 'node create-new-incident.js'
+                }
+            }
+        }
+    
     }
+
+    
 
     post {
         success {
