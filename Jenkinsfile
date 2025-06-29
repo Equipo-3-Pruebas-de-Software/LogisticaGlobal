@@ -32,7 +32,7 @@ pipeline {
                         '''
                     } else if (env.BRANCH_NAME == 'selenium-jenkins-test') {
                         bat '''
-                        powershell -Command "(Get-Content frontend/.env) -replace 'VITE_API_URL=.*', 'VITE_API_URL=http://192.168.56.1:3000' | Set-Content frontend/.env"
+                        powershell -Command "(Get-Content frontend/.env) -replace 'VITE_API_URL=.*', 'VITE_API_URL=http://192.168.146.15:3000' | Set-Content frontend/.env"
                         '''
                     }
                 }
