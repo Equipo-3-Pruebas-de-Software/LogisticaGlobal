@@ -49,7 +49,7 @@ El equipo implementó el flujo básico completo para el manejo de incidentes, qu
 
 En cuanto a las pruebas, se desarrollaron casos básicos automatizados con Cypress, enfocándose en escenarios esenciales como la creación de incidentes, su clasificación y la asignación de técnicos. Estas pruebas sirvieron para validar que el flujo principal funcionara correctamente y que los componentes clave estuvieran integrados de manera adecuada.
 
-Finalmente, el equipo preparó la cápsula explicativa que se pedía en los requerimientos de la entrega, además de preparar todo lo necesario para la presentación en clases, la cual fue un éxito. Así, se dio por finalizada la primera etapa del proyecto, estableciendo una base sólida para avanzar en las siguientes entregas.
+Además, se integró Slack con GitHub y Jira para la correcta organización del equipo. Finalmente, el equipo preparó la cápsula explicativa que se pedía en los requerimientos de la entrega, además de preparar todo lo necesario para la presentación en clases, la cual fue un éxito. Así, se dio por finalizada la primera etapa del proyecto, estableciendo una base sólida para avanzar en las siguientes entregas.
 
 ### Entrega 2
 En la segunda entrega, el equipo avanzó tanto en el desarrollo de nuevas funcionalidades como en la automatización del despliegue del sistema. Los principales requisitos abordados en esta etapa fueron:
@@ -60,7 +60,7 @@ En la segunda entrega, el equipo avanzó tanto en el desarrollo de nuevas funcio
 4. Habilitar la edición y eliminación de funcionarios y robots.
 5. Mejorar la interfaz y usabilidad de las vistas de supervisor y técnico.
 
-El foco central de esta entrega fue la implementación de un pipeline de integración continua utilizando Jenkins. Para esto, se construyeron imágenes de la aplicación con Docker, que fueron almacenadas en Docker Hub. Cada vez que Jenkins ejecuta el pipeline, estas imágenes se actualizan automáticamente y se despliegan en AWS, asegurando así un flujo de publicación continuo y controlado.
+El foco central de esta entrega fue la implementación de un pipeline de integración continua utilizando Jenkins. Para esto, se construyeron imágenes de la aplicación con Docker, que fueron almacenadas en Docker Hub. Cada vez que Jenkins ejecuta el pipeline, estas imágenes se actualizan automáticamente y se despliegan en AWS, asegurando así un flujo de publicación continuo y controlado. Además, se intró Jenkins con Slack.
 
 Tal como se solicitaba en los requerimientos, el equipo preparó una cápsula explicativa que resumía los avances realizados. Con estos desarrollos, el sistema alcanzó un mayor grado de madurez técnica, permitiendo avanzar hacia una versión más robusta y cercana al producto final.
  
