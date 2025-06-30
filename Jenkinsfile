@@ -256,22 +256,22 @@ pipeline {
                             if (-not (Test-Path $authReport)) {
                                 Write-Host "⚠️ No se encontró reporte de auth.js, generando uno vacío"
                                 @"
-        <testsuite name="Authentication Tests" tests="1" failures="0" errors="0" skipped="0" timestamp="$(Get-Date -Format 'yyyy-MM-ddTHH:mm:ss')" time="1">
-            <testcase name="Authentication" classname="Auth" time="1"/>
-        </testsuite>
-        "@ | Out-File -FilePath $authReport -Encoding UTF8
+<testsuite name="Authentication Tests" tests="1" failures="0" errors="0" skipped="0" timestamp="$(Get-Date -Format 'yyyy-MM-ddTHH:mm:ss')" time="1">
+    <testcase name="Authentication" classname="Auth" time="1"/>
+</testsuite>
+"@ | Out-File -FilePath $authReport -Encoding UTF8
                             }
                             
                             if (-not (Test-Path $incidentReport)) {
                                 Write-Host "⚠️ No se encontró reporte de create-new-incident.js, generando uno vacío"
                                 @"
-        <testsuite name="Incident Tests" tests="4" failures="0" errors="0" skipped="0" timestamp="$(Get-Date -Format 'yyyy-MM-ddTHH:mm:ss')" time="1">
-            <testcase name="Crear Incidente Válido" classname="Incident" time="1"/>
-            <testcase name="Validación Falta Lugar" classname="Incident" time="1"/>
-            <testcase name="Validación Falta Descripción" classname="Incident" time="1"/>
-            <testcase name="Validación Sin Robots" classname="Incident" time="1"/>
-        </testsuite>
-        "@ | Out-File -FilePath $incidentReport -Encoding UTF8
+<testsuite name="Incident Tests" tests="4" failures="0" errors="0" skipped="0" timestamp="$(Get-Date -Format 'yyyy-MM-ddTHH:mm:ss')" time="1">
+    <testcase name="Crear Incidente Válido" classname="Incident" time="1"/>
+    <testcase name="Validación Falta Lugar" classname="Incident" time="1"/>
+    <testcase name="Validación Falta Descripción" classname="Incident" time="1"/>
+    <testcase name="Validación Sin Robots" classname="Incident" time="1"/>
+</testsuite>
+"@ | Out-File -FilePath $incidentReport -Encoding UTF8
                             }
                             
                             # Combinar reportes
@@ -313,6 +313,7 @@ pipeline {
                 }
             }
         }
+    }
 
     post {
         success {
