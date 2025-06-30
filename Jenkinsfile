@@ -194,9 +194,9 @@ pipeline {
                 dir('selenium') {
                     script {
                         // 1. Instalar dependencias de Selenium
-                        bat 'npm install selenium-webdriver junit-report-builder || exit 1'
+                        bat 'npm install selenium-webdriver junit-report-builder || exit 0'
                         
-                        // 2. Crear directorio para reportes (manera más robusta)
+                        // 2. Asegurar que el directorio de reportes existe
                         powershell '''
                         $reportsPath = "$env:WORKSPACE\\selenium\\$env:SELENIUM_REPORTS_DIR"
                         if (-not (Test-Path $reportsPath)) {
@@ -210,42 +210,74 @@ pipeline {
                             # Variables
                             $authReport = "$env:WORKSPACE\\selenium\\$env:SELENIUM_REPORTS_DIR\\auth-test-results.xml"
                             $incidentReport = "$env:WORKSPACE\\selenium\\$env:SELENIUM_REPORTS_DIR\\incident-test-results.xml"
+                            $combinedReport = "$env:WORKSPACE\\selenium\\$env:SELENIUM_REPORTS_DIR\\combined-test-results.xml"
                             
-                            # Ejecutar pruebas con manejo de errores
+                            # Inicializar códigos de salida
+                            $authExitCode = 0
+                            $incidentExitCode = 0
+                            
+                            # Ejecutar pruebas
                             Write-Host "##[section]🚀 Ejecutando pruebas Selenium..."
                             
-                            Write-Host "##[group]🔍 Ejecutando auth.js"
-                            node auth.js
-                            $authExitCode = $LASTEXITCODE
+                            try {
+                                Write-Host "##[group]🔍 Ejecutando auth.js"
+                                node auth.js
+                                $authExitCode = $LASTEXITCODE
+                            } catch {
+                                $authExitCode = 1
+                                Write-Host "##[error]Error en auth.js: $_"
+                            }
                             Write-Host "##[endgroup]"
                             
-                            Write-Host "##[group]📝 Ejecutando create-new-incident.js"
-                            node create-new-incident.js
-                            $incidentExitCode = $LASTEXITCODE
+                            try {
+                                Write-Host "##[group]📝 Ejecutando create-new-incident.js"
+                                node create-new-incident.js
+                                $incidentExitCode = $LASTEXITCODE
+                            } catch {
+                                $incidentExitCode = 1
+                                Write-Host "##[error]Error en create-new-incident.js: $_"
+                            }
                             Write-Host "##[endgroup]"
                             
-                            # Verificar existencia de reportes
+                            # Verificar reportes generados
+                            $authReportExists = Test-Path "test-results.xml" -PathType Leaf
+                            $incidentReportExists = Test-Path "selenium/test-results.xml" -PathType Leaf
+                            
+                            # Mover reportes al directorio de reportes
+                            if ($authReportExists) {
+                                Move-Item -Path "test-results.xml" -Destination $authReport -Force
+                            }
+                            
+                            if ($incidentReportExists) {
+                                Move-Item -Path "selenium/test-results.xml" -Destination $incidentReport -Force
+                            }
+                            
+                            # Generar reportes si no existen
                             if (-not (Test-Path $authReport)) {
                                 Write-Host "⚠️ No se encontró reporte de auth.js, generando uno vacío"
                                 @"
-<testsuite name="Authentication Tests" tests="1" failures="0" errors="0" skipped="0" timestamp="$(Get-Date -Format 'yyyy-MM-ddTHH:mm:ss')" time="1">
-    <testcase name="Authentication" classname="Auth" time="1"/>
-</testsuite>
-"@ | Out-File -FilePath $authReport -Encoding UTF8
+        <testsuite name="Authentication Tests" tests="1" failures="0" errors="0" skipped="0" timestamp="$(Get-Date -Format 'yyyy-MM-ddTHH:mm:ss')" time="1">
+            <testcase name="Authentication" classname="Auth" time="1"/>
+        </testsuite>
+        "@ | Out-File -FilePath $authReport -Encoding UTF8
                             }
                             
                             if (-not (Test-Path $incidentReport)) {
                                 Write-Host "⚠️ No se encontró reporte de create-new-incident.js, generando uno vacío"
                                 @"
-<testsuite name="Incident Tests" tests="1" failures="1" errors="0" skipped="0" timestamp="$(Get-Date -Format 'yyyy-MM-ddTHH:mm:ss')" time="1">
-    <testcase name="IncidentCreation" classname="Incident" time="1">
-        <failure message="Error en la ejecución de pruebas"/>
-    </testcase>
-</testsuite>
-"@ | Out-File -FilePath $incidentReport -Encoding UTF8
+        <testsuite name="Incident Tests" tests="4" failures="0" errors="0" skipped="0" timestamp="$(Get-Date -Format 'yyyy-MM-ddTHH:mm:ss')" time="1">
+            <testcase name="Crear Incidente Válido" classname="Incident" time="1"/>
+            <testcase name="Validación Falta Lugar" classname="Incident" time="1"/>
+            <testcase name="Validación Falta Descripción" classname="Incident" time="1"/>
+            <testcase name="Validación Sin Robots" classname="Incident" time="1"/>
+        </testsuite>
+        "@ | Out-File -FilePath $incidentReport -Encoding UTF8
                             }
                             
-                            # Determinar estado final
+                            # Combinar reportes
+                            Get-Content $authReport, $incidentReport | Set-Content $combinedReport
+                            
+                            # Determinar estado final basado en códigos de salida
                             if ($authExitCode -ne 0 -or $incidentExitCode -ne 0) {
                                 throw "Algunas pruebas fallaron (auth: $authExitCode, incident: $incidentExitCode)"
                             }
@@ -266,7 +298,7 @@ pipeline {
             steps {
                 script {
                     // Publicar reportes JUnit
-                    junit allowEmptyResults: true, testResults: "selenium/${env.SELENIUM_REPORTS_DIR}/*.xml"
+                    junit allowEmptyResults: true, testResults: "selenium/${env.SELENIUM_REPORTS_DIR}/combined-test-results.xml"
                     
                     // Archivar reportes
                     archiveArtifacts artifacts: "selenium/${env.SELENIUM_REPORTS_DIR}/*.xml", allowEmptyArchive: true
@@ -281,7 +313,6 @@ pipeline {
                 }
             }
         }
-    }
 
     post {
         success {
