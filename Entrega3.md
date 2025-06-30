@@ -98,7 +98,17 @@ El foco central de esta entrega fue la implementación de un pipeline de integra
 Tal como se solicitaba en los requerimientos, el equipo preparó una cápsula explicativa que resumía los avances realizados. Con estos desarrollos, el sistema alcanzó un mayor grado de madurez técnica, permitiendo avanzar hacia una versión más robusta y cercana al producto final.
  
 ## Entrega 3
-jeje por hacer
+En la tercera entrega, el equipo se enfocó en afinar aspectos tanto funcionales como técnicos del sistema, consolidando el trabajo realizado en las entregas previas y preparando el estado final del producto. Esta etapa se centró principalmente en mejoras visuales, optimización del código e integración de nuevas herramientas para asegurar la calidad del software. Las principales tareas abordadas en esta entrega fueron:
+
+1. Mejora de _bugs_ visuales
+2. Mejora de Dashboard Administrador (Reportes)
+3. Mejora de Dashboard Supervisor (Reportes)
+4. Refactor de código (borrar principalmente los console.log())
+
+Además, se implementó Selenium en la pipeline de Jenkins. Esta herramienta complementa las pruebas end-to-end previamente desarrolladas con Cypress, lo que permitió aumentar la cobertura y robustez del sistema, al validar tanto flujos críticos como escenarios de interacción en el navegador desde una perspectiva más completa.
 
 ## Problemas encontrados y soluciones.
-d
+### Carga académica de fin de semestre
+Durante el cierre del semestre, el equipo enfrentó una alta carga académica debido a la concentración de entregas y certámenes en otros ramos, lo que dificultó la disponibilidad de tiempo para avanzar en el proyecto de manera sostenida.
+
+La solución para mitigar este problema se basó en la planificación anticipada de las tareas, utilizando Jira como herramienta de gestión y una carta Gantt para visualizar la distribución temporal del trabajo. Esta estrategia permitió organizar las actividades de forma más eficiente, asignar responsabilidades con claridad y priorizar las tareas clave. Gracias a esta planificación, el equipo logró mantener un buen ritmo de trabajo y cumplir con los plazos establecidos, incluso en un periodo marcado por una alta carga académica.
