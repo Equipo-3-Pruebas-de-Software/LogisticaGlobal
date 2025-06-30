@@ -293,26 +293,6 @@ pipeline {
                 }
             }
         }
-
-        stage('Publicar Resultados') {
-            steps {
-                script {
-                    // Publicar reportes JUnit
-                    junit allowEmptyResults: true, testResults: "selenium/${env.SELENIUM_REPORTS_DIR}/combined-test-results.xml"
-                    
-                    // Archivar reportes
-                    archiveArtifacts artifacts: "selenium/${env.SELENIUM_REPORTS_DIR}/*.xml", allowEmptyArchive: true
-                    
-                    // Mostrar resumen
-                    powershell '''
-                    Write-Host "📊 RESULTADOS DE LAS PRUEBAS SELENIUM:"
-                    Get-ChildItem -Path "$env:WORKSPACE\\selenium\\$env:SELENIUM_REPORTS_DIR" | ForEach-Object {
-                        Write-Host "  - $($_.Name)"
-                    }
-                    '''
-                }
-            }
-        }
     }
 
     post {
