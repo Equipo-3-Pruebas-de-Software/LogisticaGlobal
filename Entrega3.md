@@ -97,7 +97,7 @@ El foco central de esta entrega fue la implementación de un pipeline de integra
 
 Tal como se solicitaba en los requerimientos, el equipo preparó una cápsula explicativa que resumía los avances realizados. Con estos desarrollos, el sistema alcanzó un mayor grado de madurez técnica, permitiendo avanzar hacia una versión más robusta y cercana al producto final.
  
-## Entrega 3
+### Entrega 3
 En la tercera entrega, el equipo se enfocó en afinar aspectos tanto funcionales como técnicos del sistema, consolidando el trabajo realizado en las entregas previas y preparando el estado final del producto. Esta etapa se centró principalmente en mejoras visuales, optimización del código e integración de nuevas herramientas para asegurar la calidad del software. Las principales tareas abordadas en esta entrega fueron:
 
 1. Mejora de _bugs_ visuales
