@@ -12,7 +12,6 @@ pipeline {
         DOCKERHUB_USER = 'hakdyr24'
         DOCKERHUB_CREDENTIALS_ID = 'dockerhub-creds'
         
-        // Configuración específica para Selenium
         CHROME_DRIVER_VERSION = '138.0.7204.50'
         CHROME_DRIVER_URL = "https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/${env.CHROME_DRIVER_VERSION}/win64/chromedriver-win64.zip"
     }
@@ -97,7 +96,6 @@ pipeline {
                 script {
                     bat 'npm install -g npm@latest'
                     
-                    // Script PowerShell mejorado con manejo robusto de errores
                     powershell '''
                     $chromeDriverUrl = "https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/138.0.7204.50/win64/chromedriver-win64.zip"
                     $downloadPath = Join-Path -Path $pwd -ChildPath "chromedriver.zip"
@@ -105,7 +103,7 @@ pipeline {
                     Write-Host "🔵 Descargando ChromeDriver desde $chromeDriverUrl"
                     
                     # Configurar política de progreso y seguridad
-                    $ProgressPreference = 'SilentlyContinue'
+                    $ProgressPreference = "SilentlyContinue"
                     [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
                     
                     try {
@@ -138,7 +136,7 @@ pipeline {
                             throw "❌ Archivo descargado es demasiado pequeño (posible descarga fallida)"
                         }
                         
-                        Write-Host "✅ Descarga completada ($((Get-Item $downloadPath).Length/1MB) MB)"
+                        Write-Host "✅ Descarga completada ($([math]::Round((Get-Item $downloadPath).Length/1MB, 2)) MB)"
                         
                         # Descomprimir
                         $extractPath = Join-Path -Path $pwd -ChildPath "chromedriver_temp"
@@ -154,9 +152,10 @@ pipeline {
                             throw "❌ No se encontró chromedriver.exe en el archivo descargado"
                         }
                         
-                        # Mover a ubicación final
-                        Move-Item -Path $chromeDriverExe.FullName -Destination "$pwd\chromedriver.exe" -Force
-                        Write-Host "✅ ChromeDriver instalado en $pwd\chromedriver.exe"
+                        # Mover a ubicación final (usando Join-Path para compatibilidad)
+                        $destinationPath = Join-Path -Path $pwd -ChildPath "chromedriver.exe"
+                        Move-Item -Path $chromeDriverExe.FullName -Destination $destinationPath -Force
+                        Write-Host "✅ ChromeDriver instalado en $destinationPath"
                         
                     } catch {
                         Write-Host "❌ Error grave: $_"
@@ -169,12 +168,13 @@ pipeline {
                     }
                     
                     # Verificación final
-                    if (-not (Test-Path "$pwd\chromedriver.exe")) {
+                    $finalPath = Join-Path -Path $pwd -ChildPath "chromedriver.exe"
+                    if (-not (Test-Path $finalPath)) {
                         throw "❌ Instalación fallida: chromedriver.exe no encontrado"
                     }
                     
                     Write-Host "🔵 Versión instalada:"
-                    & "$pwd\chromedriver.exe" --version
+                    & $finalPath --version
                     '''
                 }
             }
