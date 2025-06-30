@@ -183,59 +183,75 @@ pipeline {
             steps {
                 dir('selenium') {
                     script {
+                        // 1. Instalar dependencias
                         bat 'npm install'
                         
+                        // 2. Ejecutar tests y generar reportes
                         powershell '''
+                        # Configurar variables
+                        $ErrorActionPreference = "Stop"
+                        $testResultsPath = "test-results.xml"
+                        
                         try {
-                            # Ejecutar tests
-                            Write-Host "Ejecutando tests Selenium..."
+                            Write-Host "##[section]Ejecutando tests Selenium..."
                             
-                            $authOutput = node auth.js 2>&1 | Out-String
-                            if ($LASTEXITCODE -ne 0) { throw "Auth test failed" }
+                            # Ejecutar auth.js
+                            Write-Host "##[group]Ejecutando auth.js"
+                            node auth.js
+                            if ($LASTEXITCODE -ne 0) { throw "auth.js falló con código $LASTEXITCODE" }
+                            Write-Host "##[endgroup]"
                             
-                            $incidentOutput = node create-new-incident.js 2>&1 | Out-String
-                            if ($LASTEXITCODE -ne 0) { throw "Incident test failed" }
+                            # Ejecutar create-new-incident.js
+                            Write-Host "##[group]Ejecutando create-new-incident.js"
+                            node create-new-incident.js
+                            if ($LASTEXITCODE -ne 0) { throw "create-new-incident.js falló con código $LASTEXITCODE" }
+                            Write-Host "##[endgroup]"
                             
-                            # Generar reporte
-                            @"
-                            <testsuite name="Selenium Tests">
-                                <testcase name="Authentication Test" classname="AuthTest">
-                                    <system-out><![CDATA[$authOutput]]></system-out>
-                                </testcase>
-                                <testcase name="Incident Creation Test" classname="IncidentTest">
-                                    <system-out><![CDATA[$incidentOutput]]></system-out>
-                                </testcase>
-                            </testsuite>
-                            "@ | Out-File -FilePath "test-results.xml" -Encoding UTF8
+                            # Generar reporte mínimo (si los tests no generan uno)
+                            if (-not (Test-Path $testResultsPath)) {
+                                @"
+                                <testsuite name="Selenium Tests">
+                                    <testcase name="auth.js" classname="Authentication"/>
+                                    <testcase name="create-new-incident.js" classname="IncidentCreation"/>
+                                </testsuite>
+        "@ | Out-File -FilePath $testResultsPath -Encoding UTF8
+                            }
                             
-                            Write-Host "Todos los tests pasaron exitosamente"
+                            Write-Host "##[section]✅ Todos los tests pasaron exitosamente"
                             
                         } catch {
-                            # Generar reporte con fallas
-                            @"
-                            <testsuite name="Selenium Tests">
-                                <testcase name="Authentication Test" classname="AuthTest">
-                                    <failure message="$($_.Exception.Message)"/>
-                                    <system-out><![CDATA[$authOutput]]></system-out>
-                                </testcase>
-                                <testcase name="Incident Creation Test" classname="IncidentTest">
-                                    <failure message="$($_.Exception.Message)"/>
-                                    <system-out><![CDATA[$incidentOutput]]></system-out>
-                                </testcase>
-                            </testsuite>
-                            "@ | Out-File -FilePath "test-results.xml" -Encoding UTF8
+                            Write-Host "##[error]❌ Error en los tests: $_"
                             
-                            Write-Host "##[error]$($_.Exception.Message)"
+                            # Generar reporte de fallo si no existe
+                            if (-not (Test-Path $testResultsPath)) {
+                                @"
+                                <testsuite name="Selenium Tests">
+                                    <testcase name="auth.js" classname="Authentication">
+                                        <failure message="Error durante la ejecución"/>
+                                    </testcase>
+                                    <testcase name="create-new-incident.js" classname="IncidentCreation">
+                                        <failure message="Error durante la ejecución"/>
+                                    </testcase>
+                                </testsuite>
+        "@ | Out-File -FilePath $testResultsPath -Encoding UTF8
+                            }
+                            
                             exit 1
                         }
                         '''
                         
+                        // 3. Archivar resultados
                         junit 'selenium/test-results.xml'
+                        
+                        // 4. Mostrar resumen
+                        bat '''
+                        echo RESULTADOS DE LOS TESTS SELENIUM:
+                        if exist selenium\\test-results.xml type selenium\\test-results.xml
+                        '''
                     }
                 }
             }
         }
-    }
 
     post {
         success {
