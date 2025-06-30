@@ -1,8 +1,10 @@
 const { Builder, By, until } = require('selenium-webdriver');
+const junit = require('junit-report-builder');
 
 // --- Configuración ---
 const BASE_URL = "http://192.168.56.1:5173";
 const TIMEOUT = 10000; // 10 segundos para timeouts
+const JUNIT_REPORT_PATH = 'selenium/auth-test-results.xml'; // Ruta del reporte JUnit
 
 // --- Usuarios ---
 const usuarios = [
@@ -58,6 +60,10 @@ async function login(driver, rut, clave) {
 // --- Test: credenciales incorrectas ---
 async function testCredencialesIncorrectas(usuario) {
   const testName = "Credenciales Incorrectas";
+  const startTime = new Date();
+  let success = false;
+  let errorMessage = '';
+  
   console.log(formatTestHeader(testName, usuario));
   
   const driver = await new Builder().forBrowser('chrome').build();
@@ -78,20 +84,31 @@ async function testCredencialesIncorrectas(usuario) {
     
     console.log(formatSuccess("Mensaje de error mostrado correctamente"));
     console.log(formatSuccess(`${testName} COMPLETADO EXITOSAMENTE`));
-    return { success: true };
+    success = true;
   } catch (e) {
-    console.log(formatFailure(`Fallo en ${testName}: ${e.message}`));
+    errorMessage = e.message;
+    console.log(formatFailure(`Fallo en ${testName}: ${errorMessage}`));
     console.log(formatStep(`Última URL: ${await driver.getCurrentUrl()}`));
-    return { success: false, error: e.message };
   } finally {
     await driver.quit();
     console.log(formatStep("Navegador cerrado"));
   }
+
+  return {
+    name: `${testName} - ${usuario.nombre}`,
+    success,
+    error: errorMessage,
+    duration: new Date() - startTime
+  };
 }
 
 // --- Test: login + logout ---
 async function testLoginLogout(usuario) {
   const testName = "Login y Logout";
+  const startTime = new Date();
+  let success = false;
+  let errorMessage = '';
+  
   console.log(formatTestHeader(testName, usuario));
   
   const driver = await new Builder().forBrowser('chrome').build();
@@ -141,15 +158,22 @@ async function testLoginLogout(usuario) {
     await driver.wait(until.elementIsVisible(loginText), 2000);
     
     console.log(formatSuccess(`${testName} COMPLETADO EXITOSAMENTE`));
-    return { success: true };
+    success = true;
   } catch (e) {
-    console.log(formatFailure(`Fallo en ${testName}: ${e.message}`));
+    errorMessage = e.message;
+    console.log(formatFailure(`Fallo en ${testName}: ${errorMessage}`));
     console.log(formatStep(`Última URL: ${await driver.getCurrentUrl()}`));
-    return { success: false, error: e.message };
   } finally {
     await driver.quit();
     console.log(formatStep("Navegador cerrado"));
   }
+
+  return {
+    name: `${testName} - ${usuario.nombre}`,
+    success,
+    error: errorMessage,
+    duration: new Date() - startTime
+  };
 }
 
 // --- Ejecutar tests y generar reporte ---
@@ -158,6 +182,9 @@ async function testLoginLogout(usuario) {
   console.log(`🔗 URL Base: ${BASE_URL}`);
   console.log(`🕒 Timeout configurado: ${TIMEOUT/1000} segundos`);
   
+  // Crear suite de pruebas JUnit
+  const suite = junit.testSuite().name('Pruebas de Autenticación');
+
   let testsTotales = 0;
   let testsExitosos = 0;
   const resultados = [];
@@ -165,24 +192,36 @@ async function testLoginLogout(usuario) {
   for (const user of usuarios) {
     // Test Credenciales Incorrectas
     const resultadoIncorrectas = await testCredencialesIncorrectas(user);
-    resultados.push({
-      test: 'Credenciales Incorrectas',
-      usuario: user.nombre,
-      ...resultadoIncorrectas
-    });
+    const testCaseIncorrectas = suite.testCase()
+      .name(resultadoIncorrectas.name)
+      .time(resultadoIncorrectas.duration / 1000);
+    
+    if (!resultadoIncorrectas.success) {
+      testCaseIncorrectas.failure(resultadoIncorrectas.error);
+    }
+    
+    resultados.push(resultadoIncorrectas);
     testsTotales++;
     if (resultadoIncorrectas.success) testsExitosos++;
     
     // Test Login/Logout
     const resultadoLogin = await testLoginLogout(user);
-    resultados.push({
-      test: 'Login y Logout',
-      usuario: user.nombre,
-      ...resultadoLogin
-    });
+    const testCaseLogin = suite.testCase()
+      .name(resultadoLogin.name)
+      .time(resultadoLogin.duration / 1000);
+    
+    if (!resultadoLogin.success) {
+      testCaseLogin.failure(resultadoLogin.error);
+    }
+    
+    resultados.push(resultadoLogin);
     testsTotales++;
     if (resultadoLogin.success) testsExitosos++;
   }
+
+  // Escribir reporte JUnit
+  junit.writeTo(JUNIT_REPORT_PATH);
+  console.log(`\n📝 Reporte JUnit generado en: ${JUNIT_REPORT_PATH}`);
 
   // Resumen final
   console.log('\n📊 RESUMEN FINAL:');
@@ -196,8 +235,7 @@ async function testLoginLogout(usuario) {
   if (testsFallidos.length > 0) {
     console.log('\n🔴 TESTS FALLIDOS:');
     testsFallidos.forEach((test, i) => {
-      console.log(`\n${i+1}. Test: ${test.test}`);
-      console.log(`   Usuario: ${test.usuario}`);
+      console.log(`\n${i+1}. Test: ${test.name}`);
       console.log(`   Error: ${test.error}`);
     });
   }
