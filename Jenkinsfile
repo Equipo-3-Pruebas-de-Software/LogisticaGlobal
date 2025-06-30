@@ -210,11 +210,11 @@ pipeline {
                             # Generar reporte mínimo (si los tests no generan uno)
                             if (-not (Test-Path $testResultsPath)) {
                                 @"
-                                <testsuite name="Selenium Tests">
-                                    <testcase name="auth.js" classname="Authentication"/>
-                                    <testcase name="create-new-incident.js" classname="IncidentCreation"/>
-                                </testsuite>
-        "@ | Out-File -FilePath $testResultsPath -Encoding UTF8
+<testsuite name="Selenium Tests">
+    <testcase name="auth.js" classname="Authentication"/>
+    <testcase name="create-new-incident.js" classname="IncidentCreation"/>
+</testsuite>
+"@ | Out-File -FilePath $testResultsPath -Encoding UTF8
                             }
                             
                             Write-Host "##[section]✅ Todos los tests pasaron exitosamente"
@@ -225,15 +225,15 @@ pipeline {
                             # Generar reporte de fallo si no existe
                             if (-not (Test-Path $testResultsPath)) {
                                 @"
-                                <testsuite name="Selenium Tests">
-                                    <testcase name="auth.js" classname="Authentication">
-                                        <failure message="Error durante la ejecución"/>
-                                    </testcase>
-                                    <testcase name="create-new-incident.js" classname="IncidentCreation">
-                                        <failure message="Error durante la ejecución"/>
-                                    </testcase>
-                                </testsuite>
-        "@ | Out-File -FilePath $testResultsPath -Encoding UTF8
+<testsuite name="Selenium Tests">
+    <testcase name="auth.js" classname="Authentication">
+        <failure message="Error durante la ejecución"/>
+    </testcase>
+    <testcase name="create-new-incident.js" classname="IncidentCreation">
+        <failure message="Error durante la ejecución"/>
+    </testcase>
+</testsuite>
+"@ | Out-File -FilePath $testResultsPath -Encoding UTF8
                             }
                             
                             exit 1
@@ -252,6 +252,7 @@ pipeline {
                 }
             }
         }
+    }  // <-- ESTE ES EL CIERRE DEL BLOQUE STAGES QUE FALTABA
 
     post {
         success {
