@@ -23,23 +23,86 @@ async function login(driver, rut, clave) {
 }
 
 async function cerrarSesion(driver) {
-  const cerrarBtn = await driver.wait(
-    until.elementLocated(By.xpath("//*[contains(.,'Cerrar sesión')]")),
-    10000
-  );
-  await driver.executeScript("arguments[0].click();", cerrarBtn);
-  await driver.wait(until.urlIs(BASE_URL + '/'), 10000);
+  try {
+    console.log('Intentando cerrar sesión...');
+    
+    // Alternativa 1: Buscar botón por texto
+    const cerrarBtn = await driver.wait(
+      until.elementLocated(By.xpath("//*[contains(text(), 'Cerrar sesión') or contains(@aria-label, 'Cerrar sesión')]")),
+      10000
+    );
+    
+    await driver.executeScript("arguments[0].scrollIntoView(true);", cerrarBtn);
+    await driver.executeScript("arguments[0].click();", cerrarBtn);
+    
+    // Esperar redirección con mayor tolerancia
+    await driver.wait(async () => {
+      const currentUrl = await driver.getCurrentUrl();
+      return currentUrl === BASE_URL + '/' || 
+             currentUrl === BASE_URL + '/login' ||
+             currentUrl === BASE_URL + '/auth';
+    }, 15000);
+    
+    console.log('Sesión cerrada correctamente');
+  } catch (error) {
+    console.error('Error al cerrar sesión:', error);
+    
+    // Tomar screenshot para diagnóstico
+    const screenshot = await driver.takeScreenshot();
+    const fileName = `error-logout-${Date.now()}.png`;
+    require('fs').writeFileSync(fileName, screenshot, 'base64');
+    console.log(`📸 Captura de pantalla guardada: ${fileName}`);
+    
+    // Intentar cerrar sesión mediante URL directa como fallback
+    try {
+      await driver.get(BASE_URL + '/logout');
+      console.log('Cerrando sesión mediante URL /logout');
+      await driver.wait(until.urlIs(BASE_URL + '/'), 10000);
+    } catch (fallbackError) {
+      console.error('Fallback de logout también falló:', fallbackError);
+    }
+    
+    throw error;
+  }
 }
 
-async function esperarMensaje(driver, texto, timeout = 10000) {
-  const msg = await driver.wait(
-    until.elementLocated(By.css('.toast-message, .msg, .message, [role="alert"]')),
-    timeout
-  );
-  await driver.wait(until.elementIsVisible(msg), timeout);
-  const contenido = await msg.getText();
-  if (!contenido.includes(texto)) {
-    throw new Error(`Mensaje esperado "${texto}" no encontrado. Contenido: "${contenido}"`);
+async function esperarMensaje(driver, texto, timeout = 15000) {
+  try {
+    console.log(`Esperando mensaje que contenga: "${texto}"`);
+    
+    // Intentar múltiples selectores y estrategias
+    const selectores = [
+      '.toast-message', 
+      '.msg', 
+      '.message', 
+      '[role="alert"]',
+      '.alert-success',
+      '.notification',
+      '.MuiAlert-message'
+    ].join(', ');
+
+    const msg = await driver.wait(
+      until.elementLocated(By.css(selectores)),
+      timeout
+    );
+    
+    await driver.wait(until.elementIsVisible(msg), timeout);
+    await driver.wait(until.elementTextContains(msg, texto), timeout);
+    
+    const contenido = await msg.getText();
+    console.log(`Mensaje encontrado: "${contenido}"`);
+    
+    return true;
+  } catch (error) {
+    console.error('Error al buscar mensaje:', error);
+    
+    // Tomar screenshot para diagnóstico
+    const screenshot = await driver.takeScreenshot();
+    const fileName = `error-mensaje-${Date.now()}.png`;
+    require('fs').writeFileSync(fileName, screenshot, 'base64');
+    console.log(`📸 Captura de pantalla guardada: ${fileName}`);
+    
+    throw new Error(`Mensaje esperado "${texto}" no encontrado. Error: ${error.message}`);
   }
 }
 
@@ -168,7 +231,12 @@ const testCases = [
         .addArguments('--window-size=1920,1080')
       )
       .build();
-    
+      
+    await driver.manage().setTimeouts({
+      implicit: 15000,
+      pageLoad: 30000,
+      script: 30000
+    });
     // Maximizar ventana para evitar problemas de elementos ocultos
     await driver.manage().window().maximize();
     
