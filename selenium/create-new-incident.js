@@ -62,28 +62,51 @@ async function esperarMensaje(driver, texto) {
 async function seleccionarRobots(driver) {
   console.log(formatStep("Seleccionando robots..."));
   
-  // Abrir el dropdown
-  const robotsDiv = await driver.findElement(By.id('robots'));
+  // Esperar a que el dropdown esté disponible
+  const robotsDiv = await driver.wait(until.elementLocated(By.id('robots')), TIMEOUT);
+  await driver.wait(until.elementIsVisible(robotsDiv), TIMEOUT);
   await robotsDiv.click();
 
+  // Esperar a que los items estén disponibles
+  await driver.wait(until.elementsLocated(By.css('li.p-multiselect-item')), TIMEOUT);
+  
   // Seleccionar primer elemento
-  let firstItem = await driver.wait(until.elementLocated(By.css('li.p-multiselect-item')), TIMEOUT);
-  await driver.executeScript("arguments[0].scrollIntoView(true);", firstItem);
-  await driver.wait(until.elementIsEnabled(firstItem), 3000);
-  await driver.executeScript("arguments[0].click();", firstItem);
+  const items = await driver.findElements(By.css('li.p-multiselect-item'));
+  if (items.length === 0) {
+    throw new Error("No se encontraron robots disponibles para seleccionar");
+  }
+
+  const firstItem = items[0];
+  await driver.wait(until.elementIsVisible(firstItem), TIMEOUT);
+  await firstItem.click();
   console.log(formatStep("Primer robot seleccionado"));
 
   // Seleccionar último elemento
-  let items = await driver.findElements(By.css('li.p-multiselect-item'));
-  let lastItem = items[items.length - 1];
-  await driver.executeScript("arguments[0].scrollIntoView(true);", lastItem);
-  await driver.wait(until.elementIsEnabled(lastItem), 3000);
-  await driver.executeScript("arguments[0].click();", lastItem);
+  const lastItem = items[items.length - 1];
+  await driver.wait(until.elementIsVisible(lastItem), TIMEOUT);
+  await lastItem.click();
   console.log(formatStep("Último robot seleccionado"));
 
   // Cerrar menú desplegable
   await driver.findElement(By.tagName('body')).click();
   console.log(formatSuccess("Robots seleccionados correctamente"));
+}
+
+async function navegarAFormularioIncidente(driver) {
+  console.log(formatStep("Navegando al formulario de incidentes..."));
+  try {
+    // Esperar a que la página se cargue completamente
+    await driver.wait(until.elementLocated(By.xpath("//*[contains(text(), 'Crear Incidente')]")), TIMEOUT);
+    const crearIncidenteBtn = await driver.findElement(By.xpath("//*[contains(text(), 'Crear Incidente')]"));
+    await crearIncidenteBtn.click();
+    
+    // Esperar a que el formulario esté visible
+    await driver.wait(until.elementLocated(By.id('lugar')), TIMEOUT);
+    console.log(formatSuccess("Formulario de incidente cargado correctamente"));
+  } catch (e) {
+    console.log(formatFailure("No se pudo cargar el formulario de incidente"));
+    throw e;
+  }
 }
 
 // --- Tests ---
@@ -94,16 +117,23 @@ async function testCrearIncidenteValido() {
   const driver = await new Builder().forBrowser('chrome').build();
   try {
     await login(driver);
+    await navegarAFormularioIncidente(driver);
 
     // Paso 1: Llenar formulario
     console.log(formatStep("Llenando formulario..."));
-    await driver.findElement(By.id('lugar')).sendKeys('Pasillo 3');
-    await driver.findElement(By.id('descripcion')).sendKeys('Los robots chocaron. A uno de ellos se le salió la rueda izquierda, al otro se le rompió el brazo mecánico. Dejaron caer mercancías frágiles.');
+    const lugarInput = await driver.wait(until.elementLocated(By.id('lugar')), TIMEOUT);
+    await lugarInput.sendKeys('Pasillo 3');
+    
+    const descripcionInput = await driver.findElement(By.id('descripcion'));
+    await descripcionInput.sendKeys('Los robots chocaron. A uno de ellos se le salió la rueda izquierda, al otro se le rompió el brazo mecánico. Dejaron caer mercancías frágiles.');
+    
     await seleccionarRobots(driver);
 
     // Paso 2: Enviar formulario
     console.log(formatStep("Enviando formulario..."));
-    await driver.findElement(By.css('button[type="submit"]')).click();
+    const submitBtn = await driver.findElement(By.css('button[type="submit"]'));
+    await submitBtn.click();
+    
     await esperarMensaje(driver, 'Incidente creado');
 
     await cerrarSesion(driver);
@@ -124,18 +154,20 @@ async function testErrorFaltaLugar() {
   const driver = await new Builder().forBrowser('chrome').build();
   try {
     await login(driver);
+    await navegarAFormularioIncidente(driver);
 
     // Paso 1: Llenar formulario sin lugar
     console.log(formatStep("Llenando formulario sin lugar..."));
-    await driver.findElement(By.id('descripcion')).sendKeys("Durante la manipulación de paquetes frágiles, el robot dejó caer una caja, resultando en daños en el contenido. Revisar sensores.");
-    await driver.findElement(By.id('robots')).click();
-    let items = await driver.wait(until.elementsLocated(By.css('li.p-multiselect-item')), TIMEOUT);
-    await items[0].click();
-    await driver.findElement(By.tagName('body')).click();
+    const descripcionInput = await driver.findElement(By.id('descripcion'));
+    await descripcionInput.sendKeys("Durante la manipulación de paquetes frágiles, el robot dejó caer una caja, resultando en daños en el contenido. Revisar sensores.");
+    
+    await seleccionarRobots(driver);
 
     // Paso 2: Enviar formulario
     console.log(formatStep("Enviando formulario incompleto..."));
-    await driver.findElement(By.css('button[type="submit"]')).click();
+    const submitBtn = await driver.findElement(By.css('button[type="submit"]'));
+    await submitBtn.click();
+    
     await esperarMensaje(driver, 'Todos los campos son obligatorios');
 
     await cerrarSesion(driver);
@@ -156,18 +188,20 @@ async function testErrorFaltaDescripcion() {
   const driver = await new Builder().forBrowser('chrome').build();
   try {
     await login(driver);
+    await navegarAFormularioIncidente(driver);
 
     // Paso 1: Llenar formulario sin descripción
     console.log(formatStep("Llenando formulario sin descripción..."));
-    await driver.findElement(By.id('lugar')).sendKeys('Pasillo Norte');
-    await driver.findElement(By.id('robots')).click();
-    let items = await driver.wait(until.elementsLocated(By.css('li.p-multiselect-item')), TIMEOUT);
-    await items[0].click();
-    await driver.findElement(By.tagName('body')).click();
+    const lugarInput = await driver.findElement(By.id('lugar'));
+    await lugarInput.sendKeys('Pasillo Norte');
+    
+    await seleccionarRobots(driver);
 
     // Paso 2: Enviar formulario
     console.log(formatStep("Enviando formulario incompleto..."));
-    await driver.findElement(By.css('button[type="submit"]')).click();
+    const submitBtn = await driver.findElement(By.css('button[type="submit"]'));
+    await submitBtn.click();
+    
     await esperarMensaje(driver, 'Todos los campos son obligatorios');
 
     await cerrarSesion(driver);
@@ -188,15 +222,21 @@ async function testErrorSinRobots() {
   const driver = await new Builder().forBrowser('chrome').build();
   try {
     await login(driver);
+    await navegarAFormularioIncidente(driver);
 
     // Paso 1: Llenar formulario sin robots
     console.log(formatStep("Llenando formulario sin robots..."));
-    await driver.findElement(By.id('lugar')).sendKeys('Pasillo Este');
-    await driver.findElement(By.id('descripcion')).sendKeys("El robot se detuvo repentinamente en la zona de carga, causando un retraso en la operación. Se recomienda revisar el estado del robot y reiniciar su sistema.");
+    const lugarInput = await driver.findElement(By.id('lugar'));
+    await lugarInput.sendKeys('Pasillo Este');
+    
+    const descripcionInput = await driver.findElement(By.id('descripcion'));
+    await descripcionInput.sendKeys("El robot se detuvo repentinamente en la zona de carga, causando un retraso en la operación. Se recomienda revisar el estado del robot y reiniciar su sistema.");
 
     // Paso 2: Enviar formulario
     console.log(formatStep("Enviando formulario incompleto..."));
-    await driver.findElement(By.css('button[type="submit"]')).click();
+    const submitBtn = await driver.findElement(By.css('button[type="submit"]'));
+    await submitBtn.click();
+    
     await esperarMensaje(driver, 'Todos los campos son obligatorios');
 
     await cerrarSesion(driver);
