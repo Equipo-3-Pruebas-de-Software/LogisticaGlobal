@@ -183,33 +183,21 @@ pipeline {
             steps {
                 dir('selenium') {
                     script {
+                        bat 'npm install'
+                        
                         powershell '''
                         try {
-                            # Instalar dependencias
-                            Write-Host "🔵 Instalando dependencias NPM..."
-                            npm install
-                            if (-not $?) { throw "❌ Falló npm install" }
+                            # Ejecutar tests
+                            Write-Host "Ejecutando tests Selenium..."
                             
-                            # Ejecutar auth.js con captura de output
-                            Write-Host "🔵 Ejecutando auth.js..."
                             $authOutput = node auth.js 2>&1 | Out-String
-                            Write-Host "=== RESULTADO AUTH TEST ==="
-                            Write-Host $authOutput
-                            Write-Host "=========================="
-                            if (-not $?) { throw "❌ Falló auth.js" }
+                            if ($LASTEXITCODE -ne 0) { throw "Auth test failed" }
                             
-                            # Ejecutar create-new-incident.js con captura de output
-                            Write-Host "🔵 Ejecutando create-new-incident.js..."
                             $incidentOutput = node create-new-incident.js 2>&1 | Out-String
-                            Write-Host "=== RESULTADO INCIDENT TEST ==="
-                            Write-Host $incidentOutput
-                            Write-Host "============================="
-                            if (-not $?) { throw "❌ Falló create-new-incident.js" }
+                            if ($LASTEXITCODE -ne 0) { throw "Incident test failed" }
                             
-                            Write-Host "✅ Todos los tests pasaron exitosamente"
-                            
-                            # Generar reporte JUnit
-                            $testResults = @"
+                            # Generar reporte
+                            @"
                             <testsuite name="Selenium Tests">
                                 <testcase name="Authentication Test" classname="AuthTest">
                                     <system-out><![CDATA[$authOutput]]></system-out>
@@ -218,25 +206,31 @@ pipeline {
                                     <system-out><![CDATA[$incidentOutput]]></system-out>
                                 </testcase>
                             </testsuite>
-                            "@
+                            "@ | Out-File -FilePath "test-results.xml" -Encoding UTF8
                             
-                            $testResults | Out-File -FilePath "selenium-test-results.xml" -Encoding UTF8
+                            Write-Host "Todos los tests pasaron exitosamente"
                             
                         } catch {
-                            Write-Host "❌ Error en los tests: $($_.Exception.Message)"
-                            Write-Host "Detalles del error: $($_.ScriptStackTrace)"
+                            # Generar reporte con fallas
+                            @"
+                            <testsuite name="Selenium Tests">
+                                <testcase name="Authentication Test" classname="AuthTest">
+                                    <failure message="$($_.Exception.Message)"/>
+                                    <system-out><![CDATA[$authOutput]]></system-out>
+                                </testcase>
+                                <testcase name="Incident Creation Test" classname="IncidentTest">
+                                    <failure message="$($_.Exception.Message)"/>
+                                    <system-out><![CDATA[$incidentOutput]]></system-out>
+                                </testcase>
+                            </testsuite>
+                            "@ | Out-File -FilePath "test-results.xml" -Encoding UTF8
+                            
+                            Write-Host "##[error]$($_.Exception.Message)"
                             exit 1
                         }
                         '''
                         
-                        // Archivar resultados para Jenkins
-                        junit 'selenium/selenium-test-results.xml'
-                        
-                        // Mostrar resultados en consola
-                        bat '''
-                        echo RESULTADOS DE LOS TESTS SELENIUM:
-                        type selenium-test-results.xml
-                        '''
+                        junit 'selenium/test-results.xml'
                     }
                 }
             }
