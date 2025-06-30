@@ -1,4 +1,5 @@
 const { Builder, By, until } = require('selenium-webdriver');
+const chrome = require('selenium-webdriver/chrome');
 const reportBuilder = require('junit-report-builder');
 
 // --- Configuración dinámica de URL ---
