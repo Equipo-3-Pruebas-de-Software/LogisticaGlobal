@@ -108,7 +108,12 @@ En la tercera entrega, el equipo se enfocó en afinar aspectos tanto funcionales
 Además, se implementó Selenium en la pipeline de Jenkins. Esta herramienta complementa las pruebas end-to-end previamente desarrolladas con Cypress, lo que permitió aumentar la cobertura y robustez del sistema, al validar tanto flujos críticos como escenarios de interacción en el navegador desde una perspectiva más completa.
 
 ## Problemas encontrados y soluciones
-### Carga académica de fin de semestre
+### 1. Carga académica de fin de semestre
 Durante el cierre del semestre, el equipo enfrentó una alta carga académica debido a la concentración de entregas y certámenes en otros ramos, lo que dificultó la disponibilidad de tiempo para avanzar en el proyecto de manera sostenida.
 
 La solución para mitigar este problema se basó en la planificación anticipada de las tareas, utilizando Jira como herramienta de gestión y una carta Gantt para visualizar la distribución temporal del trabajo. Esta estrategia permitió organizar las actividades de forma más eficiente, asignar responsabilidades con claridad y priorizar las tareas clave. Gracias a esta planificación, el equipo logró mantener un buen ritmo de trabajo y cumplir con los plazos establecidos, incluso en un periodo marcado por una alta carga académica.
+
+### 2. Dificultad para acceder al HTML al usar una biblioteca de componentes
+El uso de una biblioteca de componentes facilitó el desarrollo visual de la aplicación, ya que permitía reutilizar elementos con una sola línea de código. Sin embargo, esto dificultó la escritura de pruebas automatizadas con Selenium, ya que no se tiene acceso directo al HTML subyacente del componente, lo que impide identificar fácilmente los elementos del DOM necesarios para las pruebas.
+
+La solución consistió en utilizar la consola del desarrollador del navegador para inspeccionar manualmente el HTML generado por cada componente. De esta forma, el equipo pudo identificar los selectores adecuados y escribir las pruebas correspondientes en Selenium, aunque el proceso fue más lento y detallado. Cabe destacar que esta dificultad no se presentó al usar Cypress, donde las pruebas resultaron más fluidas. Una posible explicación es que Cypress presenta una integración más amigable con aplicaciones desarrolladas en React, lo que facilita la detección y manipulación de los elementos en tiempo de ejecución.
