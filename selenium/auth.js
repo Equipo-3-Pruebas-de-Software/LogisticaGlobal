@@ -1,8 +1,7 @@
 const { Builder, By, until } = require('selenium-webdriver');
 const reportBuilder = require('junit-report-builder');
 
-// --- Configuración dinámica de URL ---
-const BASE_URL = process.env.FRONTEND_URL || "http://192.168.56.1:5173";
+const BASE_URL = "http://192.168.56.1:5173";
 
 // --- Usuarios ---
 const usuarios = [
