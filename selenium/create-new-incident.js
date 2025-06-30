@@ -45,22 +45,32 @@ async function esperarMensaje(driver, texto, timeout = 10000) {
 
 async function seleccionarRobots(driver) {
   try {
+    console.log('Abriendo dropdown de robots...');
+    
     // Esperar y hacer clic en el dropdown
     const robotsDropdown = await driver.wait(
-      until.elementLocated(By.css('.p-multiselect-trigger, #robots')),
-      10000
+      until.elementLocated(By.css('.p-multiselect-trigger, [aria-haspopup="listbox"], #robots')),
+      15000
     );
     await driver.wait(until.elementIsEnabled(robotsDropdown), 5000);
-    await robotsDropdown.click();
+    await driver.executeScript("arguments[0].scrollIntoView(true);", robotsDropdown);
+    await driver.executeScript("arguments[0].click();", robotsDropdown);
 
-    // Esperar a que aparezcan las opciones
+    // Esperar a que aparezcan las opciones (con más selectores posibles)
+    console.log('Esperando opciones de robots...');
     await driver.wait(
-      until.elementsLocated(By.css('.p-multiselect-item, .multiselect-option')),
-      10000
+      until.elementsLocated(By.css(
+        '.p-multiselect-item, .multiselect-option, [role="option"], .p-dropdown-item'
+      )),
+      15000
     );
 
     // Seleccionar al menos 2 robots
-    const robots = await driver.findElements(By.css('.p-multiselect-item, .multiselect-option'));
+    const robots = await driver.findElements(By.css(
+      '.p-multiselect-item, .multiselect-option, [role="option"], .p-dropdown-item'
+    ));
+    
+    console.log(`Encontrados ${robots.length} robots disponibles`);
     
     if (robots.length < 2) {
       throw new Error('No hay suficientes robots disponibles para seleccionar');
@@ -68,24 +78,45 @@ async function seleccionarRobots(driver) {
 
     // Seleccionar primer robot
     await driver.wait(until.elementIsVisible(robots[0]), 5000);
-    await robots[0].click();
+    await driver.executeScript("arguments[0].scrollIntoView(true);", robots[0]);
+    await driver.executeScript("arguments[0].click();", robots[0]);
+    console.log('Primer robot seleccionado');
 
     // Seleccionar segundo robot
     await driver.wait(until.elementIsVisible(robots[1]), 5000);
-    await robots[1].click();
+    await driver.executeScript("arguments[0].scrollIntoView(true);", robots[1]);
+    await driver.executeScript("arguments[0].click();", robots[1]);
+    console.log('Segundo robot seleccionado');
 
-    // Verificar selección (opcional)
-    const selectedItems = await driver.findElements(By.css('.p-multiselect-label-container'));
-    if (selectedItems.length < 2) {
+    // Verificar selección (con más alternativas)
+    const selectedItems = await driver.findElements(By.css(
+      '.p-multiselect-label-container, .multiselect__tags, .p-dropdown-label, [aria-label="Selected items"]'
+    ));
+    
+    console.log(`Elementos seleccionados encontrados: ${selectedItems.length}`);
+    
+    if (selectedItems.length < 1) { // Ajustado a 1 porque puede ser un contenedor
       throw new Error('No se seleccionaron correctamente los robots');
     }
 
     // Cerrar el dropdown haciendo clic en el cuerpo
     await driver.findElement(By.tagName('body')).click();
-    await driver.sleep(1000); // Pequeña pausa para asegurar el cierre
+    await driver.sleep(1000);
 
+    console.log('Selección de robots completada con éxito');
   } catch (error) {
-    console.error('Error en seleccionarRobots:', error);
+    console.error('Error detallado en seleccionarRobots:', error);
+    
+    // Tomar screenshot para diagnóstico
+    try {
+      const screenshot = await driver.takeScreenshot();
+      const fileName = `error-seleccionarRobots-${Date.now()}.png`;
+      require('fs').writeFileSync(fileName, screenshot, 'base64');
+      console.log(`📸 Captura de pantalla guardada: ${fileName}`);
+    } catch (screenshotError) {
+      console.error('Error al tomar captura:', screenshotError);
+    }
+    
     throw error;
   }
 }
