@@ -52,8 +52,6 @@ const RobotsAsignados = () => {
     fetchRobots();
   }, [usuario, comentario]);
 
-  console.log('Robots:', robots);
-
   const abrirModal = () => {
     setModalVisible(true);
   };

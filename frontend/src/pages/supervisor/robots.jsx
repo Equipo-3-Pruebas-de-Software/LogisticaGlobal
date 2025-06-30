@@ -56,8 +56,6 @@ export const RobotsSupervisor = () => {
       });
   }, []);
 
-  console.log(robots)
-
   useEffect(() => {
     const updateRowsPerPage = () => {
       if (tableRef.current) {

@@ -1,5 +1,9 @@
 {
   "devDependencies": {
     "cypress": "^14.3.2"
+  },
+  "dependencies": {
+    "chromedriver": "^137.0.4",
+    "selenium-webdriver": "^4.33.0"
   }
 }
