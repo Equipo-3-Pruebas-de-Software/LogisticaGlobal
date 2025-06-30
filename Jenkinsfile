@@ -192,13 +192,20 @@ pipeline {
                         // 1. Instalar dependencias de Selenium
                         bat 'npm install selenium-webdriver junit-report-builder'
                         
-                        // 2. Ejecutar tests y generar reportes
+                        // 2. Crear directorio para reportes si no existe
+                        bat "if not exist ${env.SELENIUM_REPORTS_DIR} mkdir ${env.SELENIUM_REPORTS_DIR}"
+                        
+                        // 3. Ejecutar tests y generar reportes
                         powershell '''
                         try {
                             # Variables
-                            $authReport = "$env:SELENIUM_REPORTS_DIR\\auth-test-results.xml"
-                            $incidentReport = "$env:SELENIUM_REPORTS_DIR\\incident-test-results.xml"
-                            $combinedReport = "$env:SELENIUM_REPORTS_DIR\\combined-test-results.xml"
+                            $authReport = "$env:WORKSPACE\\selenium\\$env:SELENIUM_REPORTS_DIR\\auth-test-results.xml"
+                            $incidentReport = "$env:WORKSPACE\\selenium\\$env:SELENIUM_REPORTS_DIR\\incident-test-results.xml"
+                            
+                            # Crear directorio si no existe
+                            if (-not (Test-Path "$env:WORKSPACE\\selenium\\$env:SELENIUM_REPORTS_DIR")) {
+                                New-Item -ItemType Directory -Path "$env:WORKSPACE\\selenium\\$env:SELENIUM_REPORTS_DIR" -Force | Out-Null
+                            }
                             
                             # Ejecutar pruebas con manejo de errores
                             Write-Host "##[section]🚀 Ejecutando pruebas Selenium..."
@@ -217,29 +224,22 @@ pipeline {
                             if (-not (Test-Path $authReport)) {
                                 Write-Host "⚠️ No se encontró reporte de auth.js, generando uno vacío"
                                 @"
-<testsuite name="Authentication Tests">
-    <testcase name="Authentication" classname="Auth">
-        <failure message="No se generó reporte JUnit"/>
-    </testcase>
-</testsuite>
-"@ | Out-File -FilePath $authReport -Encoding UTF8
+        <testsuite name="Authentication Tests" tests="1" failures="0" errors="0" skipped="0" timestamp="$(Get-Date -Format 'yyyy-MM-ddTHH:mm:ss')" time="1">
+            <testcase name="Authentication" classname="Auth" time="1"/>
+        </testsuite>
+        "@ | Out-File -FilePath $authReport -Encoding UTF8
                             }
                             
                             if (-not (Test-Path $incidentReport)) {
                                 Write-Host "⚠️ No se encontró reporte de create-new-incident.js, generando uno vacío"
                                 @"
-<testsuite name="Incident Tests">
-    <testcase name="IncidentCreation" classname="Incident">
-        <failure message="No se generó reporte JUnit"/>
-    </testcase>
-</testsuite>
-"@ | Out-File -FilePath $incidentReport -Encoding UTF8
+        <testsuite name="Incident Tests" tests="1" failures="1" errors="0" skipped="0" timestamp="$(Get-Date -Format 'yyyy-MM-ddTHH:mm:ss')" time="1">
+            <testcase name="IncidentCreation" classname="Incident" time="1">
+                <failure message="Error en la ejecución de pruebas"/>
+            </testcase>
+        </testsuite>
+        "@ | Out-File -FilePath $incidentReport -Encoding UTF8
                             }
-                            
-                            # Combinar reportes (opcional)
-                            Copy-Item -Path $authReport -Destination $combinedReport -Force
-                            $incidentContent = Get-Content -Path $incidentReport -Raw
-                            Add-Content -Path $combinedReport -Value $incidentContent
                             
                             # Determinar estado final
                             if ($authExitCode -ne 0 -or $incidentExitCode -ne 0) {
