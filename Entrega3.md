@@ -107,7 +107,7 @@ En la tercera entrega, el equipo se enfocó en afinar aspectos tanto funcionales
 
 Además, se implementó Selenium en la pipeline de Jenkins. Esta herramienta complementa las pruebas end-to-end previamente desarrolladas con Cypress, lo que permitió aumentar la cobertura y robustez del sistema, al validar tanto flujos críticos como escenarios de interacción en el navegador desde una perspectiva más completa.
 
-## Problemas encontrados y soluciones.
+## Problemas encontrados y soluciones
 ### Carga académica de fin de semestre
 Durante el cierre del semestre, el equipo enfrentó una alta carga académica debido a la concentración de entregas y certámenes en otros ramos, lo que dificultó la disponibilidad de tiempo para avanzar en el proyecto de manera sostenida.
 
