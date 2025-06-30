@@ -1,6 +1,32 @@
 # 📦 Entrega 3 - Pruebas de interfaz con Selenium
 ## Alcances de la solución implementada
-a
+Durante el desarrollo del proyecto se implementaron las siguientes vistas y funcionalidades:
+### Vista de administrador:
+* Dashboard con información de incidentes y robots.
+* Agregar, eliminar y actualizar funcionarios (se actualiza contraseña y para supervisor tambien firma).
+* Agregar, eliminar y actualizar robots (se actualiza lugar de trabajo).
+* Ver la informacion de robots y tecnicos.
+
+### Vista de Supervisor:
+* Dashboard con información de incidentes y robots (el mismo de la vista de administrador).
+* Definir gravedad, prioridad y asignar técnicos a un incidente.
+* Firmar un incidente (cuando todos los tecnicos terminaron su trabajo asignado en este).
+* Ver el estado de los robots.
+* Ver la disponibilidad de los técnicos.
+
+### Vista de Jefe de Turno:
+* Crear nuevos incidentes.
+
+### Vista de Técnico:
+* Ver los robots asignados y reparados
+* Subir la descripción del trabajo realizado en un robot.
+
+### CI/CD
+Se implemento un pipeline CI/CD con jenkins que: 
+* Clona el repositorio desde github.
+* Configura el entorno de la máquina virtual
+* Levanta los 3 dockers (Backend, Frontend y Base de Datos)
+* Ejecuta las pruebas end-to-end de cypress y selenium.
 
 ## Uso de Selenium
 a
