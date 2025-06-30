@@ -97,30 +97,84 @@ pipeline {
                 script {
                     bat 'npm install -g npm@latest'
                     
-                    // Script PowerShell con caracteres especiales escapados
+                    // Script PowerShell mejorado con manejo robusto de errores
                     powershell '''
-                    Write-Host "🔵 Descargando ChromeDriver v$env:CHROME_DRIVER_VERSION..."
+                    $chromeDriverUrl = "https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/138.0.7204.50/win64/chromedriver-win64.zip"
+                    $downloadPath = Join-Path -Path $pwd -ChildPath "chromedriver.zip"
+                    
+                    Write-Host "🔵 Descargando ChromeDriver desde $chromeDriverUrl"
+                    
+                    # Configurar política de progreso y seguridad
                     $ProgressPreference = 'SilentlyContinue'
-                    Invoke-WebRequest -Uri "$env:CHROME_DRIVER_URL" -OutFile "chromedriver.zip"
+                    [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
                     
-                    if (-not (Test-Path "chromedriver.zip")) {
-                        throw "❌ Falló la descarga de ChromeDriver"
+                    try {
+                        # Descargar con reintentos
+                        $retryCount = 0
+                        $maxRetries = 3
+                        $success = $false
+                        
+                        do {
+                            try {
+                                Invoke-WebRequest -Uri $chromeDriverUrl -OutFile $downloadPath -UseBasicParsing
+                                if (Test-Path $downloadPath -PathType Leaf) {
+                                    $success = $true
+                                }
+                            } catch {
+                                $retryCount++
+                                if ($retryCount -ge $maxRetries) {
+                                    throw
+                                }
+                                Start-Sleep -Seconds 5
+                            }
+                        } while (-not $success -and $retryCount -lt $maxRetries)
+                        
+                        if (-not (Test-Path $downloadPath)) {
+                            throw "❌ No se pudo descargar ChromeDriver después de $maxRetries intentos"
+                        }
+                        
+                        # Verificar integridad del archivo
+                        if ((Get-Item $downloadPath).Length -lt 1MB) {
+                            throw "❌ Archivo descargado es demasiado pequeño (posible descarga fallida)"
+                        }
+                        
+                        Write-Host "✅ Descarga completada ($((Get-Item $downloadPath).Length/1MB) MB)"
+                        
+                        # Descomprimir
+                        $extractPath = Join-Path -Path $pwd -ChildPath "chromedriver_temp"
+                        New-Item -ItemType Directory -Path $extractPath -Force | Out-Null
+                        
+                        Write-Host "🔵 Descomprimiendo..."
+                        Expand-Archive -Path $downloadPath -DestinationPath $extractPath -Force
+                        
+                        # Buscar el ejecutable en la estructura de directorios
+                        $chromeDriverExe = Get-ChildItem -Path $extractPath -Filter "chromedriver.exe" -Recurse | Select-Object -First 1
+                        
+                        if (-not $chromeDriverExe) {
+                            throw "❌ No se encontró chromedriver.exe en el archivo descargado"
+                        }
+                        
+                        # Mover a ubicación final
+                        Move-Item -Path $chromeDriverExe.FullName -Destination "$pwd\chromedriver.exe" -Force
+                        Write-Host "✅ ChromeDriver instalado en $pwd\chromedriver.exe"
+                        
+                    } catch {
+                        Write-Host "❌ Error grave: $_"
+                        Write-Host "Detalles del error: $($_.Exception.Message)"
+                        exit 1
+                    } finally {
+                        # Limpieza
+                        if (Test-Path $downloadPath) { Remove-Item $downloadPath -Force }
+                        if (Test-Path $extractPath) { Remove-Item $extractPath -Recurse -Force }
                     }
                     
-                    Write-Host "🔵 Descomprimiendo..."
-                    Expand-Archive -Path "chromedriver.zip" -DestinationPath "." -Force
-                    
-                    Move-Item -Path "chromedriver-win64/chromedriver.exe" -Destination "chromedriver.exe" -Force
-                    
-                    Remove-Item "chromedriver.zip" -Force
-                    Remove-Item "chromedriver-win64" -Recurse -Force -ErrorAction SilentlyContinue
-                    
-                    if (Test-Path "chromedriver.exe") {
-                        Write-Host "✅ ChromeDriver instalado correctamente"
-                        .\\chromedriver.exe --version
-                    } else {
-                        throw "❌ ChromeDriver no se instaló correctamente"
+                    # Verificación final
+                    if (-not (Test-Path "$pwd\chromedriver.exe")) {
+                        throw "❌ Instalación fallida: chromedriver.exe no encontrado"
                     }
+                    
+                    Write-Host "🔵 Versión instalada:"
+                    & "$pwd\chromedriver.exe" --version
                     '''
                 }
             }
