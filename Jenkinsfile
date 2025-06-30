@@ -11,6 +11,10 @@ pipeline {
         DOCKER_COMPOSE_CMD = "docker-compose -f docker-compose.yml"
         DOCKERHUB_USER = 'hakdyr24'
         DOCKERHUB_CREDENTIALS_ID = 'dockerhub-creds'
+        
+        // Configuración específica para Selenium
+        CHROME_DRIVER_VERSION = '138.0.7204.50'  // Versión compatible con Chrome 138
+        CHROME_DRIVER_URL = "https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/${env.CHROME_DRIVER_VERSION}/win64/chromedriver-win64.zip"
     }
 
     stages {
@@ -22,7 +26,7 @@ pipeline {
                 '''
             }
         }
-        //test
+
         stage('Configurar entorno') {
             steps {
                 script {
@@ -67,15 +71,18 @@ pipeline {
 
         stage('Desplegar contenedores') {
             steps {
-                bat "${DOCKER_COMPOSE_CMD} down"
-                bat "${DOCKER_COMPOSE_CMD} up -d --build"
+                bat """
+                ${DOCKER_COMPOSE_CMD} down --remove-orphans
+                ${DOCKER_COMPOSE_CMD} build --no-cache
+                ${DOCKER_COMPOSE_CMD} up -d
+                """
             }
         }
 
         stage('Wait for Servers') {
             steps {
                 echo 'Waiting for servers to start...'
-                sleep 10 // Ajusta el tiempo si es necesario
+                sleep 15  // Tiempo aumentado para asegurar inicio
             }
         }
 
@@ -84,57 +91,88 @@ pipeline {
                 bat "docker ps"
             }
         }
-        /*
-        stage('Run Cypress Tests') {
-            steps {
-                echo 'Running Cypress tests...'
-                bat 'npx cypress run --config-file cypress.config.js --headless --browser electron'
-            }
-        } 
-        */
-        // ===== NUEVO STAGE PARA SELENIUM =====
+
+        // ===== STAGE MEJORADO PARA SELENIUM =====
         stage('Setup Selenium Environment') {
             steps {
-                // Instalar Node.js
-                bat 'npm install -g npm@latest'
-                
-                // Descargar e instalar ChromeDriver
-                bat """
-                curl -o chromedriver.zip "${env.CHROME_DRIVER_URL}"
-                tar -xf chromedriver.zip
-                move chromedriver-win64\\chromedriver.exe .\\chromedriver.exe
-                del chromedriver.zip
-                rmdir /s /q chromedriver-win64
-                """
+                script {
+                    // Instalar Node.js y verificar versión
+                    bat 'npm install -g npm@latest'
+                    
+                    // Configuración con PowerShell (más robusto que CMD)
+                    powershell """
+                    # Descargar ChromeDriver
+                    Write-Host "🔵 Descargando ChromeDriver v${env.CHROME_DRIVER_VERSION}..."
+                    $ProgressPreference = 'SilentlyContinue'
+                    Invoke-WebRequest -Uri "${env.CHROME_DRIVER_URL}" -OutFile "chromedriver.zip"
+                    
+                    if (-not (Test-Path "chromedriver.zip")) {
+                        throw "❌ Falló la descarga de ChromeDriver"
+                    }
+                    
+                    # Descomprimir
+                    Write-Host "🔵 Descomprimiendo..."
+                    Expand-Archive -Path "chromedriver.zip" -DestinationPath "." -Force
+                    
+                    # Mover ejecutable
+                    Move-Item -Path "chromedriver-win64/chromedriver.exe" -Destination "chromedriver.exe" -Force
+                    
+                    # Limpieza
+                    Remove-Item "chromedriver.zip" -Force
+                    Remove-Item "chromedriver-win64" -Recurse -Force -ErrorAction SilentlyContinue
+                    
+                    # Verificar instalación
+                    if (Test-Path "chromedriver.exe") {
+                        Write-Host "✅ ChromeDriver instalado correctamente"
+                        .\\chromedriver.exe --version
+                    } else {
+                        throw "❌ ChromeDriver no se instaló correctamente"
+                    }
+                    """
+                }
             }
         }
 
         stage('Run Selenium Tests') {
             steps {
                 dir('selenium') {
-                    // Instalar dependencias de npm
-                    bat 'npm install'
-                    
-                    // Ejecutar pruebas
-                    bat 'node auth.js'
-                    bat 'node create-new-incident.js'
+                    script {
+                        // Instalar dependencias y ejecutar tests con manejo de errores
+                        powershell """
+                        try {
+                            npm install
+                            if (-not $?) { throw "❌ Falló npm install" }
+                            
+                            Write-Host "🔵 Ejecutando auth.js..."
+                            node auth.js
+                            if (-not $?) { throw "❌ Falló auth.js" }
+                            
+                            Write-Host "🔵 Ejecutando create-new-incident.js..."
+                            node create-new-incident.js
+                            if (-not $?) { throw "❌ Falló create-new-incident.js" }
+                            
+                            Write-Host "✅ Todos los tests pasaron"
+                        } catch {
+                            Write-Host $_.Exception.Message
+                            exit 1
+                        }
+                        """
+                    }
                 }
             }
         }
-    
     }
-
-    
 
     post {
         success {
-            slackSend(channel: '#integracion-jenkins', message: "✅ Build SUCCESS: ${env.JOB_NAME} - ${env.BUILD_NUMBER}")
+            slackSend(channel: '#integracion-jenkins', message: "✅ Build SUCCESS: ${env.JOB_NAME} - ${env.BUILD_NUMBER} (Chrome v138)")
         }
         failure {
-            slackSend(channel: '#integracion-jenkins', message: "❌ Build FAILED: ${env.JOB_NAME} - ${env.BUILD_NUMBER}")
+            slackSend(channel: '#integracion-jenkins', message: "❌ Build FAILED: ${env.JOB_NAME} - ${env.BUILD_NUMBER} - Consulte los logs")
         }
         always {
-            echo 'Pipeline terminado'
+            echo 'Pipeline terminado - Limpiando recursos...'
+            bat 'docker system prune -f || echo "⚠️ Error en limpieza Docker"'
         }
     }
 }
