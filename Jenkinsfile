@@ -184,21 +184,65 @@ pipeline {
             steps {
                 dir('selenium') {
                     script {
+                        // Instalar dependencias y ejecutar tests con reporte detallado
+                        powershell '''
+                        try {
+                            # Instalar dependencias
+                            Write-Host "🔵 Instalando dependencias NPM..."
+                            npm install
+                            if (-not $?) { throw "❌ Falló npm install" }
+                            
+                            # Ejecutar auth.js con captura de output
+                            Write-Host "🔵 Ejecutando auth.js..."
+                            $authOutput = node auth.js 2>&1 | Out-String
+                            Write-Host "=== RESULTADO AUTH TEST ==="
+                            Write-Host $authOutput
+                            Write-Host "=========================="
+                            if (-not $?) { throw "❌ Falló auth.js" }
+                            
+                            # Ejecutar create-new-incident.js con captura de output
+                            Write-Host "🔵 Ejecutando create-new-incident.js..."
+                            $incidentOutput = node create-new-incident.js 2>&1 | Out-String
+                            Write-Host "=== RESULTADO INCIDENT TEST ==="
+                            Write-Host $incidentOutput
+                            Write-Host "============================="
+                            if (-not $?) { throw "❌ Falló create-new-incident.js" }
+                            
+                            Write-Host "✅ Todos los tests pasaron exitosamente"
+                            
+                            # Generar reporte JUnit (opcional)
+                            $testResults = @"
+                            <testsuite name="Selenium Tests">
+                                <testcase name="Authentication Test" classname="AuthTest">
+                                    <system-out><![CDATA[$authOutput]]></system-out>
+                                </testcase>
+                                <testcase name="Incident Creation Test" classname="IncidentTest">
+                                    <system-out><![CDATA[$incidentOutput]]></system-out>
+                                </testcase>
+                            </testsuite>
+                            "@
+                            
+                            $testResults | Out-File -FilePath "selenium-test-results.xml" -Encoding UTF8
+                            
+                        } catch {
+                            Write-Host "❌ Error en los tests: $($_.Exception.Message)"
+                            Write-Host "Detalles del error: $($_.ScriptStackTrace)"
+                            exit 1
+                        }
+                        '''
+                        
+                        // Archivar resultados para Jenkins
+                        junit 'selenium/selenium-test-results.xml'
+                        
+                        // Mostrar resultados en consola
                         bat '''
-                        npm install
-                        if errorlevel 1 exit 1
-                        
-                        node auth.js
-                        if errorlevel 1 exit 1
-                        
-                        node create-new-incident.js
-                        if errorlevel 1 exit 1
+                        echo RESULTADOS DE LOS TESTS SELENIUM:
+                        type selenium-test-results.xml
                         '''
                     }
                 }
             }
         }
-    }
 
     post {
         success {
