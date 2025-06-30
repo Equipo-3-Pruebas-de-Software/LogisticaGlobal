@@ -44,8 +44,6 @@ export const TecnicosSupervisor = () => {
 
               incidenteDataArray.push(incidenteData);
 
-              console.log(incidenteData)
-
               return {
                 rut: tecnico.rut,
                 nombre: tecnico.nombre,
