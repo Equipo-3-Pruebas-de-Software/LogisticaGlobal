@@ -58,11 +58,44 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry('https://index.docker.io/v1/', DOCKERHUB_CREDENTIALS_ID) {
+                        // Build backend
                         def backendImage = docker.build("${DOCKERHUB_USER}/logisticaglobal:backend", "backend")
-                        def frontendImage = docker.build("${DOCKERHUB_USER}/logisticaglobal:frontend", "frontend")
-
-                        backendImage.push()
-                        frontendImage.push()
+                        
+                        // Build frontend con reintentos
+                        def maxRetries = 3
+                        def retryCount = 0
+                        def frontendImage = null
+                        
+                        while(retryCount < maxRetries) {
+                            try {
+                                frontendImage = docker.build("${DOCKERHUB_USER}/logisticaglobal:frontend", "frontend")
+                                break
+                            } catch(e) {
+                                retryCount++
+                                echo "⚠️ Fallo en build frontend (intento $retryCount/$maxRetries): ${e}"
+                                if(retryCount >= maxRetries) {
+                                    error("❌ Build frontend falló después de $maxRetries intentos")
+                                }
+                                sleep(time: 30, unit: 'SECONDS')
+                            }
+                        }
+                        
+                        // Push con reintentos
+                        retryCount = 0
+                        while(retryCount < maxRetries) {
+                            try {
+                                backendImage.push()
+                                frontendImage.push()
+                                break
+                            } catch(e) {
+                                retryCount++
+                                echo "⚠️ Fallo en push a Docker Hub (intento $retryCount/$maxRetries): ${e}"
+                                if(retryCount >= maxRetries) {
+                                    error("❌ Push a Docker Hub falló después de $maxRetries intentos")
+                                }
+                                sleep(time: 60, unit: 'SECONDS')
+                            }
+                        }
                     }
                 }
             }
