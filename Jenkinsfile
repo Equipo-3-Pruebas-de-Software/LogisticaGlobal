@@ -190,33 +190,49 @@ pipeline {
         }
 
         stage('Run Selenium Tests') {
-            steps {
-                dir('selenium') {
+        steps {
+            dir('selenium') {
                 script {
                     bat 'npm install selenium-webdriver junit-report-builder chrome || exit 0'
                     
                     powershell '''
                     try {
+                    # Configurar la codificación de salida
+                    [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+                    $OutputEncoding = [System.Text.Encoding]::UTF8
+                    
                     $reportsPath = "$env:WORKSPACE\\selenium\\$env:SELENIUM_REPORTS_DIR"
                     if (-not (Test-Path $reportsPath)) {
                         New-Item -ItemType Directory -Path $reportsPath -Force | Out-Null
                     }
                     
                     Write-Host "======================================"
-                    Write-Host "🚀 INICIANDO EJECUCIÓN DE PRUEBAS SELENIUM"
+                    Write-Host "INICIANDO EJECUCION DE PRUEBAS SELENIUM"
                     Write-Host "======================================"
                     
+                    # Variables para códigos de salida
+                    $authExitCode = 0
+                    $incidentExitCode = 0
+                    
                     # Ejecutar pruebas de autenticación
-                    Write-Host "##[group]🔐 EJECUTANDO PRUEBAS DE AUTENTICACIÓN"
-                    node auth.js
-                    $authExitCode = $LASTEXITCODE
-                    Write-Host "##[endgroup]"
+                    Write-Host "EJECUTANDO PRUEBAS DE AUTENTICACION"
+                    try {
+                        node auth.js
+                        $authExitCode = $LASTEXITCODE
+                    } catch {
+                        $authExitCode = 1
+                        Write-Host "ERROR EN PRUEBAS DE AUTENTICACION: $_"
+                    }
                     
                     # Ejecutar pruebas de incidentes
-                    Write-Host "##[group]📝 EJECUTANDO PRUEBAS DE INCIDENTES"
-                    node create-new-incident.js
-                    $incidentExitCode = $LASTEXITCODE
-                    Write-Host "##[endgroup]"
+                    Write-Host "EJECUTANDO PRUEBAS DE INCIDENTES"
+                    try {
+                        node create-new-incident.js
+                        $incidentExitCode = $LASTEXITCODE
+                    } catch {
+                        $incidentExitCode = 1
+                        Write-Host "ERROR EN PRUEBAS DE INCIDENTES: $_"
+                    }
                     
                     # Mover reportes
                     if (Test-Path "auth-test-results.xml") {
@@ -226,22 +242,28 @@ pipeline {
                         Move-Item -Path "incident-test-results.xml" -Destination "$reportsPath\\incident-test-results.xml" -Force
                     }
                     
+                    # Mostrar resumen
+                    Write-Host "RESUMEN DE PRUEBAS:"
+                    Write-Host "Autenticacion: $($authExitCode -eq 0 ? 'EXITO' : 'FALLO')"
+                    Write-Host "Incidentes: $($incidentExitCode -eq 0 ? 'EXITO' : 'FALLO')"
+                    
                     # Resultado final
                     if ($authExitCode -ne 0 -or $incidentExitCode -ne 0) {
-                        throw "Algunas pruebas fallaron (auth: $authExitCode, incident: $incidentExitCode)"
+                        throw "ALGUNAS PRUEBAS FALLARON (Autenticacion: $authExitCode, Incidentes: $incidentExitCode)"
                     }
                     
-                    Write-Host "✅ TODAS LAS PRUEBAS COMPLETADAS EXITOSAMENTE"
+                    Write-Host "TODAS LAS PRUEBAS COMPLETADAS EXITOSAMENTE"
                     
                     } catch {
-                    Write-Host "##[error]❌ ERROR EN LAS PRUEBAS: $_"
+                    Write-Host "ERROR EN LAS PRUEBAS: $_"
                     exit 1
                     }
                     '''
                 }
-                }
             }
         }
+    }
+}
     }
 
     post {
