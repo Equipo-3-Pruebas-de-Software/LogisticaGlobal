@@ -168,23 +168,6 @@ const testCases = [
         .addArguments('--window-size=1920,1080')
       )
       .build();
-
-      const driver = await new Builder()
-      .forBrowser('chrome')
-      .setChromeOptions(new chrome.Options()
-        .addArguments('--no-sandbox')
-        .addArguments('--disable-dev-shm-usage')
-        .addArguments('--window-size=1920,1080')
-        .addArguments('--headless=new') // Para ejecución en CI
-      )
-      .build();
-    
-    // Configurar tiempos de espera globales
-    await driver.manage().setTimeouts({
-      implicit: 10000, // 10 segundos para encontrar elementos
-      pageLoad: 30000, // 30 segundos para cargar páginas
-      script: 30000    // 30 segundos para ejecutar scripts
-    });
     
     // Maximizar ventana para evitar problemas de elementos ocultos
     await driver.manage().window().maximize();
