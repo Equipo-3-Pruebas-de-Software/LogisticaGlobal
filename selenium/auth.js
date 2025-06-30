@@ -74,14 +74,14 @@ async function testCredencialesIncorrectas(usuario) {
       until.elementLocated(By.xpath("//*[contains(text(),'Credenciales inválidas')]")),
       TIMEOUT
     );
-    await driver.wait(until.elementIsVisible(errorMsg)), 2000);
+    await driver.wait(until.elementIsVisible(errorMsg), 2000);
     
-    console.log(formatSuccess("Mensaje de error mostrado correctamente")));
-    console.log(formatSuccess(`${testName} COMPLETADO EXITOSAMENTE`)));
+    console.log(formatSuccess("Mensaje de error mostrado correctamente"));
+    console.log(formatSuccess(`${testName} COMPLETADO EXITOSAMENTE`));
     return { success: true };
   } catch (e) {
-    console.log(formatFailure(`Fallo en ${testName}: ${e.message}`)));
-    console.log(formatStep(`Última URL: ${await driver.getCurrentUrl()}`)));
+    console.log(formatFailure(`Fallo en ${testName}: ${e.message}`));
+    console.log(formatStep(`Última URL: ${await driver.getCurrentUrl()}`));
     return { success: false, error: e.message };
   } finally {
     await driver.quit();
@@ -92,7 +92,7 @@ async function testCredencialesIncorrectas(usuario) {
 // --- Test: login + logout ---
 async function testLoginLogout(usuario) {
   const testName = "Login y Logout";
-  console.log(formatTestHeader(testName, usuario)));
+  console.log(formatTestHeader(testName, usuario));
   
   const driver = await new Builder().forBrowser('chrome').build();
   try {
@@ -104,7 +104,7 @@ async function testLoginLogout(usuario) {
     
     // Paso 2: Verificar redirección
     console.log(formatStep(`Verificando redirección a ${usuario.rutaHome}...`));
-    await driver.wait(until.urlContains(usuario.rutaHome)), TIMEOUT);
+    await driver.wait(until.urlContains(usuario.rutaHome), TIMEOUT);
     
     // Paso 3: Verificar contenido de la página
     console.log(formatStep(`Buscando texto: "${usuario.textoHome}"...`));
@@ -121,7 +121,7 @@ async function testLoginLogout(usuario) {
       );
     }
     await driver.wait(until.elementIsVisible(textoHome)), 2000);
-    console.log(formatSuccess("Contenido de la página verificado")));
+    console.log(formatSuccess("Contenido de la página verificado"));
     
     // Paso 4: Logout
     console.log(formatStep("Realizando logout..."));
@@ -144,11 +144,11 @@ async function testLoginLogout(usuario) {
     return { success: true };
   } catch (e) {
     console.log(formatFailure(`Fallo en ${testName}: ${e.message}`)));
-    console.log(formatStep(`Última URL: ${await driver.getCurrentUrl()}`)));
+    console.log(formatStep(`Última URL: ${await driver.getCurrentUrl()}`));
     return { success: false, error: e.message };
   } finally {
     await driver.quit();
-    console.log(formatStep("Navegador cerrado")));
+    console.log(formatStep("Navegador cerrado"));
   }
 }
 

@@ -107,10 +107,10 @@ async function testCrearIncidenteValido() {
     await esperarMensaje(driver, 'Incidente creado');
 
     await cerrarSesion(driver);
-    console.log(formatSuccess(`${testName} COMPLETADO EXITOSAMENTE`)));
+    console.log(formatSuccess(`${testName} COMPLETADO EXITOSAMENTE`));
     return { success: true };
   } catch (e) {
-    console.log(formatFailure(`Fallo en ${testName}: ${e.message}`)));
+    console.log(formatFailure(`Fallo en ${testName}: ${e.message}`));
     return { success: false, error: e.message };
   } finally {
     await driver.quit();
@@ -139,10 +139,10 @@ async function testErrorFaltaLugar() {
     await esperarMensaje(driver, 'Todos los campos son obligatorios');
 
     await cerrarSesion(driver);
-    console.log(formatSuccess(`${testName} COMPLETADO EXITOSAMENTE`)));
+    console.log(formatSuccess(`${testName} COMPLETADO EXITOSAMENTE`));
     return { success: true };
   } catch (e) {
-    console.log(formatFailure(`Fallo en ${testName}: ${e.message}`)));
+    console.log(formatFailure(`Fallo en ${testName}: ${e.message}`));
     return { success: false, error: e.message };
   } finally {
     await driver.quit();
@@ -171,10 +171,10 @@ async function testErrorFaltaDescripcion() {
     await esperarMensaje(driver, 'Todos los campos son obligatorios');
 
     await cerrarSesion(driver);
-    console.log(formatSuccess(`${testName} COMPLETADO EXITOSAMENTE`)));
+    console.log(formatSuccess(`${testName} COMPLETADO EXITOSAMENTE`));
     return { success: true };
   } catch (e) {
-    console.log(formatFailure(`Fallo en ${testName}: ${e.message}`)));
+    console.log(formatFailure(`Fallo en ${testName}: ${e.message}`));
     return { success: false, error: e.message };
   } finally {
     await driver.quit();
@@ -200,10 +200,10 @@ async function testErrorSinRobots() {
     await esperarMensaje(driver, 'Todos los campos son obligatorios');
 
     await cerrarSesion(driver);
-    console.log(formatSuccess(`${testName} COMPLETADO EXITOSAMENTE`)));
+    console.log(formatSuccess(`${testName} COMPLETADO EXITOSAMENTE`));
     return { success: true };
   } catch (e) {
-    console.log(formatFailure(`Fallo en ${testName}: ${e.message}`)));
+    console.log(formatFailure(`Fallo en ${testName}: ${e.message}`));
     return { success: false, error: e.message };
   } finally {
     await driver.quit();
