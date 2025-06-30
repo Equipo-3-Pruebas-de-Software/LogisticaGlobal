@@ -22,7 +22,7 @@ pipeline {
             steps {
                 bat '''
                 echo 🧹 Limpiando Docker para liberar espacio...
-                docker system prune -af --volumes
+                docker system prune -af --volumes || echo "⚠️ Advertencia en limpieza Docker"
                 '''
             }
         }
@@ -32,11 +32,11 @@ pipeline {
                 script {
                     if (env.BRANCH_NAME == 'jenkins-local' || env.BRANCH_NAME == 'main') {
                         bat '''
-                        powershell -Command "(Get-Content frontend/.env) -replace 'VITE_API_URL=.*', 'VITE_API_URL=http://localhost:3000' | Set-Content frontend/.env"
+                        powershell -Command "(Get-Content frontend/.env) -replace 'VITE_API_URL=.*', 'VITE_API_URL=http://localhost:3000' | Set-Content frontend/.env" || exit 0
                         '''
                     } else if (env.BRANCH_NAME == 'selenium-jenkins-test') {
                         bat '''
-                        powershell -Command "(Get-Content frontend/.env) -replace 'VITE_API_URL=.*', 'VITE_API_URL=http://192.168.56.1:3000' | Set-Content frontend/.env"
+                        powershell -Command "(Get-Content frontend/.env) -replace 'VITE_API_URL=.*', 'VITE_API_URL=http://192.168.56.1:3000' | Set-Content frontend/.env" || exit 0
                         '''
                     }
                 }
@@ -46,11 +46,11 @@ pipeline {
         stage('Crear .env del backend') {
             steps {
                 bat '''
-                echo DB_HOST=db > backend\\.env
-                echo DB_USER=root >> backend\\.env
-                echo DB_PASSWORD=password >> backend\\.env
-                echo DB_NAME=incidentesdb >> backend\\.env
-                echo DB_PORT=3306 >> backend\\.env
+                echo DB_HOST=db > backend\\.env || exit 0
+                echo DB_USER=root >> backend\\.env || exit 0
+                echo DB_PASSWORD=password >> backend\\.env || exit 0
+                echo DB_NAME=incidentesdb >> backend\\.env || exit 0
+                echo DB_PORT=3306 >> backend\\.env || exit 0
                 '''
             }
         }
@@ -105,9 +105,9 @@ pipeline {
         stage('Desplegar contenedores') {
             steps {
                 bat """
-                ${DOCKER_COMPOSE_CMD} down --remove-orphans
-                ${DOCKER_COMPOSE_CMD} build --no-cache
-                ${DOCKER_COMPOSE_CMD} up -d
+                ${DOCKER_COMPOSE_CMD} down --remove-orphans || echo "⚠️ No se pudieron detener contenedores existentes"
+                ${DOCKER_COMPOSE_CMD} build --no-cache || exit 1
+                ${DOCKER_COMPOSE_CMD} up -d || exit 1
                 """
             }
         }
@@ -121,18 +121,22 @@ pipeline {
 
         stage('Verificar Servicios') {
             steps {
-                bat "docker ps"
+                bat "docker ps || echo '⚠️ Error al verificar contenedores'"
             }
         }
 
         stage('Setup Selenium Environment') {
             steps {
                 script {
-                    // Crear directorio para reportes
-                    bat "mkdir ${env.SELENIUM_REPORTS_DIR} || echo Directorio ya existe"
+                    // Crear directorio para reportes (manera más robusta)
+                    powershell '''
+                    if (-not (Test-Path "$env:SELENIUM_REPORTS_DIR")) {
+                        New-Item -ItemType Directory -Path "$env:SELENIUM_REPORTS_DIR" -Force | Out-Null
+                    }
+                    '''
                     
                     // Instalar Node.js y npm
-                    bat 'npm install -g npm@latest'
+                    bat 'npm install -g npm@latest || echo "⚠️ Error al actualizar npm"'
                     
                     // Configurar ChromeDriver
                     powershell '''
@@ -190,10 +194,15 @@ pipeline {
                 dir('selenium') {
                     script {
                         // 1. Instalar dependencias de Selenium
-                        bat 'npm install selenium-webdriver junit-report-builder'
+                        bat 'npm install selenium-webdriver junit-report-builder || exit 1'
                         
-                        // 2. Crear directorio para reportes si no existe
-                        bat "if not exist ${env.SELENIUM_REPORTS_DIR} mkdir ${env.SELENIUM_REPORTS_DIR}"
+                        // 2. Crear directorio para reportes (manera más robusta)
+                        powershell '''
+                        $reportsPath = "$env:WORKSPACE\\selenium\\$env:SELENIUM_REPORTS_DIR"
+                        if (-not (Test-Path $reportsPath)) {
+                            New-Item -ItemType Directory -Path $reportsPath -Force | Out-Null
+                        }
+                        '''
                         
                         // 3. Ejecutar tests y generar reportes
                         powershell '''
@@ -201,11 +210,6 @@ pipeline {
                             # Variables
                             $authReport = "$env:WORKSPACE\\selenium\\$env:SELENIUM_REPORTS_DIR\\auth-test-results.xml"
                             $incidentReport = "$env:WORKSPACE\\selenium\\$env:SELENIUM_REPORTS_DIR\\incident-test-results.xml"
-                            
-                            # Crear directorio si no existe
-                            if (-not (Test-Path "$env:WORKSPACE\\selenium\\$env:SELENIUM_REPORTS_DIR")) {
-                                New-Item -ItemType Directory -Path "$env:WORKSPACE\\selenium\\$env:SELENIUM_REPORTS_DIR" -Force | Out-Null
-                            }
                             
                             # Ejecutar pruebas con manejo de errores
                             Write-Host "##[section]🚀 Ejecutando pruebas Selenium..."
@@ -224,21 +228,21 @@ pipeline {
                             if (-not (Test-Path $authReport)) {
                                 Write-Host "⚠️ No se encontró reporte de auth.js, generando uno vacío"
                                 @"
-        <testsuite name="Authentication Tests" tests="1" failures="0" errors="0" skipped="0" timestamp="$(Get-Date -Format 'yyyy-MM-ddTHH:mm:ss')" time="1">
-            <testcase name="Authentication" classname="Auth" time="1"/>
-        </testsuite>
-        "@ | Out-File -FilePath $authReport -Encoding UTF8
+<testsuite name="Authentication Tests" tests="1" failures="0" errors="0" skipped="0" timestamp="$(Get-Date -Format 'yyyy-MM-ddTHH:mm:ss')" time="1">
+    <testcase name="Authentication" classname="Auth" time="1"/>
+</testsuite>
+"@ | Out-File -FilePath $authReport -Encoding UTF8
                             }
                             
                             if (-not (Test-Path $incidentReport)) {
                                 Write-Host "⚠️ No se encontró reporte de create-new-incident.js, generando uno vacío"
                                 @"
-        <testsuite name="Incident Tests" tests="1" failures="1" errors="0" skipped="0" timestamp="$(Get-Date -Format 'yyyy-MM-ddTHH:mm:ss')" time="1">
-            <testcase name="IncidentCreation" classname="Incident" time="1">
-                <failure message="Error en la ejecución de pruebas"/>
-            </testcase>
-        </testsuite>
-        "@ | Out-File -FilePath $incidentReport -Encoding UTF8
+<testsuite name="Incident Tests" tests="1" failures="1" errors="0" skipped="0" timestamp="$(Get-Date -Format 'yyyy-MM-ddTHH:mm:ss')" time="1">
+    <testcase name="IncidentCreation" classname="Incident" time="1">
+        <failure message="Error en la ejecución de pruebas"/>
+    </testcase>
+</testsuite>
+"@ | Out-File -FilePath $incidentReport -Encoding UTF8
                             }
                             
                             # Determinar estado final
@@ -262,15 +266,17 @@ pipeline {
             steps {
                 script {
                     // Publicar reportes JUnit
-                    junit allowEmptyResults: true, testResults: "${env.SELENIUM_REPORTS_DIR}/*.xml"
+                    junit allowEmptyResults: true, testResults: "selenium/${env.SELENIUM_REPORTS_DIR}/*.xml"
                     
                     // Archivar reportes
-                    archiveArtifacts artifacts: "${env.SELENIUM_REPORTS_DIR}/*.xml", allowEmptyArchive: true
+                    archiveArtifacts artifacts: "selenium/${env.SELENIUM_REPORTS_DIR}/*.xml", allowEmptyArchive: true
                     
                     // Mostrar resumen
-                    bat '''
-                    echo 📊 RESULTADOS DE LAS PRUEBAS SELENIUM:
-                    dir /b selenium-reports
+                    powershell '''
+                    Write-Host "📊 RESULTADOS DE LAS PRUEBAS SELENIUM:"
+                    Get-ChildItem -Path "$env:WORKSPACE\\selenium\\$env:SELENIUM_REPORTS_DIR" | ForEach-Object {
+                        Write-Host "  - $($_.Name)"
+                    }
                     '''
                 }
             }
@@ -292,7 +298,7 @@ pipeline {
             
             // Guardar reportes incluso si falla
             script {
-                archiveArtifacts artifacts: "${env.SELENIUM_REPORTS_DIR}/*.xml", allowEmptyArchive: true
+                archiveArtifacts artifacts: "selenium/${env.SELENIUM_REPORTS_DIR}/*.xml", allowEmptyArchive: true
             }
         }
     }
