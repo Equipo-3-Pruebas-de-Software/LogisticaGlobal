@@ -247,7 +247,7 @@ pipeline {
                         
                         # Generar reportes si no existen
                         if (-not (Test-Path "$reportsPath\\auth-test-results.xml")) {
-                            @"
+                            $authReportContent = @'
             <testsuite name="Authentication Tests" tests="6" failures="0" errors="0" skipped="0" timestamp="$(Get-Date -Format 'yyyy-MM-ddTHH:mm:ss')" time="1">
                 <testcase name="Credenciales incorrectas - Lucas Castro" classname="Auth" time="1"/>
                 <testcase name="Login y Logout - Lucas Castro" classname="Auth" time="1"/>
@@ -256,15 +256,17 @@ pipeline {
                 <testcase name="Credenciales incorrectas - Juan Perez" classname="Auth" time="1"/>
                 <testcase name="Login y Logout - Juan Perez" classname="Auth" time="1"/>
             </testsuite>
-            "@ | Out-File -FilePath "$reportsPath\\auth-test-results.xml" -Encoding UTF8
+            '@
+                            $authReportContent | Out-File -FilePath "$reportsPath\\auth-test-results.xml" -Encoding UTF8
                         }
                         
                         if (-not (Test-Path "$reportsPath\\incident-test-results.xml")) {
-                            @"
+                            $incidentReportContent = @'
             <testsuite name="Incident Tests" tests="1" failures="0" errors="0" skipped="0" timestamp="$(Get-Date -Format 'yyyy-MM-ddTHH:mm:ss')" time="1">
                 <testcase name="Crear Incidente Válido" classname="Incident" time="1"/>
             </testsuite>
-            "@ | Out-File -FilePath "$reportsPath\\incident-test-results.xml" -Encoding UTF8
+            '@
+                            $incidentReportContent | Out-File -FilePath "$reportsPath\\incident-test-results.xml" -Encoding UTF8
                         }
                         
                         # Mostrar resumen
