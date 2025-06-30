@@ -2,18 +2,6 @@ const { Builder, By, until } = require('selenium-webdriver');
 const chrome = require('selenium-webdriver/chrome');
 const reportBuilder = require('junit-report-builder');
 
-const BASE_URL = "http://192.168.56.1:5173";
-
-// --- Configuración del driver ---
-const driverConfig = {
-  browser: 'chrome',
-  options: new chrome.Options()
-    .addArguments('--no-sandbox')
-    .addArguments('--disable-dev-shm-usage')
-    .addArguments('--window-size=1920,1080')
-    .headless() // Para CI
-};
-
 // --- Usuarios ---
 const usuarios = [
   {
@@ -39,19 +27,12 @@ const usuarios = [
   }
 ];
 
-// --- Funciones auxiliares mejoradas ---
-async function takeScreenshot(driver, fileName) {
-  try {
-    const screenshot = await driver.takeScreenshot();
-    require('fs').writeFileSync(fileName, screenshot, 'base64');
-    console.log(`📸 Captura guardada: ${fileName}`);
-  } catch (error) {
-    console.error('Error al tomar captura:', error);
-  }
-}
+const BASE_URL = "http://localhost:5173";
 
+// --- Función login mejorada ---
 async function login(driver, rut, clave) {
   try {
+    console.log(`🔑 Intentando login para RUT: ${rut}`);
     await driver.get(BASE_URL);
     await driver.wait(until.elementLocated(By.id('rut')), 15000);
     await driver.findElement(By.id('rut')).clear();
@@ -59,145 +40,206 @@ async function login(driver, rut, clave) {
     await driver.findElement(By.id('password')).clear();
     await driver.findElement(By.id('password')).sendKeys(clave);
     await driver.findElement(By.css('button[type="submit"]')).click();
+    console.log('✅ Credenciales ingresadas, enviando formulario...');
   } catch (error) {
-    console.error('Error durante login:', error);
-    await takeScreenshot(driver, `error-login-${Date.now()}.png`);
+    console.error('❌ Error en función login:', error);
     throw error;
   }
 }
 
-async function logout(driver) {
+// --- Función cerrarSesion mejorada ---
+async function cerrarSesion(driver) {
   try {
-    console.log('Intentando cerrar sesión...');
+    console.log('🔒 Intentando cerrar sesión...');
+    
     const cerrarBtn = await driver.wait(
-      until.elementLocated(By.xpath("//*[contains(.,'Cerrar sesión')]")),
+      until.elementLocated(By.xpath("//*[contains(text(), 'Cerrar sesión') or contains(@aria-label, 'Cerrar sesión')]")),
       10000
     );
+    
     await driver.executeScript("arguments[0].scrollIntoView(true);", cerrarBtn);
     await driver.executeScript("arguments[0].click();", cerrarBtn);
-    await driver.wait(until.urlIs(BASE_URL + '/'), 10000);
-    console.log('Sesión cerrada correctamente');
+    
+    await driver.wait(async () => {
+      const currentUrl = await driver.getCurrentUrl();
+      return currentUrl === BASE_URL + '/' || 
+             currentUrl === BASE_URL + '/login' ||
+             currentUrl === BASE_URL + '/auth';
+    }, 15000);
+    
+    console.log('✅ Sesión cerrada correctamente');
   } catch (error) {
-    console.error('Error al cerrar sesión:', error);
-    await takeScreenshot(driver, `error-logout-${Date.now()}.png`);
+    console.error('❌ Error al cerrar sesión:', error);
+    
+    try {
+      const screenshot = await driver.takeScreenshot();
+      const fileName = `error-logout-${Date.now()}.png`;
+      require('fs').writeFileSync(fileName, screenshot, 'base64');
+      console.log(`📸 Captura de pantalla guardada: ${fileName}`);
+    } catch (screenshotError) {
+      console.error('Error al tomar captura:', screenshotError);
+    }
+    
     throw error;
   }
 }
 
-// --- Test: credenciales incorrectas ---
+// --- Test: credenciales incorrectas mejorado ---
 async function testCredencialesIncorrectas(usuario) {
-  const testName = `Credenciales incorrectas - ${usuario.nombre}`;
-  const testCase = suite.testCase()
-    .className('Authentication')
-    .name(testName);
-  
   const driver = await new Builder()
-    .forBrowser(driverConfig.browser)
-    .setChromeOptions(driverConfig.options)
+    .forBrowser('chrome')
+    .setChromeOptions(new chrome.Options()
+      .addArguments('--no-sandbox')
+      .addArguments('--disable-dev-shm-usage')
+      .addArguments('--window-size=1920,1080')
+    )
     .build();
-
+    
   try {
-    console.log(`🚀 Iniciando prueba: ${testName}`);
+    console.log(`\n🔍 Iniciando prueba: Credenciales incorrectas para ${usuario.nombre}`);
     
     await login(driver, '11111112-1', 'clave123');
     
     const errorMsg = await driver.wait(
-      until.elementLocated(By.css('.error-message, [role="alert"], .alert-danger')),
+      until.elementLocated(By.xpath("//*[contains(text(),'Credenciales inválidas')]")),
       10000
     );
+    await driver.wait(until.elementIsVisible(errorMsg), 2000);
     
-    await driver.wait(until.elementTextContains(errorMsg, 'Credenciales inválidas'), 5000);
-    console.log(`✅ ${testName} pasó`);
-    return { passed: true };
+    const errorText = await errorMsg.getText();
+    console.log(`✅ [${usuario.nombre}] Mensaje de error encontrado: "${errorText}"`);
+    
+    return true;
   } catch (e) {
-    console.error(`❌ ${testName} falló: ${e.message}`);
-    testCase.failure(`Fallo en prueba: ${e.message}`);
-    await takeScreenshot(driver, `error-${testName.replace(/ /g, '-')}-${Date.now()}.png`);
-    return { passed: false, error: e };
-  } finally {
+    console.error(`❌ [${usuario.nombre}] test credenciales incorrectas falló:`, e.message);
+    
     try {
-      await driver.quit();
-    } catch (quitError) {
-      console.error('Error al cerrar driver:', quitError);
+      const screenshot = await driver.takeScreenshot();
+      const fileName = `error-credenciales-${usuario.nombre.replace(/\s+/g, '-')}-${Date.now()}.png`;
+      require('fs').writeFileSync(fileName, screenshot, 'base64');
+      console.log(`📸 Captura de pantalla guardada: ${fileName}`);
+    } catch (screenshotError) {
+      console.error('Error al tomar captura:', screenshotError);
     }
+    
+    throw e;
+  } finally {
+    await driver.quit();
   }
 }
 
-// --- Test: login + logout ---
+// --- Test: login + logout mejorado ---
 async function testLoginLogout(usuario) {
-  const testName = `Login y Logout - ${usuario.nombre}`;
-  const testCase = suite.testCase()
-    .className('Authentication')
-    .name(testName);
-  
   const driver = await new Builder()
-    .forBrowser(driverConfig.browser)
-    .setChromeOptions(driverConfig.options)
+    .forBrowser('chrome')
+    .setChromeOptions(new chrome.Options()
+      .addArguments('--no-sandbox')
+      .addArguments('--disable-dev-shm-usage')
+      .addArguments('--window-size=1920,1080')
+    )
     .build();
-
+    
   try {
-    console.log(`🚀 Iniciando prueba: ${testName}`);
+    console.log(`\n🔍 Iniciando prueba: Login y Logout para ${usuario.nombre}`);
     
     await login(driver, usuario.rut, usuario.clave);
 
-    // Verificar redirección
-    await driver.wait(until.urlContains(usuario.rutaHome), 15000);
+    // Esperar ruta específica
+    await driver.wait(until.urlContains(usuario.rutaHome), 10000);
+    console.log(`✅ Redirección correcta a: ${usuario.rutaHome}`);
 
-    // Verificar contenido de la página
-    const pageContent = await driver.wait(
-      until.elementLocated(By.xpath(`//*[contains(text(), "${usuario.textoHome}")]`)),
-      10000
-    );
-    await driver.wait(until.elementIsVisible(pageContent), 5000);
-
-    // Logout
-    await logout(driver);
-
-    console.log(`✅ ${testName} pasó`);
-    return { passed: true };
-  } catch (e) {
-    console.error(`❌ ${testName} falló: ${e.message}`);
-    testCase.failure(`Fallo en prueba: ${e.message}`);
-    await takeScreenshot(driver, `error-${testName.replace(/ /g, '-')}-${Date.now()}.png`);
-    return { passed: false, error: e };
-  } finally {
-    try {
-      await driver.quit();
-    } catch (quitError) {
-      console.error('Error al cerrar driver:', quitError);
+    // Esperar texto visible en home
+    let textoHome;
+    if (usuario.nombre === "Margarita Rodriguez") {
+      textoHome = await driver.wait(
+        until.elementLocated(By.xpath(`//h1[contains(@class, 'dashboard-welcome') and contains(., '${usuario.nombre}')]`)),
+        10000
+      );
+    } else {
+      textoHome = await driver.wait(
+        until.elementLocated(By.xpath(`//*[contains(text(),"${usuario.textoHome}")]`)),
+        10000
+      );
     }
+    await driver.wait(until.elementIsVisible(textoHome), 2000);
+    
+    const homeText = await textoHome.getText();
+    console.log(`✅ Texto en home encontrado: "${homeText}"`);
+
+    // Cerrar sesión
+    await cerrarSesion(driver);
+
+    // Confirmar redirección a login
+    await driver.wait(until.urlIs(BASE_URL + '/'), 5000);
+    console.log('✅ Redirección a login después de logout confirmada');
+
+    console.log(`✅ [${usuario.nombre}] login y logout completado con éxito`);
+    return true;
+  } catch (e) {
+    console.error(`❌ [${usuario.nombre}] test login/logout falló:`, e.message);
+    
+    try {
+      const screenshot = await driver.takeScreenshot();
+      const fileName = `error-login-${usuario.nombre.replace(/\s+/g, '-')}-${Date.now()}.png`;
+      require('fs').writeFileSync(fileName, screenshot, 'base64');
+      console.log(`📸 Captura de pantalla guardada: ${fileName}`);
+    } catch (screenshotError) {
+      console.error('Error al tomar captura:', screenshotError);
+    }
+    
+    throw e;
+  } finally {
+    await driver.quit();
   }
 }
 
-// --- Ejecución principal ---
+// --- Ejecución principal con reportes JUnit ---
 (async () => {
   const builder = reportBuilder.newBuilder();
   const suite = builder.testSuite().name('Authentication Tests');
   let passedTests = 0;
-  let totalTests = 0;
-
+  const totalTests = usuarios.length * 2; // Cada usuario tiene 2 tests
+  
   try {
     console.log('======================================');
-    console.log('🚀 INICIANDO PRUEBAS DE AUTENTICACIÓN');
+    console.log('🔐 INICIANDO PRUEBAS DE AUTENTICACIÓN');
     console.log(`🌐 URL Base: ${BASE_URL}`);
     console.log('======================================');
     
-    // Ejecutar pruebas para cada usuario
     for (const usuario of usuarios) {
-      // Test credenciales incorrectas
-      totalTests++;
-      const result1 = await testCredencialesIncorrectas(usuario);
-      if (result1.passed) passedTests++;
+      const testNameCredenciales = `Credenciales incorrectas - ${usuario.nombre}`;
+      const testNameLogin = `Login y Logout - ${usuario.nombre}`;
       
-      // Test login/logout
-      totalTests++;
-      const result2 = await testLoginLogout(usuario);
-      if (result2.passed) passedTests++;
+      const testCaseCredenciales = suite.testCase()
+        .className('Auth')
+        .name(testNameCredenciales);
+      
+      const testCaseLogin = suite.testCase()
+        .className('Auth')
+        .name(testNameLogin);
+      
+      try {
+        // Ejecutar test de credenciales incorrectas
+        await testCredencialesIncorrectas(usuario);
+        passedTests++;
+        console.log(`✅ ${testNameCredenciales} pasó`);
+      } catch (e) {
+        console.error(`❌ ${testNameCredenciales} falló: ${e.message}`);
+        testCaseCredenciales.failure(`Fallo en prueba: ${testNameCredenciales} - ${e.message}`);
+      }
+      
+      try {
+        // Ejecutar test de login/logout
+        await testLoginLogout(usuario);
+        passedTests++;
+        console.log(`✅ ${testNameLogin} pasó`);
+      } catch (e) {
+        console.error(`❌ ${testNameLogin} falló: ${e.message}`);
+        testCaseLogin.failure(`Fallo en prueba: ${testNameLogin} - ${e.message}`);
+      }
     }
     
-    // Generar reporte
     builder.writeTo('auth-test-results.xml');
-    
     console.log('\n📊 REPORTE DE PRUEBAS:');
     console.log(`✅ Pruebas exitosas: ${passedTests}/${totalTests}`);
     console.log(`❌ Pruebas fallidas: ${totalTests - passedTests}/${totalTests}`);
@@ -206,12 +248,12 @@ async function testLoginLogout(usuario) {
       console.error('❌ ALERTA: Algunas pruebas fallaron');
       process.exit(1);
     } else {
-      console.log('✅ TODAS LAS PRUEBAS COMPLETADAS EXITOSAMENTE');
+      console.log('✅ TODAS LAS PRUEBAS DE AUTENTICACIÓN COMPLETADAS EXITOSAMENTE');
       process.exit(0);
     }
   } catch (globalError) {
-    console.error('❌ ERROR GLOBAL:', globalError);
-    builder.writeTo('auth-test-results.xml');
+    console.error('❌ ERROR GLOBAL EN EJECUCIÓN:', globalError);
+    if (builder) builder.writeTo('auth-test-results.xml');
     process.exit(1);
   }
 })();

@@ -192,104 +192,53 @@ pipeline {
         stage('Run Selenium Tests') {
             steps {
                 dir('selenium') {
-                    script {
-                        // 1. Instalar dependencias de Selenium
-                        bat 'npm install selenium-webdriver junit-report-builder || exit 0'
-                        
-                        // 2. Asegurar que el directorio de reportes existe
-                        powershell '''
-                        $reportsPath = "$env:WORKSPACE\\selenium\\$env:SELENIUM_REPORTS_DIR"
-                        if (-not (Test-Path $reportsPath)) {
-                            New-Item -ItemType Directory -Path $reportsPath -Force | Out-Null
-                        }
-                        '''
-                        
-                        // 3. Ejecutar tests y generar reportes
-                        powershell '''
-                        try {
-                            # Variables
-                            $authReport = "$env:WORKSPACE\\selenium\\$env:SELENIUM_REPORTS_DIR\\auth-test-results.xml"
-                            $incidentReport = "$env:WORKSPACE\\selenium\\$env:SELENIUM_REPORTS_DIR\\incident-test-results.xml"
-                            $combinedReport = "$env:WORKSPACE\\selenium\\$env:SELENIUM_REPORTS_DIR\\combined-test-results.xml"
-                            
-                            # Inicializar códigos de salida
-                            $authExitCode = 0
-                            $incidentExitCode = 0
-                            
-                            # Ejecutar pruebas
-                            Write-Host "##[section]🚀 Ejecutando pruebas Selenium..."
-                            
-                            try {
-                                Write-Host "##[group]🔍 Ejecutando auth.js"
-                                node auth.js
-                                $authExitCode = $LASTEXITCODE
-                            } catch {
-                                $authExitCode = 1
-                                Write-Host "##[error]Error en auth.js: $_"
-                            }
-                            Write-Host "##[endgroup]"
-                            
-                            try {
-                                Write-Host "##[group]📝 Ejecutando create-new-incident.js"
-                                node create-new-incident.js
-                                $incidentExitCode = $LASTEXITCODE
-                            } catch {
-                                $incidentExitCode = 1
-                                Write-Host "##[error]Error en create-new-incident.js: $_"
-                            }
-                            Write-Host "##[endgroup]"
-                            
-                            # Verificar reportes generados
-                            $authReportExists = Test-Path "test-results.xml" -PathType Leaf
-                            $incidentReportExists = Test-Path "selenium/test-results.xml" -PathType Leaf
-                            
-                            # Mover reportes al directorio de reportes
-                            if ($authReportExists) {
-                                Move-Item -Path "test-results.xml" -Destination $authReport -Force
-                            }
-                            
-                            if ($incidentReportExists) {
-                                Move-Item -Path "selenium/test-results.xml" -Destination $incidentReport -Force
-                            }
-                            
-                            # Generar reportes si no existen
-                            if (-not (Test-Path $authReport)) {
-                                Write-Host "⚠️ No se encontró reporte de auth.js, generando uno vacío"
-                                @"
-<testsuite name="Authentication Tests" tests="1" failures="0" errors="0" skipped="0" timestamp="$(Get-Date -Format 'yyyy-MM-ddTHH:mm:ss')" time="1">
-    <testcase name="Authentication" classname="Auth" time="1"/>
-</testsuite>
-"@ | Out-File -FilePath $authReport -Encoding UTF8
-                            }
-                            
-                            if (-not (Test-Path $incidentReport)) {
-                                Write-Host "⚠️ No se encontró reporte de create-new-incident.js, generando uno vacío"
-                                @"
-<testsuite name="Incident Tests" tests="4" failures="0" errors="0" skipped="0" timestamp="$(Get-Date -Format 'yyyy-MM-ddTHH:mm:ss')" time="1">
-    <testcase name="Crear Incidente Válido" classname="Incident" time="1"/>
-    <testcase name="Validación Falta Lugar" classname="Incident" time="1"/>
-    <testcase name="Validación Falta Descripción" classname="Incident" time="1"/>
-    <testcase name="Validación Sin Robots" classname="Incident" time="1"/>
-</testsuite>
-"@ | Out-File -FilePath $incidentReport -Encoding UTF8
-                            }
-                            
-                            # Combinar reportes
-                            Get-Content $authReport, $incidentReport | Set-Content $combinedReport
-                            
-                            # Determinar estado final basado en códigos de salida
-                            if ($authExitCode -ne 0 -or $incidentExitCode -ne 0) {
-                                throw "Algunas pruebas fallaron (auth: $authExitCode, incident: $incidentExitCode)"
-                            }
-                            
-                            Write-Host "##[section]✅ Todas las pruebas finalizadas"
-                            
-                        } catch {
-                            Write-Host "##[error]❌ Error en las pruebas: $_"
-                            exit 1
-                        }
-                        '''
+                script {
+                    bat 'npm install selenium-webdriver junit-report-builder chrome || exit 0'
+                    
+                    powershell '''
+                    try {
+                    $reportsPath = "$env:WORKSPACE\\selenium\\$env:SELENIUM_REPORTS_DIR"
+                    if (-not (Test-Path $reportsPath)) {
+                        New-Item -ItemType Directory -Path $reportsPath -Force | Out-Null
                     }
+                    
+                    Write-Host "======================================"
+                    Write-Host "🚀 INICIANDO EJECUCIÓN DE PRUEBAS SELENIUM"
+                    Write-Host "======================================"
+                    
+                    # Ejecutar pruebas de autenticación
+                    Write-Host "##[group]🔐 EJECUTANDO PRUEBAS DE AUTENTICACIÓN"
+                    node auth.js
+                    $authExitCode = $LASTEXITCODE
+                    Write-Host "##[endgroup]"
+                    
+                    # Ejecutar pruebas de incidentes
+                    Write-Host "##[group]📝 EJECUTANDO PRUEBAS DE INCIDENTES"
+                    node create-new-incident.js
+                    $incidentExitCode = $LASTEXITCODE
+                    Write-Host "##[endgroup]"
+                    
+                    # Mover reportes
+                    if (Test-Path "auth-test-results.xml") {
+                        Move-Item -Path "auth-test-results.xml" -Destination "$reportsPath\\auth-test-results.xml" -Force
+                    }
+                    if (Test-Path "incident-test-results.xml") {
+                        Move-Item -Path "incident-test-results.xml" -Destination "$reportsPath\\incident-test-results.xml" -Force
+                    }
+                    
+                    # Resultado final
+                    if ($authExitCode -ne 0 -or $incidentExitCode -ne 0) {
+                        throw "Algunas pruebas fallaron (auth: $authExitCode, incident: $incidentExitCode)"
+                    }
+                    
+                    Write-Host "✅ TODAS LAS PRUEBAS COMPLETADAS EXITOSAMENTE"
+                    
+                    } catch {
+                    Write-Host "##[error]❌ ERROR EN LAS PRUEBAS: $_"
+                    exit 1
+                    }
+                    '''
+                }
                 }
             }
         }
