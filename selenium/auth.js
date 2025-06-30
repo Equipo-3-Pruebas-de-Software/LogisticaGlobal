@@ -85,7 +85,7 @@ async function testCredencialesIncorrectas(usuario) {
     return { success: false, error: e.message };
   } finally {
     await driver.quit();
-    console.log(formatStep("Navegador cerrado")));
+    console.log(formatStep("Navegador cerrado"));
   }
 }
 
@@ -120,7 +120,7 @@ async function testLoginLogout(usuario) {
         TIMEOUT
       );
     }
-    await driver.wait(until.elementIsVisible(textoHome)), 2000);
+    await driver.wait(until.elementIsVisible(textoHome), 2000);
     console.log(formatSuccess("Contenido de la página verificado"));
     
     // Paso 4: Logout
@@ -133,17 +133,17 @@ async function testLoginLogout(usuario) {
     
     // Paso 5: Verificar logout
     console.log(formatStep("Verificando redirección post-logout..."));
-    await driver.wait(until.urlIs(BASE_URL + '/')), TIMEOUT);
+    await driver.wait(until.urlIs(BASE_URL + '/'), TIMEOUT);
     const loginText = await driver.wait(
       until.elementLocated(By.xpath("//*[contains(text(),'Iniciar Sesión')]")),
       TIMEOUT
     );
-    await driver.wait(until.elementIsVisible(loginText)), 2000);
+    await driver.wait(until.elementIsVisible(loginText), 2000);
     
-    console.log(formatSuccess(`${testName} COMPLETADO EXITOSAMENTE`)));
+    console.log(formatSuccess(`${testName} COMPLETADO EXITOSAMENTE`));
     return { success: true };
   } catch (e) {
-    console.log(formatFailure(`Fallo en ${testName}: ${e.message}`)));
+    console.log(formatFailure(`Fallo en ${testName}: ${e.message}`));
     console.log(formatStep(`Última URL: ${await driver.getCurrentUrl()}`));
     return { success: false, error: e.message };
   } finally {
