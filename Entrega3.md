@@ -20,6 +20,13 @@ Ya definidas las pruebas y validadas de manera local, fueron integradas al pipel
 *  Modificación en la configuración de etornos en nuestra máquina virtual AWS.
 *  Integración de notificaciones en Slack, incluyendo los resultados obtenidos por Selenium.
 
+### Nuevos avances en la aplicación
+También se implementaron las siguientes mejoras en la aplicación:
+* Mejora de _bugs_ visuales
+* Mejora de Dashboard Administrador (Reportes)
+* Mejora de Dashboard Supervisor (Reportes)
+* Refactor de código (borrar principalmente los console.log())
+
 ## Proyecto, paso a paso.
 ### Pasos previos: Conformación del Equipo y elección del Tema
 El inicio del proyecto comenzó con la integración del equipo: se formó a partir de dos parejas que ya habían trabajado juntas previamente en la Tarea 1. Cuando se publicaron los grupos, lo primero que se hizo fue establecer comunicación entre ambas parejas a través de Slack, lo que permitió una coordinación rápida y organizada desde el principio.
