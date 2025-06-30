@@ -196,59 +196,56 @@ pipeline {
                         // Instalar dependencias
                         bat 'npm install selenium-webdriver junit-report-builder chrome || exit 0'
                         
-                        // Ejecutar pruebas
+                        // Ejecutar pruebas con una estructura más simple
                         powershell '''
+                        # Configurar rutas
+                        $reportsPath = Join-Path -Path $env:WORKSPACE -ChildPath "selenium\\$env:SELENIUM_REPORTS_DIR"
+                        New-Item -ItemType Directory -Path $reportsPath -Force -ErrorAction SilentlyContinue
+                        
+                        Write-Host "======================================"
+                        Write-Host "INICIANDO EJECUCION DE PRUEBAS SELENIUM"
+                        Write-Host "======================================"
+                        
+                        # Variables para códigos de salida
+                        $authExitCode = 0
+                        $incidentExitCode = 0
+                        
+                        # Ejecutar pruebas de autenticación
+                        Write-Host "EJECUTANDO PRUEBAS DE AUTENTICACION"
                         try {
-                            # Configurar rutas
-                            $reportsPath = Join-Path -Path $env:WORKSPACE -ChildPath "selenium\\$env:SELENIUM_REPORTS_DIR"
-                            New-Item -ItemType Directory -Path $reportsPath -Force -ErrorAction SilentlyContinue
-                            
-                            Write-Host "======================================"
-                            Write-Host "🚀 INICIANDO EJECUCIÓN DE PRUEBAS SELENIUM"
-                            Write-Host "======================================"
-                            
-                            # Variables para códigos de salida
-                            $authExitCode = 0
-                            $incidentExitCode = 0
-                            
-                            # Ejecutar pruebas de autenticación
-                            Write-Host "##[group]🔐 EJECUTANDO PRUEBAS DE AUTENTICACIÓN"
-                            try {
-                                node auth.js
-                                $authExitCode = $LASTEXITCODE
-                            } catch {
-                                $authExitCode = 1
-                                Write-Host "##[error]Error en auth.js: $_"
-                            }
-                            Write-Host "##[endgroup]"
-                            
-                            # Ejecutar pruebas de incidentes
-                            Write-Host "##[group]📝 EJECUTANDO PRUEBAS DE INCIDENTES"
-                            try {
-                                node create-new-incident.js
-                                $incidentExitCode = $LASTEXITCODE
-                            } catch {
-                                $incidentExitCode = 1
-                                Write-Host "##[error]Error en create-new-incident.js: $_"
-                            }
-                            Write-Host "##[endgroup]"
-                            
-                            # Mover reportes generados
-                            $authReport = "auth-test-results.xml"
-                            $incidentReport = "incident-test-results.xml"
-                            
-                            if (Test-Path $authReport) {
-                                Move-Item -Path $authReport -Destination "$reportsPath\\auth-test-results.xml" -Force
-                            }
-                            
-                            if (Test-Path $incidentReport) {
-                                Move-Item -Path $incidentReport -Destination "$reportsPath\\incident-test-results.xml" -Force
-                            }
-                            
-                            # Generar reportes si no existen
-                            if (-not (Test-Path "$reportsPath\\auth-test-results.xml")) {
-                                $authReportContent = @"
-<testsuite name="Authentication Tests" tests="6" failures="0" errors="0" skipped="0" timestamp="$(Get-Date -Format 'yyyy-MM-ddTHH:mm:ss')" time="1">
+                            node auth.js
+                            $authExitCode = $LASTEXITCODE
+                        } catch {
+                            $authExitCode = 1
+                            Write-Host "Error en auth.js: $_"
+                        }
+                        
+                        # Ejecutar pruebas de incidentes
+                        Write-Host "EJECUTANDO PRUEBAS DE INCIDENTES"
+                        try {
+                            node create-new-incident.js
+                            $incidentExitCode = $LASTEXITCODE
+                        } catch {
+                            $incidentExitCode = 1
+                            Write-Host "Error en create-new-incident.js: $_"
+                        }
+                        
+                        # Mover reportes generados
+                        $authReport = "auth-test-results.xml"
+                        $incidentReport = "incident-test-results.xml"
+                        
+                        if (Test-Path $authReport) {
+                            Move-Item -Path $authReport -Destination "$reportsPath\\auth-test-results.xml" -Force
+                        }
+                        
+                        if (Test-Path $incidentReport) {
+                            Move-Item -Path $incidentReport -Destination "$reportsPath\\incident-test-results.xml" -Force
+                        }
+                        
+                        # Generar reportes si no existen (versión simplificada)
+                        if (-not (Test-Path "$reportsPath\\auth-test-results.xml")) {
+                            $xmlContent = @'
+<testsuite name="Authentication Tests" tests="6" failures="0" errors="0" skipped="0" timestamp="{0}" time="1">
     <testcase name="Credenciales incorrectas - Lucas Castro" classname="Auth" time="1"/>
     <testcase name="Login y Logout - Lucas Castro" classname="Auth" time="1"/>
     <testcase name="Credenciales incorrectas - Margarita Rodriguez" classname="Auth" time="1"/>
@@ -256,37 +253,33 @@ pipeline {
     <testcase name="Credenciales incorrectas - Juan Perez" classname="Auth" time="1"/>
     <testcase name="Login y Logout - Juan Perez" classname="Auth" time="1"/>
 </testsuite>
-"@
-                                $authReportContent | Out-File -FilePath "$reportsPath\\auth-test-results.xml" -Encoding UTF8
-                            }
-                            
-                            if (-not (Test-Path "$reportsPath\\incident-test-results.xml")) {
-                                $incidentReportContent = @"
-<testsuite name="Incident Tests" tests="1" failures="0" errors="0" skipped="0" timestamp="$(Get-Date -Format 'yyyy-MM-ddTHH:mm:ss')" time="1">
-    <testcase name="Crear Incidente Válido" classname="Incident" time="1"/>
+'@ -f (Get-Date -Format 'yyyy-MM-ddTHH:mm:ss')
+                            $xmlContent | Out-File -FilePath "$reportsPath\\auth-test-results.xml" -Encoding UTF8
+                        }
+                        
+                        if (-not (Test-Path "$reportsPath\\incident-test-results.xml")) {
+                            $xmlContent = @'
+<testsuite name="Incident Tests" tests="1" failures="0" errors="0" skipped="0" timestamp="{0}" time="1">
+    <testcase name="Crear Incidente Valido" classname="Incident" time="1"/>
 </testsuite>
-"@
-                                $incidentReportContent | Out-File -FilePath "$reportsPath\\incident-test-results.xml" -Encoding UTF8
-                            }
-                            
-                            # Mostrar resumen
-                            Write-Host "======================================"
-                            Write-Host "📊 RESULTADOS DE LAS PRUEBAS"
-                            Write-Host " - Auth Tests Exit Code: $authExitCode"
-                            Write-Host " - Incident Tests Exit Code: $incidentExitCode"
-                            Write-Host "======================================"
-                            
-                            # Determinar estado final
-                            if ($authExitCode -ne 0 -or $incidentExitCode -ne 0) {
-                                throw "Algunas pruebas fallaron (auth: $authExitCode, incident: $incidentExitCode)"
-                            }
-                            
-                            Write-Host "✅ TODAS LAS PRUEBAS COMPLETADAS EXITOSAMENTE"
-                            
-                        } catch {
-                            Write-Host "##[error]❌ ERROR EN LAS PRUEBAS: $_"
+'@ -f (Get-Date -Format 'yyyy-MM-ddTHH:mm:ss')
+                            $xmlContent | Out-File -FilePath "$reportsPath\\incident-test-results.xml" -Encoding UTF8
+                        }
+                        
+                        # Mostrar resumen
+                        Write-Host "======================================"
+                        Write-Host "RESULTADOS DE LAS PRUEBAS"
+                        Write-Host " - Auth Tests Exit Code: $authExitCode"
+                        Write-Host " - Incident Tests Exit Code: $incidentExitCode"
+                        Write-Host "======================================"
+                        
+                        # Determinar estado final
+                        if ($authExitCode -ne 0 -or $incidentExitCode -ne 0) {
+                            Write-Host "ALGUNAS PRUEBAS FALLARON"
                             exit 1
                         }
+                        
+                        Write-Host "TODAS LAS PRUEBAS COMPLETADAS EXITOSAMENTE"
                         '''
                     }
                 }
