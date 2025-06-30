@@ -13,7 +13,7 @@ pipeline {
         DOCKERHUB_CREDENTIALS_ID = 'dockerhub-creds'
         
         // Configuración específica para Selenium
-        CHROME_DRIVER_VERSION = '138.0.7204.50'  // Versión compatible con Chrome 138
+        CHROME_DRIVER_VERSION = '138.0.7204.50'
         CHROME_DRIVER_URL = "https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/${env.CHROME_DRIVER_VERSION}/win64/chromedriver-win64.zip"
     }
 
@@ -82,7 +82,7 @@ pipeline {
         stage('Wait for Servers') {
             steps {
                 echo 'Waiting for servers to start...'
-                sleep 15  // Tiempo aumentado para asegurar inicio
+                sleep 15
             }
         }
 
@@ -92,43 +92,36 @@ pipeline {
             }
         }
 
-        // ===== STAGE MEJORADO PARA SELENIUM =====
         stage('Setup Selenium Environment') {
             steps {
                 script {
-                    // Instalar Node.js y verificar versión
                     bat 'npm install -g npm@latest'
                     
-                    // Configuración con PowerShell (más robusto que CMD)
-                    powershell """
-                    # Descargar ChromeDriver
-                    Write-Host "🔵 Descargando ChromeDriver v${env.CHROME_DRIVER_VERSION}..."
+                    // Script PowerShell con caracteres especiales escapados
+                    powershell '''
+                    Write-Host "🔵 Descargando ChromeDriver v$env:CHROME_DRIVER_VERSION..."
                     $ProgressPreference = 'SilentlyContinue'
-                    Invoke-WebRequest -Uri "${env.CHROME_DRIVER_URL}" -OutFile "chromedriver.zip"
+                    Invoke-WebRequest -Uri "$env:CHROME_DRIVER_URL" -OutFile "chromedriver.zip"
                     
                     if (-not (Test-Path "chromedriver.zip")) {
                         throw "❌ Falló la descarga de ChromeDriver"
                     }
                     
-                    # Descomprimir
                     Write-Host "🔵 Descomprimiendo..."
                     Expand-Archive -Path "chromedriver.zip" -DestinationPath "." -Force
                     
-                    # Mover ejecutable
                     Move-Item -Path "chromedriver-win64/chromedriver.exe" -Destination "chromedriver.exe" -Force
                     
-                    # Limpieza
                     Remove-Item "chromedriver.zip" -Force
                     Remove-Item "chromedriver-win64" -Recurse -Force -ErrorAction SilentlyContinue
                     
-                    # Verificar instalación
                     if (Test-Path "chromedriver.exe") {
                         Write-Host "✅ ChromeDriver instalado correctamente"
                         .\\chromedriver.exe --version
                     } else {
                         throw "❌ ChromeDriver no se instaló correctamente"
                     }
-                    """
+                    '''
                 }
             }
         }
@@ -137,8 +130,7 @@ pipeline {
             steps {
                 dir('selenium') {
                     script {
-                        // Instalar dependencias y ejecutar tests con manejo de errores
-                        powershell """
+                        powershell '''
                         try {
                             npm install
                             if (-not $?) { throw "❌ Falló npm install" }
@@ -156,7 +148,7 @@ pipeline {
                             Write-Host $_.Exception.Message
                             exit 1
                         }
-                        """
+                        '''
                     }
                 }
             }
