@@ -117,3 +117,13 @@ La solución para mitigar este problema se basó en la planificación anticipada
 El uso de una biblioteca de componentes facilitó el desarrollo visual de la aplicación, ya que permitía reutilizar elementos con una sola línea de código. Sin embargo, esto dificultó la escritura de pruebas automatizadas con Selenium, ya que no se tiene acceso directo al HTML subyacente del componente, lo que impide identificar fácilmente los elementos del DOM necesarios para las pruebas.
 
 La solución consistió en utilizar la consola del desarrollador del navegador para inspeccionar manualmente el HTML generado por cada componente. De esta forma, el equipo pudo identificar los selectores adecuados y escribir las pruebas correspondientes en Selenium, aunque el proceso fue más lento y detallado. Cabe destacar que esta dificultad no se presentó al usar Cypress, donde las pruebas resultaron más fluidas. Una posible explicación es que Cypress presenta una integración más amigable con aplicaciones desarrolladas en React, lo que facilita la detección y manipulación de los elementos en tiempo de ejecución.
+
+### 3. Fallas en pruebas por carga asíncrona de elementos HTML
+Durante la escritura de pruebas automatizadas, algunas fallaban incluso cuando el sistema funcionaba correctamente. Esto se debía a que los elementos HTML aún no estaban disponibles en el DOM al momento en que Selenium intentaba interactuar con ellos, lo que resultaba en falsos negativos.
+
+Para solucionar este problema, se agregaron tiempos de espera (wait) antes de buscar los elementos, permitiendo que el DOM terminara de cargarse antes de ejecutar la interacción. Con este ajuste, las pruebas pudieron ejecutarse de forma más confiable y reflejar correctamente el estado funcional del sistema.
+
+### 4. Resultados incompletos en el log de Jenkins durante las pruebas
+Al ejecutar las pruebas automatizadas mediante la pipeline de Jenkins, se detectó que los _logs_ no mostraban los resultados de los tests de forma completa, lo que dificultaba identificar con precisión qué pruebas habían fallado y por qué.
+
+La solución fue agregar _prints_ personalizados dentro de los scripts de prueba, lo que permitió revisar los resultados test por test directamente en el log. Esta estrategia facilitó la identificación de errores específicos y permitió depurar con mayor claridad, compensando así la falta de información detallada en el informe de Jenkins.
