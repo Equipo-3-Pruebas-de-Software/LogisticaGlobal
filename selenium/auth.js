@@ -1,10 +1,8 @@
 const { Builder, By, until } = require('selenium-webdriver');
-const junit = require('junit-report-builder');
+const reportBuilder = require('junit-report-builder');
 
-// --- Configuración ---
-const BASE_URL = "http://192.168.56.1:5173";
-const TIMEOUT = 10000; // 10 segundos para timeouts
-const JUNIT_REPORT_PATH = 'selenium/auth-test-results.xml'; // Ruta del reporte JUnit
+// --- Configuración dinámica de URL ---
+const BASE_URL = process.env.FRONTEND_URL || "http://localhost:5173";
 
 // --- Usuarios ---
 const usuarios = [
@@ -31,27 +29,16 @@ const usuarios = [
   }
 ];
 
-// --- Helpers ---
-function formatTestHeader(testName, user) {
-  return `\n📌 TEST: ${testName} - Usuario: ${user.nombre} (${user.rut})`;
-}
-
-function formatSuccess(message) {
-  return `✅ ${message}`;
-}
-
-function formatFailure(error) {
-  return `❌ ${error}`;
-}
-
-function formatStep(step) {
-  return `  ↳ ${step}`;
-}
+// Contadores para reportes
+let totalTests = 0;
+let passedTests = 0;
+const builder = reportBuilder.newBuilder();
+const suite = builder.testSuite().name('Authentication Tests');
 
 // --- Función login ---
 async function login(driver, rut, clave) {
   await driver.get(BASE_URL);
-  await driver.wait(until.elementLocated(By.id('rut')), TIMEOUT);
+  await driver.wait(until.elementLocated(By.id('rut')), 10000);
   await driver.findElement(By.id('rut')).sendKeys(rut);
   await driver.findElement(By.id('password')).sendKeys(clave);
   await driver.findElement(By.css('button[type="submit"]')).click();
@@ -59,187 +46,135 @@ async function login(driver, rut, clave) {
 
 // --- Test: credenciales incorrectas ---
 async function testCredencialesIncorrectas(usuario) {
-  const testName = "Credenciales Incorrectas";
-  const startTime = new Date();
-  let success = false;
-  let errorMessage = '';
-  
-  console.log(formatTestHeader(testName, usuario));
+  totalTests++;
+  const testName = `Credenciales incorrectas - ${usuario.nombre}`;
+  const testCase = suite.testCase()
+    .className('Authentication')
+    .name(testName);
   
   const driver = await new Builder().forBrowser('chrome').build();
+  
   try {
-    console.log(formatStep("Iniciando navegador..."));
+    console.log(`🚀 Iniciando prueba: ${testName}`);
     
-    // Paso 1: Intentar login con credenciales incorrectas
-    console.log(formatStep(`Intentando login con RUT: 11111112-1`));
     await login(driver, '11111112-1', 'clave123');
     
-    // Paso 2: Verificar mensaje de error
-    console.log(formatStep("Buscando mensaje de error..."));
     const errorMsg = await driver.wait(
       until.elementLocated(By.xpath("//*[contains(text(),'Credenciales inválidas')]")),
-      TIMEOUT
+      7000
     );
-    await driver.wait(until.elementIsVisible(errorMsg), 2000);
     
-    console.log(formatSuccess("Mensaje de error mostrado correctamente"));
-    console.log(formatSuccess(`${testName} COMPLETADO EXITOSAMENTE`));
-    success = true;
+    await driver.wait(until.elementIsVisible(errorMsg), 3000);
+    console.log(`✅ [${usuario.nombre}] test de credenciales incorrectas pasó`);
+    passedTests++;
   } catch (e) {
-    errorMessage = e.message;
-    console.log(formatFailure(`Fallo en ${testName}: ${errorMessage}`));
-    console.log(formatStep(`Última URL: ${await driver.getCurrentUrl()}`));
+    console.error(`❌ [${usuario.nombre}] test credenciales incorrectas falló: ${e.message}`);
+    testCase.failure(`Fallo en prueba: ${testName} - ${e.message}`);
+    console.error('Stack trace:', e.stack);
   } finally {
-    await driver.quit();
-    console.log(formatStep("Navegador cerrado"));
+    try {
+      await driver.quit();
+    } catch (quitError) {
+      console.error('Error al cerrar driver:', quitError);
+    }
   }
-
-  return {
-    name: `${testName} - ${usuario.nombre}`,
-    success,
-    error: errorMessage,
-    duration: new Date() - startTime
-  };
 }
 
 // --- Test: login + logout ---
 async function testLoginLogout(usuario) {
-  const testName = "Login y Logout";
-  const startTime = new Date();
-  let success = false;
-  let errorMessage = '';
-  
-  console.log(formatTestHeader(testName, usuario));
+  totalTests++;
+  const testName = `Login y Logout - ${usuario.nombre}`;
+  const testCase = suite.testCase()
+    .className('Authentication')
+    .name(testName);
   
   const driver = await new Builder().forBrowser('chrome').build();
+  
   try {
-    console.log(formatStep("Iniciando navegador..."));
+    console.log(`🚀 Iniciando prueba: ${testName}`);
     
-    // Paso 1: Login
-    console.log(formatStep(`Login con RUT: ${usuario.rut}`));
     await login(driver, usuario.rut, usuario.clave);
-    
-    // Paso 2: Verificar redirección
-    console.log(formatStep(`Verificando redirección a ${usuario.rutaHome}...`));
-    await driver.wait(until.urlContains(usuario.rutaHome), TIMEOUT);
-    
-    // Paso 3: Verificar contenido de la página
-    console.log(formatStep(`Buscando texto: "${usuario.textoHome}"...`));
+
+    // Esperar ruta específica
+    await driver.wait(until.urlContains(usuario.rutaHome), 10000);
+
+    // Esperar texto visible en home
     let textoHome;
     if (usuario.nombre === "Margarita Rodriguez") {
       textoHome = await driver.wait(
         until.elementLocated(By.xpath(`//h1[contains(@class, 'dashboard-welcome') and contains(., '${usuario.nombre}')]`)),
-        TIMEOUT
+        10000
       );
     } else {
       textoHome = await driver.wait(
         until.elementLocated(By.xpath(`//*[contains(text(),"${usuario.textoHome}")]`)),
-        TIMEOUT
+        8000
       );
     }
-    await driver.wait(until.elementIsVisible(textoHome), 2000);
-    console.log(formatSuccess("Contenido de la página verificado"));
-    
-    // Paso 4: Logout
-    console.log(formatStep("Realizando logout..."));
+    await driver.wait(until.elementIsVisible(textoHome), 3000);
+
+    // Cerrar sesión
     const cerrarSesion = await driver.wait(
       until.elementLocated(By.xpath("//*[contains(.,'Cerrar sesión') and (self::a or ancestor::a)]")),
-      TIMEOUT
+      7000
     );
     await cerrarSesion.click();
-    
-    // Paso 5: Verificar logout
-    console.log(formatStep("Verificando redirección post-logout..."));
-    await driver.wait(until.urlIs(BASE_URL + '/'), TIMEOUT);
+
+    // Confirmar redirección a login
+    await driver.wait(until.urlIs(BASE_URL + '/'), 8000);
     const loginText = await driver.wait(
       until.elementLocated(By.xpath("//*[contains(text(),'Iniciar Sesión')]")),
-      TIMEOUT
+      7000
     );
-    await driver.wait(until.elementIsVisible(loginText), 2000);
-    
-    console.log(formatSuccess(`${testName} COMPLETADO EXITOSAMENTE`));
-    success = true;
-  } catch (e) {
-    errorMessage = e.message;
-    console.log(formatFailure(`Fallo en ${testName}: ${errorMessage}`));
-    console.log(formatStep(`Última URL: ${await driver.getCurrentUrl()}`));
-  } finally {
-    await driver.quit();
-    console.log(formatStep("Navegador cerrado"));
-  }
+    await driver.wait(until.elementIsVisible(loginText), 3000);
 
-  return {
-    name: `${testName} - ${usuario.nombre}`,
-    success,
-    error: errorMessage,
-    duration: new Date() - startTime
-  };
+    console.log(`✅ [${usuario.nombre}] login y logout pasó`);
+    passedTests++;
+  } catch (e) {
+    console.error(`❌ [${usuario.nombre}] test login/logout falló: ${e.message}`);
+    testCase.failure(`Fallo en prueba: ${testName} - ${e.message}`);
+    console.error('Stack trace:', e.stack);
+  } finally {
+    try {
+      await driver.quit();
+    } catch (quitError) {
+      console.error('Error al cerrar driver:', quitError);
+    }
+  }
 }
 
-// --- Ejecutar tests y generar reporte ---
+// --- Ejecutar todos los tests ---
 (async () => {
-  console.log('\n🚀 INICIANDO PRUEBAS DE AUTENTICACIÓN\n');
-  console.log(`🔗 URL Base: ${BASE_URL}`);
-  console.log(`🕒 Timeout configurado: ${TIMEOUT/1000} segundos`);
-  
-  // Crear suite de pruebas JUnit
-  const suite = junit.testSuite().name('Pruebas de Autenticación');
-
-  let testsTotales = 0;
-  let testsExitosos = 0;
-  const resultados = [];
-
-  for (const user of usuarios) {
-    // Test Credenciales Incorrectas
-    const resultadoIncorrectas = await testCredencialesIncorrectas(user);
-    const testCaseIncorrectas = suite.testCase()
-      .name(resultadoIncorrectas.name)
-      .time(resultadoIncorrectas.duration / 1000);
+  try {
+    console.log('======================================');
+    console.log('🚀 INICIANDO PRUEBAS DE AUTENTICACIÓN');
+    console.log(`🌐 URL Base: ${BASE_URL}`);
+    console.log('======================================');
     
-    if (!resultadoIncorrectas.success) {
-      testCaseIncorrectas.failure(resultadoIncorrectas.error);
+    // Ejecutar pruebas para cada usuario
+    for (const user of usuarios) {
+      await testCredencialesIncorrectas(user);
+      await testLoginLogout(user);
     }
     
-    resultados.push(resultadoIncorrectas);
-    testsTotales++;
-    if (resultadoIncorrectas.success) testsExitosos++;
+    // Generar reporte JUnit
+    builder.writeTo('auth-test-results.xml');
+    console.log('\n📊 REPORTE DE PRUEBAS:');
+    console.log(`✅ Pruebas exitosas: ${passedTests}/${totalTests}`);
+    console.log(`❌ Pruebas fallidas: ${totalTests - passedTests}/${totalTests}`);
+    console.log('📄 Reporte generado: auth-test-results.xml');
     
-    // Test Login/Logout
-    const resultadoLogin = await testLoginLogout(user);
-    const testCaseLogin = suite.testCase()
-      .name(resultadoLogin.name)
-      .time(resultadoLogin.duration / 1000);
-    
-    if (!resultadoLogin.success) {
-      testCaseLogin.failure(resultadoLogin.error);
+    // Finalizar con código de salida apropiado
+    if (passedTests < totalTests) {
+      console.error('❌ ALERTA: Algunas pruebas fallaron');
+      process.exit(1);
+    } else {
+      console.log('✅ TODAS LAS PRUEBAS COMPLETADAS EXITOSAMENTE');
+      process.exit(0);
     }
-    
-    resultados.push(resultadoLogin);
-    testsTotales++;
-    if (resultadoLogin.success) testsExitosos++;
+  } catch (globalError) {
+    console.error('❌ ERROR GLOBAL EN EJECUCIÓN:', globalError);
+    builder.writeTo('auth-test-results.xml');
+    process.exit(1);
   }
-
-  // Escribir reporte JUnit
-  junit.writeTo(JUNIT_REPORT_PATH);
-  console.log(`\n📝 Reporte JUnit generado en: ${JUNIT_REPORT_PATH}`);
-
-  // Resumen final
-  console.log('\n📊 RESUMEN FINAL:');
-  console.log(`🔹 Tests Totales: ${testsTotales}`);
-  console.log(`🔹 Tests Exitosos: ${testsExitosos}`);
-  console.log(`🔹 Tests Fallidos: ${testsTotales - testsExitosos}`);
-  console.log(`🔹 Porcentaje Éxito: ${Math.round((testsExitosos/testsTotales)*100)}%`);
-  
-  // Detalle de fallos
-  const testsFallidos = resultados.filter(r => !r.success);
-  if (testsFallidos.length > 0) {
-    console.log('\n🔴 TESTS FALLIDOS:');
-    testsFallidos.forEach((test, i) => {
-      console.log(`\n${i+1}. Test: ${test.name}`);
-      console.log(`   Error: ${test.error}`);
-    });
-  }
-  
-  // Salir con código apropiado para Jenkins
-  process.exit(testsFallidos.length > 0 ? 1 : 0);
 })();

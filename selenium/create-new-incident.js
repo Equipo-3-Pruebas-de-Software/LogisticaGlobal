@@ -1,353 +1,197 @@
-const { Builder, By, until, Key } = require('selenium-webdriver');
-const junit = require('junit-report-builder');
+const { Builder, By, until } = require('selenium-webdriver');
+const reportBuilder = require('junit-report-builder');
 
-// --- Configuración ---
-const BASE_URL = 'http://192.168.56.1:5173';
-const TIMEOUT = 10000; // 10 segundos para timeouts
-const USER = {
+// --- Configuración dinámica de URL ---
+const BASE_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
+
+// --- Configuración de usuario ---
+const USUARIO = {
   rut: '11111111-1',
   clave: 'clave123'
 };
-const JUNIT_REPORT_PATH = 'selenium/test-results.xml'; // Ruta donde se guardará el reporte
 
-// --- Helpers ---
-function formatTestHeader(testName) {
-  return `\n📌 TEST: ${testName}`;
-}
-
-function formatSuccess(message) {
-  return `✅ ${message}`;
-}
-
-function formatFailure(error) {
-  return `❌ ${error}`;
-}
-
-function formatStep(step) {
-  return `  ↳ ${step}`;
-}
-
-// --- Funciones de apoyo ---
-async function login(driver) {
-  console.log(formatStep(`Iniciando sesión con RUT: ${USER.rut}`));
+// --- Funciones auxiliares ---
+async function login(driver, rut, clave) {
   await driver.get(BASE_URL);
-  await driver.wait(until.elementLocated(By.id('rut')), TIMEOUT);
-  await driver.findElement(By.id('rut')).sendKeys(USER.rut);
-  await driver.findElement(By.id('password')).sendKeys(USER.clave);
+  await driver.wait(until.elementLocated(By.id('rut')), 10000);
+  await driver.findElement(By.id('rut')).sendKeys(rut);
+  await driver.findElement(By.id('password')).sendKeys(clave);
   await driver.findElement(By.css('button[type="submit"]')).click();
-  await driver.wait(until.urlContains('/jefe_turno'), TIMEOUT);
-  console.log(formatSuccess("Login exitoso"));
+  await driver.wait(until.urlContains('/jefe_turno'), 10000);
 }
 
 async function cerrarSesion(driver) {
-  console.log(formatStep("Cerrando sesión..."));
   const cerrarBtn = await driver.wait(
     until.elementLocated(By.xpath("//*[contains(.,'Cerrar sesión') and (self::a or ancestor::a)]")),
-    TIMEOUT
+    7000
   );
   await cerrarBtn.click();
-  await driver.wait(until.urlIs(BASE_URL + '/'), TIMEOUT);
-  console.log(formatSuccess("Logout exitoso"));
+  await driver.wait(until.urlIs(BASE_URL + '/'), 8000);
+  await driver.wait(until.elementLocated(By.id('rut')), 5000);
 }
 
 async function esperarMensaje(driver, texto) {
-  console.log(formatStep(`Buscando mensaje: "${texto}"`));
-  const msg = await driver.wait(until.elementLocated(By.css('.msg')), TIMEOUT);
-  await driver.wait(until.elementIsVisible(msg), 2000);
+  const msg = await driver.wait(until.elementLocated(By.css('.msg')), 5000);
+  await driver.wait(until.elementIsVisible(msg), 3000);
   const contenido = await msg.getText();
   if (!contenido.includes(texto)) {
-    throw new Error(`Mensaje esperado "${texto}" no encontrado, texto actual: "${contenido}"`);
+    throw new Error(`Mensaje esperado "${texto}" no encontrado. Contenido: "${contenido}"`);
   }
-  console.log(formatSuccess("Mensaje encontrado correctamente"));
 }
 
 async function seleccionarRobots(driver) {
-  console.log(formatStep("Seleccionando robots..."));
-  
   // Abrir el dropdown
   const robotsDiv = await driver.findElement(By.id('robots'));
   await robotsDiv.click();
 
-  // Seleccionar primer elemento
-  let firstItem = await driver.wait(until.elementLocated(By.css('li.p-multiselect-item')), TIMEOUT);
+  // Seleccionar primer robot
+  let firstItem = await driver.wait(until.elementLocated(By.css('li.p-multiselect-item')), 5000);
   await driver.executeScript("arguments[0].scrollIntoView(true);", firstItem);
   await driver.wait(until.elementIsEnabled(firstItem), 3000);
-  await driver.executeScript("arguments[0].click();", firstItem);
-  console.log(formatStep("Primer robot seleccionado"));
+  await firstItem.click();
 
-  // Seleccionar último elemento
+  // Seleccionar último robot
   let items = await driver.findElements(By.css('li.p-multiselect-item'));
   let lastItem = items[items.length - 1];
   await driver.executeScript("arguments[0].scrollIntoView(true);", lastItem);
   await driver.wait(until.elementIsEnabled(lastItem), 3000);
-  await driver.executeScript("arguments[0].click();", lastItem);
-  console.log(formatStep("Último robot seleccionado"));
+  await lastItem.click();
 
-  // Cerrar menú desplegable
+  // Click afuera para cerrar menú desplegable
   await driver.findElement(By.tagName('body')).click();
-  console.log(formatSuccess("Robots seleccionados correctamente"));
 }
 
-async function navegarAFormularioIncidente(driver) {
-  console.log(formatStep("Navegando al formulario de incidentes..."));
-  try {
-    // Esperar a que la página se cargue completamente
-    await driver.wait(until.elementLocated(By.xpath("//*[contains(text(), 'Crear Incidente')]")), TIMEOUT);
-    const crearIncidenteBtn = await driver.findElement(By.xpath("//*[contains(text(), 'Crear Incidente')]"));
-    await crearIncidenteBtn.click();
-    
-    // Esperar a que el formulario esté visible
-    await driver.wait(until.elementLocated(By.id('lugar')), TIMEOUT);
-    console.log(formatSuccess("Formulario de incidente cargado correctamente"));
-  } catch (e) {
-    console.log(formatFailure("No se pudo cargar el formulario de incidente"));
-    throw e;
-  }
-}
-
-// --- Tests ---
-async function testCrearIncidenteValido() {
-  const testName = "Crear Incidente Válido";
-  const startTime = new Date();
-  let success = false;
-  let errorMessage = '';
-  
-  console.log(formatTestHeader(testName));
-  
-  const driver = await new Builder().forBrowser('chrome').build();
-  try {
-    await login(driver);
-    await navegarAFormularioIncidente(driver);
-
-    // Paso 1: Llenar formulario
-    console.log(formatStep("Llenando formulario..."));
-    const lugarInput = await driver.wait(until.elementLocated(By.id('lugar')), TIMEOUT);
-    await lugarInput.sendKeys('Pasillo 3');
-    
-    const descripcionInput = await driver.findElement(By.id('descripcion'));
-    await descripcionInput.sendKeys('Los robots chocaron. A uno de ellos se le salió la rueda izquierda, al otro se le rompió el brazo mecánico. Dejaron caer mercancías frágiles.');
-    
-    await seleccionarRobots(driver);
-
-    // Paso 2: Enviar formulario
-    console.log(formatStep("Enviando formulario..."));
-    const submitBtn = await driver.findElement(By.css('button[type="submit"]'));
-    await submitBtn.click();
-    
-    await esperarMensaje(driver, 'Incidente creado');
-
-    await cerrarSesion(driver);
-    console.log(formatSuccess(`${testName} COMPLETADO EXITOSAMENTE`));
-    success = true;
-  } catch (e) {
-    errorMessage = e.message;
-    console.log(formatFailure(`Fallo en ${testName}: ${errorMessage}`));
-  } finally {
-    await driver.quit();
-  }
-
-  return {
-    name: testName,
-    success,
-    error: errorMessage,
-    duration: new Date() - startTime
-  };
-}
-
-async function testErrorFaltaLugar() {
-  const testName = "Validación - Falta Lugar";
-  const startTime = new Date();
-  let success = false;
-  let errorMessage = '';
-  
-  console.log(formatTestHeader(testName));
-  
-  const driver = await new Builder().forBrowser('chrome').build();
-  try {
-    await login(driver);
-    await navegarAFormularioIncidente(driver);
-
-    // Paso 1: Llenar formulario sin lugar
-    console.log(formatStep("Llenando formulario sin lugar..."));
-    const descripcionInput = await driver.findElement(By.id('descripcion'));
-    await descripcionInput.sendKeys("Durante la manipulación de paquetes frágiles, el robot dejó caer una caja, resultando en daños en el contenido. Revisar sensores.");
-    
-    await seleccionarRobots(driver);
-
-    // Paso 2: Enviar formulario
-    console.log(formatStep("Enviando formulario incompleto..."));
-    const submitBtn = await driver.findElement(By.css('button[type="submit"]'));
-    await submitBtn.click();
-    
-    await esperarMensaje(driver, 'Todos los campos son obligatorios');
-
-    await cerrarSesion(driver);
-    console.log(formatSuccess(`${testName} COMPLETADO EXITOSAMENTE`));
-    success = true;
-  } catch (e) {
-    errorMessage = e.message;
-    console.log(formatFailure(`Fallo en ${testName}: ${errorMessage}`));
-  } finally {
-    await driver.quit();
-  }
-
-  return {
-    name: testName,
-    success,
-    error: errorMessage,
-    duration: new Date() - startTime
-  };
-}
-
-async function testErrorFaltaDescripcion() {
-  const testName = "Validación - Falta Descripción";
-  const startTime = new Date();
-  let success = false;
-  let errorMessage = '';
-  
-  console.log(formatTestHeader(testName));
-  
-  const driver = await new Builder().forBrowser('chrome').build();
-  try {
-    await login(driver);
-    await navegarAFormularioIncidente(driver);
-
-    // Paso 1: Llenar formulario sin descripción
-    console.log(formatStep("Llenando formulario sin descripción..."));
-    const lugarInput = await driver.findElement(By.id('lugar'));
-    await lugarInput.sendKeys('Pasillo Norte');
-    
-    await seleccionarRobots(driver);
-
-    // Paso 2: Enviar formulario
-    console.log(formatStep("Enviando formulario incompleto..."));
-    const submitBtn = await driver.findElement(By.css('button[type="submit"]'));
-    await submitBtn.click();
-    
-    await esperarMensaje(driver, 'Todos los campos son obligatorios');
-
-    await cerrarSesion(driver);
-    console.log(formatSuccess(`${testName} COMPLETADO EXITOSAMENTE`));
-    success = true;
-  } catch (e) {
-    errorMessage = e.message;
-    console.log(formatFailure(`Fallo en ${testName}: ${errorMessage}`));
-  } finally {
-    await driver.quit();
-  }
-
-  return {
-    name: testName,
-    success,
-    error: errorMessage,
-    duration: new Date() - startTime
-  };
-}
-
-async function testErrorSinRobots() {
-  const testName = "Validación - Sin Robots Seleccionados";
-  const startTime = new Date();
-  let success = false;
-  let errorMessage = '';
-  
-  console.log(formatTestHeader(testName));
-  
-  const driver = await new Builder().forBrowser('chrome').build();
-  try {
-    await login(driver);
-    await navegarAFormularioIncidente(driver);
-
-    // Paso 1: Llenar formulario sin robots
-    console.log(formatStep("Llenando formulario sin robots..."));
-    const lugarInput = await driver.findElement(By.id('lugar'));
-    await lugarInput.sendKeys('Pasillo Este');
-    
-    const descripcionInput = await driver.findElement(By.id('descripcion'));
-    await descripcionInput.sendKeys("El robot se detuvo repentinamente en la zona de carga, causando un retraso en la operación. Se recomienda revisar el estado del robot y reiniciar su sistema.");
-
-    // Paso 2: Enviar formulario
-    console.log(formatStep("Enviando formulario incompleto..."));
-    const submitBtn = await driver.findElement(By.css('button[type="submit"]'));
-    await submitBtn.click();
-    
-    await esperarMensaje(driver, 'Todos los campos son obligatorios');
-
-    await cerrarSesion(driver);
-    console.log(formatSuccess(`${testName} COMPLETADO EXITOSAMENTE`));
-    success = true;
-  } catch (e) {
-    errorMessage = e.message;
-    console.log(formatFailure(`Fallo en ${testName}: ${errorMessage}`));
-  } finally {
-    await driver.quit();
-  }
-
-  return {
-    name: testName,
-    success,
-    error: errorMessage,
-    duration: new Date() - startTime
-  };
-}
-
-// --- Ejecución y Reporte ---
-(async () => {
-  console.log('\n🚀 INICIANDO PRUEBAS DE CREACIÓN DE INCIDENTES\n');
-  console.log(`🔗 URL Base: ${BASE_URL}`);
-  console.log(`👤 Usuario de prueba: ${USER.rut}`);
-  console.log(`🕒 Timeout configurado: ${TIMEOUT/1000} segundos`);
-
-  const tests = [
-    { name: "Incidente Válido", fn: testCrearIncidenteValido },
-    { name: "Validación Falta Lugar", fn: testErrorFaltaLugar },
-    { name: "Validación Falta Descripción", fn: testErrorFaltaDescripcion },
-    { name: "Validación Sin Robots", fn: testErrorSinRobots }
-  ];
-
-  // Crear el reporte JUnit
-  const suite = junit.testSuite().name('Pruebas de Creación de Incidentes');
-
-  let testsExitosos = 0;
-  const resultados = [];
-
-  for (const test of tests) {
-    const result = await test.fn();
-    resultados.push(result);
-    
-    const testCase = suite.testCase()
-      .name(result.name)
-      .time(result.duration / 1000); // Convertir a segundos
-    
-    if (!result.success) {
-      testCase.failure(result.error);
-    } else {
-      testsExitosos++;
+// --- Casos de prueba ---
+const testCases = [
+  {
+    name: 'Crear Incidente Válido',
+    execute: async (driver) => {
+      await driver.findElement(By.id('lugar')).sendKeys('Pasillo 3');
+      await driver.findElement(By.id('descripcion')).sendKeys('Los robots chocaron. A uno de ellos se le salió la rueda izquierda, al otro se le rompió el brazo mecánico. Dejaron caer mercancías frágiles.');
+      await seleccionarRobots(driver);
+      await driver.findElement(By.css('button[type="submit"]')).click();
+      await esperarMensaje(driver, 'Incidente creado');
+    }
+  },
+  {
+    name: 'Validación Falta Lugar',
+    execute: async (driver) => {
+      await driver.findElement(By.id('descripcion')).sendKeys("Durante la manipulación de paquetes frágiles, el robot dejó caer una caja, resultando en daños en el contenido. Revisar sensores.");
+      await driver.findElement(By.id('robots')).click();
+      let items = await driver.wait(until.elementsLocated(By.css('li.p-multiselect-item')), 5000);
+      await items[0].click();
+      await driver.findElement(By.tagName('body')).click();
+      await driver.findElement(By.css('button[type="submit"]')).click();
+      await esperarMensaje(driver, 'Todos los campos son obligatorios');
+    }
+  },
+  {
+    name: 'Validación Falta Descripción',
+    execute: async (driver) => {
+      await driver.findElement(By.id('lugar')).sendKeys('Pasillo Norte');
+      await driver.findElement(By.id('robots')).click();
+      let items = await driver.wait(until.elementsLocated(By.css('li.p-multiselect-item')), 5000);
+      await items[0].click();
+      await driver.findElement(By.tagName('body')).click();
+      await driver.findElement(By.css('button[type="submit"]')).click();
+      await esperarMensaje(driver, 'Todos los campos son obligatorios');
+    }
+  },
+  {
+    name: 'Validación Sin Robots',
+    execute: async (driver) => {
+      await driver.findElement(By.id('lugar')).sendKeys('Pasillo Este');
+      await driver.findElement(By.id('descripcion')).sendKeys("El robot se detuvo repentinamente en la zona de carga, causando un retraso en la operación. Se recomienda revisar el estado del robot y reiniciar su sistema.");
+      await driver.findElement(By.css('button[type="submit"]')).click();
+      await esperarMensaje(driver, 'Todos los campos son obligatorios');
     }
   }
+];
 
-  // Escribir el reporte
-  junit.writeTo(JUNIT_REPORT_PATH);
-  console.log(`\n📝 Reporte JUnit generado en: ${JUNIT_REPORT_PATH}`);
+// --- Ejecución principal ---
+(async () => {
+  const builder = reportBuilder.newBuilder();
+  const suite = builder.testSuite().name('Incident Tests');
+  let passedTests = 0;
+  let driver = null;
 
-  // Resumen final
-  const testsTotales = tests.length;
-  
-  console.log('\n📊 RESUMEN FINAL:');
-  console.log(`🔹 Tests Totales: ${testsTotales}`);
-  console.log(`🔹 Tests Exitosos: ${testsExitosos}`);
-  console.log(`🔹 Tests Fallidos: ${testsTotales - testsExitosos}`);
-  console.log(`🔹 Porcentaje Éxito: ${Math.round((testsExitosos/testsTotales)*100)}%`);
-
-  // Detalle de fallos
-  const testsFallidos = resultados.filter(r => !r.success);
-  if (testsFallidos.length > 0) {
-    console.log('\n🔴 TESTS FALLIDOS:');
-    testsFallidos.forEach((test, i) => {
-      console.log(`\n${i+1}. Test: ${test.name}`);
-      console.log(`   Error: ${test.error}`);
-    });
+  try {
+    console.log('======================================');
+    console.log('🚀 INICIANDO PRUEBAS DE INCIDENTES');
+    console.log(`🌐 URL Base: ${BASE_URL}`);
+    console.log('======================================');
+    
+    // Crear instancia de navegador
+    driver = await new Builder().forBrowser('chrome').build();
+    
+    // Ejecutar cada caso de prueba
+    for (const testCase of testCases) {
+      const testName = testCase.name;
+      const testCaseObj = suite.testCase()
+        .className('Incident')
+        .name(testName);
+      
+      try {
+        console.log(`\n🚀 Iniciando prueba: ${testName}`);
+        
+        // Iniciar sesión
+        await login(driver, USUARIO.rut, USUARIO.clave);
+        
+        // Ejecutar caso de prueba
+        await testCase.execute(driver);
+        
+        // Cerrar sesión
+        await cerrarSesion(driver);
+        
+        passedTests++;
+        console.log(`✅ ${testName} pasó`);
+      } catch (e) {
+        console.error(`❌ ${testName} falló: ${e.message}`);
+        testCaseObj.failure(`Fallo en prueba: ${testName} - ${e.message}`);
+        console.error('Stack trace:', e.stack);
+        
+        // Intentar cerrar sesión si falla una prueba
+        try {
+          await cerrarSesion(driver);
+        } catch (cerrarError) {
+          console.error('Error al cerrar sesión:', cerrarError);
+        }
+      }
+    }
+    
+    // Generar reporte JUnit
+    builder.writeTo('incident-test-results.xml');
+    
+    console.log('\n📊 REPORTE DE PRUEBAS:');
+    console.log(`✅ Pruebas exitosas: ${passedTests}/${testCases.length}`);
+    console.log(`❌ Pruebas fallidas: ${testCases.length - passedTests}/${testCases.length}`);
+    console.log('📄 Reporte generado: incident-test-results.xml');
+    
+    // Finalizar con código de salida apropiado
+    if (passedTests < testCases.length) {
+      console.error('❌ ALERTA: Algunas pruebas fallaron');
+      process.exit(1);
+    } else {
+      console.log('✅ TODAS LAS PRUEBAS COMPLETADAS EXITOSAMENTE');
+      process.exit(0);
+    }
+  } catch (globalError) {
+    console.error('❌ ERROR GLOBAL EN EJECUCIÓN:', globalError);
+    
+    // Generar reporte incluso con error global
+    if (builder) {
+      builder.writeTo('incident-test-results.xml');
+    }
+    
+    process.exit(1);
+  } finally {
+    // Cerrar el navegador si está abierto
+    if (driver) {
+      try {
+        await driver.quit();
+      } catch (quitError) {
+        console.error('Error al cerrar el driver:', quitError);
+      }
+    }
   }
-
-  // Salir con código apropiado para Jenkins
-  process.exit(testsFallidos.length > 0 ? 1 : 0);
 })();
