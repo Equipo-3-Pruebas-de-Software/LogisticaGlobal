@@ -129,7 +129,6 @@ pipeline {
                 script {
                     bat 'npm install -g npm@latest'
                     
-                    // Script PowerShell simplificado y corregido
                     powershell '''
                     try {
                         # Configurar TLS
@@ -184,7 +183,6 @@ pipeline {
             steps {
                 dir('selenium') {
                     script {
-                        // Instalar dependencias y ejecutar tests con reporte detallado
                         powershell '''
                         try {
                             # Instalar dependencias
@@ -210,7 +208,7 @@ pipeline {
                             
                             Write-Host "✅ Todos los tests pasaron exitosamente"
                             
-                            # Generar reporte JUnit (opcional)
+                            # Generar reporte JUnit
                             $testResults = @"
                             <testsuite name="Selenium Tests">
                                 <testcase name="Authentication Test" classname="AuthTest">
@@ -243,6 +241,7 @@ pipeline {
                 }
             }
         }
+    }
 
     post {
         success {
