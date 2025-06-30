@@ -14,6 +14,7 @@ pipeline {
         
         CHROME_DRIVER_VERSION = '138.0.7204.50'
         CHROME_DRIVER_URL = "https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/${env.CHROME_DRIVER_VERSION}/win64/chromedriver-win64.zip"
+        SELENIUM_REPORTS_DIR = 'selenium-reports'
     }
 
     stages {
@@ -127,15 +128,20 @@ pipeline {
         stage('Setup Selenium Environment') {
             steps {
                 script {
+                    // Crear directorio para reportes
+                    bat "mkdir ${env.SELENIUM_REPORTS_DIR} || echo Directorio ya existe"
+                    
+                    // Instalar Node.js y npm
                     bat 'npm install -g npm@latest'
                     
+                    // Configurar ChromeDriver
                     powershell '''
                     try {
                         # Configurar TLS
                         [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12
                         
                         # Descargar ChromeDriver
-                        $url = "https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/138.0.7204.50/win64/chromedriver-win64.zip"
+                        $url = $env:CHROME_DRIVER_URL
                         $output = "$pwd\\chromedriver.zip"
                         
                         Write-Host "Descargando ChromeDriver..."
@@ -183,87 +189,111 @@ pipeline {
             steps {
                 dir('selenium') {
                     script {
-                        // 1. Instalar dependencias
-                        bat 'npm install'
+                        // 1. Instalar dependencias de Selenium
+                        bat 'npm install selenium-webdriver junit-report-builder'
                         
                         // 2. Ejecutar tests y generar reportes
                         powershell '''
-                        # Configurar variables
-                        $ErrorActionPreference = "Stop"
-                        $testResultsPath = "test-results.xml"
-                        
                         try {
-                            Write-Host "##[section]Ejecutando tests Selenium..."
+                            # Variables
+                            $authReport = "$env:SELENIUM_REPORTS_DIR\\auth-test-results.xml"
+                            $incidentReport = "$env:SELENIUM_REPORTS_DIR\\incident-test-results.xml"
+                            $combinedReport = "$env:SELENIUM_REPORTS_DIR\\combined-test-results.xml"
                             
-                            # Ejecutar auth.js
-                            Write-Host "##[group]Ejecutando auth.js"
+                            # Ejecutar pruebas con manejo de errores
+                            Write-Host "##[section]🚀 Ejecutando pruebas Selenium..."
+                            
+                            Write-Host "##[group]🔍 Ejecutando auth.js"
                             node auth.js
-                            if ($LASTEXITCODE -ne 0) { throw "auth.js falló con código $LASTEXITCODE" }
+                            $authExitCode = $LASTEXITCODE
                             Write-Host "##[endgroup]"
                             
-                            # Ejecutar create-new-incident.js
-                            Write-Host "##[group]Ejecutando create-new-incident.js"
+                            Write-Host "##[group]📝 Ejecutando create-new-incident.js"
                             node create-new-incident.js
-                            if ($LASTEXITCODE -ne 0) { throw "create-new-incident.js falló con código $LASTEXITCODE" }
+                            $incidentExitCode = $LASTEXITCODE
                             Write-Host "##[endgroup]"
                             
-                            # Generar reporte mínimo (si los tests no generan uno)
-                            if (-not (Test-Path $testResultsPath)) {
+                            # Verificar existencia de reportes
+                            if (-not (Test-Path $authReport)) {
+                                Write-Host "⚠️ No se encontró reporte de auth.js, generando uno vacío"
                                 @"
-<testsuite name="Selenium Tests">
-    <testcase name="auth.js" classname="Authentication"/>
-    <testcase name="create-new-incident.js" classname="IncidentCreation"/>
+<testsuite name="Authentication Tests">
+    <testcase name="Authentication" classname="Auth">
+        <failure message="No se generó reporte JUnit"/>
+    </testcase>
 </testsuite>
-"@ | Out-File -FilePath $testResultsPath -Encoding UTF8
+"@ | Out-File -FilePath $authReport -Encoding UTF8
                             }
                             
-                            Write-Host "##[section]✅ Todos los tests pasaron exitosamente"
+                            if (-not (Test-Path $incidentReport)) {
+                                Write-Host "⚠️ No se encontró reporte de create-new-incident.js, generando uno vacío"
+                                @"
+<testsuite name="Incident Tests">
+    <testcase name="IncidentCreation" classname="Incident">
+        <failure message="No se generó reporte JUnit"/>
+    </testcase>
+</testsuite>
+"@ | Out-File -FilePath $incidentReport -Encoding UTF8
+                            }
+                            
+                            # Combinar reportes (opcional)
+                            Copy-Item -Path $authReport -Destination $combinedReport -Force
+                            $incidentContent = Get-Content -Path $incidentReport -Raw
+                            Add-Content -Path $combinedReport -Value $incidentContent
+                            
+                            # Determinar estado final
+                            if ($authExitCode -ne 0 -or $incidentExitCode -ne 0) {
+                                throw "Algunas pruebas fallaron (auth: $authExitCode, incident: $incidentExitCode)"
+                            }
+                            
+                            Write-Host "##[section]✅ Todas las pruebas finalizadas"
                             
                         } catch {
-                            Write-Host "##[error]❌ Error en los tests: $_"
-                            
-                            # Generar reporte de fallo si no existe
-                            if (-not (Test-Path $testResultsPath)) {
-                                @"
-<testsuite name="Selenium Tests">
-    <testcase name="auth.js" classname="Authentication">
-        <failure message="Error durante la ejecución"/>
-    </testcase>
-    <testcase name="create-new-incident.js" classname="IncidentCreation">
-        <failure message="Error durante la ejecución"/>
-    </testcase>
-</testsuite>
-"@ | Out-File -FilePath $testResultsPath -Encoding UTF8
-                            }
-                            
+                            Write-Host "##[error]❌ Error en las pruebas: $_"
                             exit 1
                         }
-                        '''
-                        
-                        // 3. Archivar resultados
-                        junit 'selenium/test-results.xml'
-                        
-                        // 4. Mostrar resumen
-                        bat '''
-                        echo RESULTADOS DE LOS TESTS SELENIUM:
-                        if exist selenium\\test-results.xml type selenium\\test-results.xml
                         '''
                     }
                 }
             }
         }
-    }  // <-- ESTE ES EL CIERRE DEL BLOQUE STAGES QUE FALTABA
+
+        stage('Publicar Resultados') {
+            steps {
+                script {
+                    // Publicar reportes JUnit
+                    junit allowEmptyResults: true, testResults: "${env.SELENIUM_REPORTS_DIR}/*.xml"
+                    
+                    // Archivar reportes
+                    archiveArtifacts artifacts: "${env.SELENIUM_REPORTS_DIR}/*.xml", allowEmptyArchive: true
+                    
+                    // Mostrar resumen
+                    bat '''
+                    echo 📊 RESULTADOS DE LAS PRUEBAS SELENIUM:
+                    dir /b selenium-reports
+                    '''
+                }
+            }
+        }
+    }
 
     post {
         success {
-            slackSend(channel: '#integracion-jenkins', message: "✅ Build SUCCESS: ${env.JOB_NAME} - ${env.BUILD_NUMBER} (Chrome v138)")
+            slackSend(channel: '#integracion-jenkins', 
+                     message: "✅ Build SUCCESS: ${env.JOB_NAME} - ${env.BUILD_NUMBER} (Chrome v${env.CHROME_DRIVER_VERSION})")
         }
         failure {
-            slackSend(channel: '#integracion-jenkins', message: "❌ Build FAILED: ${env.JOB_NAME} - ${env.BUILD_NUMBER} - Consulte los logs")
+            slackSend(channel: '#integracion-jenkins', 
+                     message: "❌ Build FAILED: ${env.JOB_NAME} - ${env.BUILD_NUMBER} - Consulte los logs: ${env.BUILD_URL}")
         }
         always {
             echo 'Pipeline terminado - Limpiando recursos...'
             bat 'docker system prune -f || echo "⚠️ Error en limpieza Docker"'
+            
+            // Guardar reportes incluso si falla
+            script {
+                archiveArtifacts artifacts: "${env.SELENIUM_REPORTS_DIR}/*.xml", allowEmptyArchive: true
+            }
         }
     }
 }
