@@ -29,7 +29,8 @@ Se implemento un pipeline CI/CD con jenkins que:
 * Ejecuta las pruebas end-to-end de cypress y selenium.
 
 ## Uso de Selenium
-a
+Mediante el uso de 2 códigos de testing en selenium se realizaron pruebas similares a las que se realizaron con cypress, a continuación se adjunta una imagen con un fragmento de la consola de jenkins, la cual nos indica el resultado de ejecutar la prueba de create-new-incident.js.
+![Resultado del testing create-new-incident.js](https://i.ibb.co/NgywRM1c/image.png)
 
 ## Descripción del trabajo realizado
 En esta tercera entrega el objetivo fué integra el uso de selenium en la cobertura de pruebas de nuestra aplicación web, complementando las pruebas mediante interfaz gráfica realizadas previamente con Cypress para evaluar y validar interacciones reales del usuario y sus credenciales en el navegador. para esto se realizó:
